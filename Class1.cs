@@ -20,59 +20,22 @@ namespace Revit_HyCal
             UIApplication uIApplication = commandData.Application;
             UIDocument uIDocument = commandData.Application.ActiveUIDocument;
             Document document = uIDocument.Document;
-
-            ////IList<Reference> references = uIDocument.Selection.PickObjects(ObjectType.Element);
-            //Reference reference = uIDocument.Selection.PickObject(ObjectType.Element);
-            //Element element = document.GetElement(reference.ElementId);
-            //ParameterSet parameterSet = element.Parameters;
-            ////parameterSet.
-            //Parameter parameter= element.get_Parameter(BuiltInParameter.RBS_CALCULATED_SIZE);
-            //string str = uIApplication.Application.SharedParametersFilename;
-
-            //TaskDialog.Show("1", str);
-            //Transaction transaction = new Transaction(document);
-            //transaction.Start("asdf");
-            //document.Application.OpenSharedParameterFile().Groups.Create("asdf");
-            //transaction.Commit();
-
-            SetNewParameterToInstanceWall(uIApplication, document.Application.OpenSharedParameterFile());
+            //Basic_Funs.SetProjectUnits(document, UnitType.UT_HVAC_Airflow, DisplayUnitType.DUT_CUBIC_METERS_PER_HOUR);
+            try
+            {
+                IList<Reference> references = uIDocument.Selection.PickObjects(ObjectType.Element);
+                TaskDialog.Show("Prompt", "Please Select the Origin of Selection Before!");
+                Reference reference_origin = uIDocument.Selection.PickObject(ObjectType.Element);
+            }
+            catch
+            {
+                TaskDialog.Show("Prompt", "HVAC Hydraulic Calculation Quit!");
+                return Result.Failed;
+            }
 
 
             return Result.Succeeded;
         }
 
-        public static bool SetNewParameterToInstanceWall(UIApplication app, DefinitionFile myDefinitionFile)
-        {
-            // create a new group in the shared parameters file
-            DefinitionGroups myGroups = myDefinitionFile.Groups;
-            DefinitionGroup myGroup = myGroups.Create("nnf");
-
-            // create an instance definition in definition group MyParameters
-            ExternalDefinitionCreationOptions option = new ExternalDefinitionCreationOptions("Instance_ProductDate", ParameterType.Text);
-            // Don't let the user modify the value, only the API
-            option.UserModifiable = false;
-            // Set tooltip
-            option.Description = "Wall product date";
-            Definition myDefinition_ProductDate = myGroup.Definitions.Create(option);
-
-            // create a category set and insert category of wall to it
-            CategorySet myCategories = app.Application.Create.NewCategorySet();
-            // use BuiltInCategory to get category of wall
-            Category myCategory = Category.GetCategory(app.ActiveUIDocument.Document, BuiltInCategory.OST_Walls);
-
-
-            myCategories.Insert(myCategory);
-
-            //Create an instance of InstanceBinding
-            InstanceBinding instanceBinding = app.Application.Create.NewInstanceBinding(myCategories);
-
-            // Get the BingdingMap of current document.
-            BindingMap bindingMap = app.ActiveUIDocument.Document.ParameterBindings;
-
-            // Bind the definitions to the document
-            bool instanceBindOK = bindingMap.Insert(myDefinition_ProductDate,
-                                            instanceBinding, BuiltInParameterGroup.PG_TEXT);
-            return instanceBindOK;
-        }
     }
 }

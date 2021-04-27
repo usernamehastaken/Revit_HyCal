@@ -1,6 +1,4 @@
-﻿1.pick the calculation pipeline
-	need to find out the Group? yes, it is more flexible 
-	and add the parameter to the elements
-2.pick the origin element of the pipeline
-3.generate the cal pipeline to show the winform
-4.
+﻿1 选择计算管路
+	判断是否有组》有，则找出分解成员elementid
+2 选择系统起始单元
+	为了根据顺序编码pipeline，
