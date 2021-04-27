@@ -1,0 +1,6 @@
+﻿1.pick the calculation pipeline
+	need to find out the Group? yes, it is more flexible 
+	and add the parameter to the elements
+2.pick the origin element of the pipeline
+3.generate the cal pipeline to show the winform
+4.
