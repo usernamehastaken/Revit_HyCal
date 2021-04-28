@@ -20,59 +20,51 @@ namespace Revit_HyCal
             UIApplication uIApplication = commandData.Application;
             UIDocument uIDocument = commandData.Application.ActiveUIDocument;
             Document document = uIDocument.Document;
+            //Basic_Funs.SetProjectUnits(document, UnitType.UT_HVAC_Airflow, DisplayUnitType.DUT_CUBIC_METERS_PER_HOUR);
+            //==传统选取元素方法
+            List<ElementId> elementIds = new List<ElementId>();
+            try
+            {
+                IList<Reference> references = uIDocument.Selection.PickObjects(ObjectType.Element);
+                TaskDialog.Show("Prompt", "Please Select the Origin of Selection Before!");
+                ElementId elementId_origin = uIDocument.Selection.PickObject(ObjectType.Element).ElementId;
+                foreach(Reference reff in references)
+                {
+                    elementIds.Add(reff.ElementId);
+                }
+                //TaskDialog.Show("1", elementIds.Count.ToString());
+                //如果有组元素，分解组元素并加入references
+                IList<ElementId> groupElementIds = new List<ElementId>();
+                foreach (ElementId id in elementIds)
+                {
+                    Group group = document.GetElement(id) as Group;
+                    if (group != null) { groupElementIds.Add(id); }
+                }
+                if (groupElementIds.Count > 0)
+                {
+                    elementIds = elementIds.Except(groupElementIds).ToList<ElementId>();
+                    //TaskDialog.Show("1", elementIds.Count.ToString());
+                    foreach(ElementId id in groupElementIds)
+                    {
+                        Group group = document.GetElement(id) as Group;
+                        elementIds = elementIds.Union(group.GetMemberIds()).ToList<ElementId>();//此处还有非实体groupelementid
+                    }
+                }
 
-            ////IList<Reference> references = uIDocument.Selection.PickObjects(ObjectType.Element);
-            //Reference reference = uIDocument.Selection.PickObject(ObjectType.Element);
-            //Element element = document.GetElement(reference.ElementId);
-            //ParameterSet parameterSet = element.Parameters;
-            ////parameterSet.
-            //Parameter parameter= element.get_Parameter(BuiltInParameter.RBS_CALCULATED_SIZE);
-            //string str = uIApplication.Application.SharedParametersFilename;
-
-            //TaskDialog.Show("1", str);
-            //Transaction transaction = new Transaction(document);
-            //transaction.Start("asdf");
-            //document.Application.OpenSharedParameterFile().Groups.Create("asdf");
-            //transaction.Commit();
-
-            SetNewParameterToInstanceWall(uIApplication, document.Application.OpenSharedParameterFile());
-
+            }
+            catch
+            {
+                TaskDialog.Show("Prompt", "HVAC Hydraulic Calculation Quit!");
+                return Result.Failed;
+            }
+            uIDocument.Selection.SetElementIds(elementIds);
+            //TaskDialog.Show("1", elementIds.Count.ToString());
+            FilteredElementCollector filter = new FilteredElementCollector(document, elementIds);
+            TaskDialog.Show("1", filter.GetElementCount().ToString());
+            //==按顺序录入管道系统,不使用连接键，使用碰撞
 
             return Result.Succeeded;
         }
 
-        public static bool SetNewParameterToInstanceWall(UIApplication app, DefinitionFile myDefinitionFile)
-        {
-            // create a new group in the shared parameters file
-            DefinitionGroups myGroups = myDefinitionFile.Groups;
-            DefinitionGroup myGroup = myGroups.Create("nnf");
-
-            // create an instance definition in definition group MyParameters
-            ExternalDefinitionCreationOptions option = new ExternalDefinitionCreationOptions("Instance_ProductDate", ParameterType.Text);
-            // Don't let the user modify the value, only the API
-            option.UserModifiable = false;
-            // Set tooltip
-            option.Description = "Wall product date";
-            Definition myDefinition_ProductDate = myGroup.Definitions.Create(option);
-
-            // create a category set and insert category of wall to it
-            CategorySet myCategories = app.Application.Create.NewCategorySet();
-            // use BuiltInCategory to get category of wall
-            Category myCategory = Category.GetCategory(app.ActiveUIDocument.Document, BuiltInCategory.OST_Walls);
-
-
-            myCategories.Insert(myCategory);
-
-            //Create an instance of InstanceBinding
-            InstanceBinding instanceBinding = app.Application.Create.NewInstanceBinding(myCategories);
-
-            // Get the BingdingMap of current document.
-            BindingMap bindingMap = app.ActiveUIDocument.Document.ParameterBindings;
-
-            // Bind the definitions to the document
-            bool instanceBindOK = bindingMap.Insert(myDefinition_ProductDate,
-                                            instanceBinding, BuiltInParameterGroup.PG_TEXT);
-            return instanceBindOK;
-        }
     }
 }
