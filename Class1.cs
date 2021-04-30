@@ -33,7 +33,7 @@ namespace Revit_HyCal
             IList<ElementId> elementIds = new List<ElementId>();
             try
             {
-                elementIds = Operation.SelectPipeline(uIDocument, document);
+                elementIds = UIOperation.SelectPipeline(uIDocument, document);
             }
             catch (Exception e)
             {
@@ -45,15 +45,32 @@ namespace Revit_HyCal
                 TaskDialog.Show("Prompt", "HVAC Hydraulic Calculation App Quit!");
                 return Result.Failed;
             }
+            //*****************按顺序录入管道系统(无组图元，组内非链接键连接则系统将分成两个部分）,使用连接键，不使用碰撞
+            List<ElementId> lstPipelineids = new List<ElementId>();
+            lstPipelineids.Add(elementIds[elementIds.Count - 1]);
+            elementIds.Remove(lstPipelineids[0]);
+            elementIds.Remove(elementIds[elementIds.Count - 1]);//elementsids has two origin_elementid
+            while (elementIds.Count > 0)
+            {
+                ElementId rootId = lstPipelineids[lstPipelineids.Count - 1];//take the last one of pipeline
+                ConnectorSet connectorSet = UIOperation.GetConnectorSet(document, rootId);//get all the connectors of the rootid
+                List<ElementId> lstOtherConnectElementIds = new List<ElementId>();
+                foreach (Connector c in connectorSet)
+                {
+                    ElementId id = UIOperation.GetAnotherIDAtConnector(rootId, c);
+                    if (elementIds.Contains(id)) 
+                    {
+                        lstOtherConnectElementIds.Add(id);
+                        lstPipelineids.Add(id);
+                        elementIds.Remove(id);
+                        break;
+                    }
+                }
+                if (lstOtherConnectElementIds.Count == 0) { break; }
+            }
 
-            //*****************按顺序录入管道系统,使用连接键，不使用碰撞
-            
-
-
-
-
-
-
+            uIDocument.Selection.SetElementIds(lstPipelineids);
+            return Result.Succeeded;
 
             ////建立碰撞过滤器
             //ElementIntersectsElementFilter filterInsectEl = new ElementIntersectsElementFilter(document.GetElement(elementIds[elementIds.Count - 1]));
@@ -75,12 +92,6 @@ namespace Revit_HyCal
 
             //    //}
             //}
-
-
-
-
-
-            return Result.Succeeded;
         }
 
 
@@ -105,41 +116,6 @@ namespace Revit_HyCal
         }
 
 
-        public void GetElementAtConnector(Autodesk.Revit.DB.Connector connector)
-        {
-            MEPSystem mepSystem = connector.MEPSystem;
-            if (null != mepSystem)
-            {
-                string message = "Connector is owned by: " + connector.Owner.Name;
-
-                if (connector.IsConnected == true)
-                {
-                    ConnectorSet connectorSet = connector.AllRefs;
-                    ConnectorSetIterator csi = connectorSet.ForwardIterator();
-                    while (csi.MoveNext())
-                    {
-                        Connector connected = csi.Current as Connector;
-                        if (null != connected)
-                        {
-                            // look for physical connections
-                            if (connected.ConnectorType == ConnectorType.End ||
-                                connected.ConnectorType == ConnectorType.Curve ||
-                                connected.ConnectorType == ConnectorType.Physical)
-                            {
-                                message += "\nConnector is connected to: " + connected.Owner.ToString();
-                                message += "\nConnection type is: " + connected.ConnectorType;
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    message += "\nConnector is not connected to anything.";
-                }
-
-                TaskDialog.Show("Revit", message);
-            }
-        }
 
     }
 }
