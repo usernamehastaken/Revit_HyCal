@@ -22,8 +22,11 @@ namespace Revit_HyCal
             switch (element.Category.Name)
             {
                 case "风管":
-                    Duct duct = element as Duct;
-                    return duct.ConnectorManager.Connectors;
+                    //Duct duct = element as Duct;
+                    return (element as Duct).ConnectorManager.Connectors;
+                case "软风管":
+                    //Duct duct = element as Duct;
+                    return (element as Duct).ConnectorManager.Connectors;
                 //case "风管管件":
                 //    familyInstance = element as FamilyInstance;
                 //    return familyInstance.MEPModel.ConnectorManager.Connectors;

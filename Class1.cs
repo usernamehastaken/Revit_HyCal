@@ -68,7 +68,7 @@ namespace Revit_HyCal
                 }
                 if (lstOtherConnectElementIds.Count == 0) { break; }
             }
-
+            show_dia(lstPipelineids.Count.ToString());
             uIDocument.Selection.SetElementIds(lstPipelineids);
             return Result.Succeeded;
 
