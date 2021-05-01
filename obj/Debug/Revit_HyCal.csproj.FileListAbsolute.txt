@@ -16,3 +16,12 @@ C:\Users\C\source\repos\Revit_HyCal\obj\Debug\Revit_HyCal.csproj.CoreCompileInpu
 C:\Users\C\source\repos\Revit_HyCal\obj\Debug\Revit_HyCal.csproj.CopyComplete
 C:\Users\C\source\repos\Revit_HyCal\obj\Debug\Revit_HyCal.dll
 C:\Users\C\source\repos\Revit_HyCal\obj\Debug\Revit_HyCal.pdb
+C:\Users\c'x'x\source\repos\Revit_HyCal\bin\Debug\Revit_HyCal.dll
+C:\Users\c'x'x\source\repos\Revit_HyCal\bin\Debug\Revit_HyCal.pdb
+C:\Users\c'x'x\source\repos\Revit_HyCal\bin\Debug\Revit_FunExtension.dll
+C:\Users\c'x'x\source\repos\Revit_HyCal\bin\Debug\Revit_FunExtension.pdb
+C:\Users\c'x'x\source\repos\Revit_HyCal\obj\Debug\Revit_HyCal.csprojAssemblyReference.cache
+C:\Users\c'x'x\source\repos\Revit_HyCal\obj\Debug\Revit_HyCal.csproj.CoreCompileInputs.cache
+C:\Users\c'x'x\source\repos\Revit_HyCal\obj\Debug\Revit_HyCal.csproj.CopyComplete
+C:\Users\c'x'x\source\repos\Revit_HyCal\obj\Debug\Revit_HyCal.dll
+C:\Users\c'x'x\source\repos\Revit_HyCal\obj\Debug\Revit_HyCal.pdb
