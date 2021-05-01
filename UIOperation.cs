@@ -12,45 +12,32 @@ using Autodesk.Revit.UI.Selection;
 namespace Revit_HyCal
 {
     [Transaction(TransactionMode.Manual)]
-    public class Operation
+    public class UIOperation
     {
         public static ConnectorSet GetConnectorSet(Document document, ElementId elementId)
         {
             //from the elementid to get all the connectors
             Element element = document.GetElement(elementId);
-            //is Group
-            Group group = element as Group;
-            if (group is null)
+            //temporary group is out of consider
+            switch (element.Category.Name)
             {
-                //category only in ['duct','family instance']
-                Duct duct = element as Duct;
-                if (duct is null)
-                {
-                    FamilyInstance familyInstance = element as FamilyInstance;
-                    if (familyInstance is null)
-                    {
-                        throw new Exception("选择的图元未有连接键或非机械图元！");
-                    }
-                    return familyInstance.MEPModel.ConnectorManager.Connectors;
-                }
-                else
-                {
+                case "风管":
+                    Duct duct = element as Duct;
                     return duct.ConnectorManager.Connectors;
-                }
+                //case "风管管件":
+                //    familyInstance = element as FamilyInstance;
+                //    return familyInstance.MEPModel.ConnectorManager.Connectors;
+                //case "风管末端":
+                //    familyInstance = element as FamilyInstance;
+                //    return familyInstance.MEPModel.ConnectorManager.Connectors;
+                //case "风管附件":
+                //    familyInstance = element as FamilyInstance;
+                //    return familyInstance.MEPModel.ConnectorManager.Connectors;
+                default:
+                    FamilyInstance familyInstance = element as FamilyInstance;
+                    return familyInstance.MEPModel.ConnectorManager.Connectors;
             }
-            else
-            {
-                IList<ElementId> elementIds = group.GetMemberIds();
-                IList<Connector> connectors = new List<Connector>();
-                foreach (var v in elementIds)
-                {
-                    foreach (Connector connector in GetConnectorSet(document, v))
-                    {
-                        connectors.Add(connector);
-                    }
-                }
-                return connectors as ConnectorSet;
-            }
+ 
 
         }
         public static IList<ElementId> SelectPipeline(UIDocument uIDocument,Document document)
@@ -65,11 +52,6 @@ namespace Revit_HyCal
                 {
                     elementIds.Add(reff.ElementId);
                 }
-                TaskDialog.Show("Prompt", "Please Select the Origin of Selection Before!");
-                
-                //pick up the original elementid of the pipeline
-                ElementId elementId_origin = uIDocument.Selection.PickObject(ObjectType.Element).ElementId;
-
                 //if the elementids contain the group elements , 
                 //elementids kick off the group elements and union the groupelementids
                 IList<ElementId> groupElementIds = new List<ElementId>();
@@ -77,7 +59,7 @@ namespace Revit_HyCal
                 {
                     Group group = document.GetElement(id) as Group;
                     if (group != null) { groupElementIds.Add(id); }
-                }
+                }//get the groupids
                 if (groupElementIds.Count > 0)
                 {
                     elementIds = elementIds.Except(groupElementIds).ToList<ElementId>();
@@ -87,6 +69,16 @@ namespace Revit_HyCal
                         elementIds = elementIds.Union(group.GetMemberIds()).ToList<ElementId>();//causion getmenberids contains elements of not solid elementid
                     }
                 }
+                TaskDialog.Show("Prompt", "Please Select the Origin of Selection Before!(No Group Element)");
+
+                //pick up the original elementid of the pipeline
+                ElementId elementId_origin = null;
+                do
+                {
+                    elementId_origin = uIDocument.Selection.PickObject(ObjectType.Element).ElementId;
+
+                } while ((document.GetElement(elementId_origin) as Group) != null);
+                
                 elementIds.Add(elementId_origin);
                 return elementIds;
             }
@@ -95,9 +87,23 @@ namespace Revit_HyCal
                 throw new Exception("HVAC Hydraulic Calculation App Quit");
             }
         }
-
+        public static ElementId GetAnotherIDAtConnector(ElementId ownerID,Connector connector)
+        {
+            ElementId id = null;
+            if (connector.IsConnected)
+            {
+                foreach(Connector c in connector.AllRefs)
+                {
+                    if (c.Owner.Id != ownerID) { id = c.Owner.Id; }
+                }
+                return id;
+            }
+            else
+            {
+                return id;
+            }
+        }
     }
-
     public class MassSelectionFilter : ISelectionFilter
     {
         public bool AllowElement(Element element)
