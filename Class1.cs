@@ -10,6 +10,7 @@ using Autodesk.Revit.UI.Selection;
 using Autodesk.Revit.ApplicationServices;
 using Revit_FunExtension;
 using Autodesk.Revit.DB.Mechanical;
+using System.Threading;
 
 namespace Revit_HyCal
 {
@@ -18,10 +19,10 @@ namespace Revit_HyCal
     {
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
-            ////test
-            //test(commandData, ref message, elements);
-            //return Result.Succeeded;
-            ////test
+            //test
+            Test.test(commandData, ref message, elements);
+            return Result.Succeeded;
+            //test
 
 
             UIApplication uIApplication = commandData.Application;
@@ -50,6 +51,7 @@ namespace Revit_HyCal
             lstPipelineids.Add(elementIds[elementIds.Count - 1]);
             elementIds.Remove(lstPipelineids[0]);
             elementIds.Remove(elementIds[elementIds.Count - 1]);//elementsids has two origin_elementid
+
             while (elementIds.Count > 0)
             {
                 ElementId rootId = lstPipelineids[lstPipelineids.Count - 1];//take the last one of pipeline
@@ -68,7 +70,6 @@ namespace Revit_HyCal
                 }
                 if (lstOtherConnectElementIds.Count == 0) { break; }
             }
-            show_dia(lstPipelineids.Count.ToString());
             uIDocument.Selection.SetElementIds(lstPipelineids);
             return Result.Succeeded;
 
@@ -95,25 +96,7 @@ namespace Revit_HyCal
         }
 
 
-        public static void show_dia(string str)
-        {
-            TaskDialog.Show("1", str);
-        }
-        public void test(ExternalCommandData commandData, ref string message, ElementSet elements)
-        {
-            UIDocument uIDocument = commandData.Application.ActiveUIDocument;
-            Document document = uIDocument.Document;
-            //FilteredElementCollector f1 = new FilteredElementCollector(document);
-            //ElementId elementId= uIDocument.Selection.PickObject(ObjectType.Element).ElementId;
-            //ElementIntersectsElementFilter f2 = new ElementIntersectsElementFilter(document.GetElement(elementId));
-            //FilteredElementCollector f3 = f1.WherePasses(f2);
-            //show_dia(f3.GetElementCount().ToString());
-            IList<Reference> lstReference = uIDocument.Selection.PickObjects(ObjectType.Element);
 
-            uIDocument.Selection.SetElementIds(new List<ElementId>());
-            show_dia("1");
-            uIDocument.Selection.PickObjects(ObjectType.Element, new MassSelectionFilter(), "asdf", lstReference);
-        }
 
 
 

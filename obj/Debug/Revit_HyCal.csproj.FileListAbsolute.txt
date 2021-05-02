@@ -25,3 +25,5 @@ C:\Users\c'x'x\source\repos\Revit_HyCal\obj\Debug\Revit_HyCal.csproj.CoreCompile
 C:\Users\c'x'x\source\repos\Revit_HyCal\obj\Debug\Revit_HyCal.csproj.CopyComplete
 C:\Users\c'x'x\source\repos\Revit_HyCal\obj\Debug\Revit_HyCal.dll
 C:\Users\c'x'x\source\repos\Revit_HyCal\obj\Debug\Revit_HyCal.pdb
+C:\Users\C\source\repos\Revit_HyCal\obj\Debug\Revit_HyCal.csproj.GenerateResource.cache
+C:\Users\C\source\repos\Revit_HyCal\obj\Debug\Revit_HyCal.FrmProgressBar.resources

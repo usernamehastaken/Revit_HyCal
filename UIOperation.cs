@@ -23,10 +23,10 @@ namespace Revit_HyCal
             {
                 case "风管":
                     //Duct duct = element as Duct;
-                    return (element as Duct).ConnectorManager.Connectors;
+                    return (element as MEPCurve).ConnectorManager.Connectors;
                 case "软风管":
                     //Duct duct = element as Duct;
-                    return (element as Duct).ConnectorManager.Connectors;
+                    return (element as MEPCurve).ConnectorManager.Connectors;
                 //case "风管管件":
                 //    familyInstance = element as FamilyInstance;
                 //    return familyInstance.MEPModel.ConnectorManager.Connectors;
@@ -95,9 +95,21 @@ namespace Revit_HyCal
             ElementId id = null;
             if (connector.IsConnected)
             {
+                //if (connector.AllRefs.Size > 2) { TaskDialog.Show("1", "more then 2"); }
                 foreach(Connector c in connector.AllRefs)
                 {
-                    if (c.Owner.Id != ownerID) { id = c.Owner.Id; }
+                    if (c.Owner.Id != ownerID) 
+                    {
+                        switch (c.ConnectorType)
+                        {
+                            case ConnectorType.End:
+                                return c.Owner.Id;
+                            case ConnectorType.Curve:
+                                return c.Owner.Id;
+                            case ConnectorType.Physical:
+                                return c.Owner.Id;
+                        }
+                    }
                 }
                 return id;
             }
