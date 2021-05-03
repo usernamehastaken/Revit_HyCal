@@ -24,18 +24,14 @@ namespace Revit_HyCal
         public static void test(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             FrmProgressBar frmProgressBar = new FrmProgressBar();
-            frmProgressBar.Show();
-            int i = 0;
-            while (true)
+            double i = 0;
+            while (i <= 1)
             {
-                frmProgressBar.labProgressBar.Width -= 1;
-                frmProgressBar.labProgressBar.Left += 1;
-                frmProgressBar.Refresh();
-                System.Windows.Forms.Application.DoEvents();
-                if (frmProgressBar.labProgressBar.Width == 0) { break; }
+                i = i + 0.05;
+                frmProgressBar.Show_ProgressBar("try", i);
+                Thread.Sleep(100);
             }
-            frmProgressBar.Dispose();
-
+            //frmProgressBar.Show();
         }
     }
 }

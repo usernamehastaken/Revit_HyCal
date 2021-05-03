@@ -42,7 +42,7 @@ namespace Revit_HyCal
             this.labTitle.Location = new System.Drawing.Point(0, 0);
             this.labTitle.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.labTitle.Name = "labTitle";
-            this.labTitle.Size = new System.Drawing.Size(88, 17);
+            this.labTitle.Size = new System.Drawing.Size(132, 25);
             this.labTitle.TabIndex = 0;
             this.labTitle.Text = "模型分析中";
             this.labTitle.UseWaitCursor = true;
@@ -50,12 +50,12 @@ namespace Revit_HyCal
             // labFix
             // 
             this.labFix.BackColor = System.Drawing.SystemColors.ActiveCaption;
-            this.labFix.Font = new System.Drawing.Font("Bauhaus 93", 16F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.labFix.Font = new System.Drawing.Font("华文琥珀", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.labFix.ForeColor = System.Drawing.SystemColors.Control;
-            this.labFix.Location = new System.Drawing.Point(0, 22);
+            this.labFix.Location = new System.Drawing.Point(0, 25);
             this.labFix.Margin = new System.Windows.Forms.Padding(0);
             this.labFix.Name = "labFix";
-            this.labFix.Size = new System.Drawing.Size(360, 24);
+            this.labFix.Size = new System.Drawing.Size(400, 25);
             this.labFix.TabIndex = 1;
             this.labFix.Text = "HVAC HYDRAULIC CALCULATION";
             this.labFix.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -63,19 +63,18 @@ namespace Revit_HyCal
             // 
             // labProgressBar
             // 
-            this.labProgressBar.Location = new System.Drawing.Point(0, 22);
+            this.labProgressBar.Location = this.labFix.Location;
             this.labProgressBar.Name = "labProgressBar";
-            this.labProgressBar.Size = new System.Drawing.Size(360, 24);
+            this.labProgressBar.Size = this.labFix.Size;
             this.labProgressBar.TabIndex = 2;
             this.labProgressBar.UseWaitCursor = true;
             // 
             // FrmProgressBar
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(5F, 10F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.AutoSize = true;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.ClientSize = new System.Drawing.Size(417, 83);
+            this.ClientSize = new System.Drawing.Size(400, 50);
             this.ControlBox = false;
             this.Controls.Add(this.labProgressBar);
             this.Controls.Add(this.labFix);
