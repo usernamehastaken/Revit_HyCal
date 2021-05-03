@@ -19,27 +19,35 @@ namespace Revit_HyCal
             //from the elementid to get all the connectors
             Element element = document.GetElement(elementId);
             //temporary group is out of consider
-            switch (element.Category.Name)
+            try
             {
-                case "风管":
-                    //Duct duct = element as Duct;
-                    return (element as MEPCurve).ConnectorManager.Connectors;
-                case "软风管":
-                    //Duct duct = element as Duct;
-                    return (element as MEPCurve).ConnectorManager.Connectors;
-                //case "风管管件":
-                //    familyInstance = element as FamilyInstance;
-                //    return familyInstance.MEPModel.ConnectorManager.Connectors;
-                //case "风管末端":
-                //    familyInstance = element as FamilyInstance;
-                //    return familyInstance.MEPModel.ConnectorManager.Connectors;
-                //case "风管附件":
-                //    familyInstance = element as FamilyInstance;
-                //    return familyInstance.MEPModel.ConnectorManager.Connectors;
-                default:
-                    FamilyInstance familyInstance = element as FamilyInstance;
-                    return familyInstance.MEPModel.ConnectorManager.Connectors;
+                switch (element.Category.Name)
+                {
+                    case "风管":
+                        //Duct duct = element as Duct;
+                        return (element as MEPCurve).ConnectorManager.Connectors;
+                    case "软风管":
+                        //Duct duct = element as Duct;
+                        return (element as MEPCurve).ConnectorManager.Connectors;
+                    //case "风管管件":
+                    //    familyInstance = element as FamilyInstance;
+                    //    return familyInstance.MEPModel.ConnectorManager.Connectors;
+                    //case "风管末端":
+                    //    familyInstance = element as FamilyInstance;
+                    //    return familyInstance.MEPModel.ConnectorManager.Connectors;
+                    //case "风管附件":
+                    //    familyInstance = element as FamilyInstance;
+                    //    return familyInstance.MEPModel.ConnectorManager.Connectors;
+                    default:
+                        FamilyInstance familyInstance = element as FamilyInstance;
+                        return familyInstance.MEPModel.ConnectorManager.Connectors;
+                }
             }
+            catch
+            {
+                throw new Exception("Cannot Find the Connector!");
+            }
+
  
 
         }
@@ -117,6 +125,31 @@ namespace Revit_HyCal
             {
                 return id;
             }
+        }
+
+        public static List<ElementId> GetPipelineElementID(Document document,IList<ElementId> elementIds,ElementId origin_elementid)
+        {
+            List<ElementId> lstPipelineids = new List<ElementId>();
+            lstPipelineids.Add(origin_elementid);
+            while (elementIds.Count > 0)
+            {
+                ElementId rootId = lstPipelineids[lstPipelineids.Count - 1];//take the last one of pipeline
+                ConnectorSet connectorSet = UIOperation.GetConnectorSet(document, rootId);//get all the connectors of the rootid
+                List<ElementId> lstOtherConnectElementIds = new List<ElementId>();
+                foreach (Connector c in connectorSet)
+                {
+                    ElementId id = UIOperation.GetAnotherIDAtConnector(rootId, c);
+                    if (elementIds.Contains(id))
+                    {
+                        lstOtherConnectElementIds.Add(id);
+                        lstPipelineids.Add(id);
+                        elementIds.Remove(id);
+                        break;
+                    }
+                }
+                if (lstOtherConnectElementIds.Count == 0) { break; }
+            }
+            return lstPipelineids;
         }
     }
     public class MassSelectionFilter : ISelectionFilter
