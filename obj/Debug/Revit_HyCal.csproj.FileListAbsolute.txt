@@ -29,3 +29,4 @@ C:\Users\C\source\repos\Revit_HyCal\obj\Debug\Revit_HyCal.csproj.GenerateResourc
 C:\Users\C\source\repos\Revit_HyCal\obj\Debug\Revit_HyCal.FrmProgressBar.resources
 C:\Users\c'x'x\source\repos\Revit_HyCal\obj\Debug\Revit_HyCal.FrmProgressBar.resources
 C:\Users\c'x'x\source\repos\Revit_HyCal\obj\Debug\Revit_HyCal.csproj.GenerateResource.cache
+C:\Users\c'x'x\source\repos\Revit_HyCal\obj\Debug\Revit_HyCal.Properties.Resources.resources

@@ -63,9 +63,9 @@ namespace Revit_HyCal
             // 
             // labProgressBar
             // 
-            this.labProgressBar.Location = this.labFix.Location;
+            this.labProgressBar.Location = new System.Drawing.Point(57, 110);
             this.labProgressBar.Name = "labProgressBar";
-            this.labProgressBar.Size = this.labFix.Size;
+            this.labProgressBar.Size = new System.Drawing.Size(100, 23);
             this.labProgressBar.TabIndex = 2;
             this.labProgressBar.UseWaitCursor = true;
             // 
@@ -74,7 +74,7 @@ namespace Revit_HyCal
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.ClientSize = new System.Drawing.Size(400, 50);
+            this.ClientSize = new System.Drawing.Size(677, 267);
             this.ControlBox = false;
             this.Controls.Add(this.labProgressBar);
             this.Controls.Add(this.labFix);
