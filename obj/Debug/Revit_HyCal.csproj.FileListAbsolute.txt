@@ -30,3 +30,6 @@ C:\Users\C\source\repos\Revit_HyCal\obj\Debug\Revit_HyCal.FrmProgressBar.resourc
 C:\Users\c'x'x\source\repos\Revit_HyCal\obj\Debug\Revit_HyCal.FrmProgressBar.resources
 C:\Users\c'x'x\source\repos\Revit_HyCal\obj\Debug\Revit_HyCal.csproj.GenerateResource.cache
 C:\Users\c'x'x\source\repos\Revit_HyCal\obj\Debug\Revit_HyCal.Properties.Resources.resources
+C:\Users\chenxinxin.TCDRILAN\source\repos\Revit_HyCal\obj\Debug\Revit_HyCal.FrmProgressBar.resources
+C:\Users\chenxinxin.TCDRILAN\source\repos\Revit_HyCal\obj\Debug\Revit_HyCal.Properties.Resources.resources
+C:\Users\chenxinxin.TCDRILAN\source\repos\Revit_HyCal\obj\Debug\Revit_HyCal.csproj.GenerateResource.cache

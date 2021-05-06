@@ -96,8 +96,8 @@ namespace Revit_HyCal
 
         #endregion
 
-        public System.Windows.Forms.Label labTitle;
-        public System.Windows.Forms.Label labFix;
-        public System.Windows.Forms.Label labProgressBar;
+        private System.Windows.Forms.Label labTitle;
+        private System.Windows.Forms.Label labFix;
+        private System.Windows.Forms.Label labProgressBar;
     }
 }
