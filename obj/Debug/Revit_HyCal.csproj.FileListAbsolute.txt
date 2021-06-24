@@ -33,3 +33,6 @@ C:\Users\c'x'x\source\repos\Revit_HyCal\obj\Debug\Revit_HyCal.Properties.Resourc
 C:\Users\chenxinxin.TCDRILAN\source\repos\Revit_HyCal\obj\Debug\Revit_HyCal.FrmProgressBar.resources
 C:\Users\chenxinxin.TCDRILAN\source\repos\Revit_HyCal\obj\Debug\Revit_HyCal.Properties.Resources.resources
 C:\Users\chenxinxin.TCDRILAN\source\repos\Revit_HyCal\obj\Debug\Revit_HyCal.csproj.GenerateResource.cache
+C:\Users\chenxinxin.TCDRILAN\source\repos\Revit_HyCal\bin\Debug\Revit_Hycal_Userform.exe
+C:\Users\chenxinxin.TCDRILAN\source\repos\Revit_HyCal\bin\Debug\Revit_Hycal_Userform.pdb
+C:\Users\chenxinxin.TCDRILAN\source\repos\Revit_HyCal\bin\Debug\Revit_Hycal_Userform.exe.config
