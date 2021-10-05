@@ -25,8 +25,9 @@ namespace Revit_HyCal
         public static void test(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             Main_From main_From = new Main_From();
-            main_From.Show();
+            main_From.ShowDialog();
             //frmProgressBar.Show();
+
         }
     }
 }

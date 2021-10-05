@@ -19,10 +19,10 @@ namespace Revit_HyCal
     {
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
-            ////test
-            //Test.test(commandData, ref message, elements);
-            //return Result.Succeeded;
-            ////test
+            //test
+            Test.test(commandData, ref message, elements);
+            return Result.Succeeded;
+            //test
 
             UIApplication uIApplication = commandData.Application;
             UIDocument uIDocument = commandData.Application.ActiveUIDocument;
@@ -30,7 +30,7 @@ namespace Revit_HyCal
             //Basic_Funs.SetProjectUnits(document, UnitType.UT_HVAC_Airflow, DisplayUnitType.DUT_CUBIC_METERS_PER_HOUR);
 
             //*************传统选取元素方法
-            IList<ElementId> elementIds = new List<ElementId>();
+            List<ElementId> elementIds = new List<ElementId>();
             try
             {
                 elementIds = UIOperation.SelectPipeline(uIDocument, document);
@@ -58,7 +58,15 @@ namespace Revit_HyCal
                 TaskDialog.Show("Prompt", e.Message);
                 return Result.Failed;
             }
-            uIDocument.Selection.SetElementIds(lstPipelineids);
+
+            List<ElementId> ids = new List<ElementId>();
+            foreach (ElementId id in lstPipelineids)
+            {
+                ids.Add(id);
+                uIDocument.Selection.SetElementIds(ids);
+                TaskDialog.Show("1", "2");
+            }
+            
             return Result.Succeeded;
 
         }
