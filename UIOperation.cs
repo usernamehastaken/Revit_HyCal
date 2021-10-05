@@ -48,8 +48,6 @@ namespace Revit_HyCal
                 throw new Exception("Cannot Find the Connector!");
             }
 
- 
-
         }
         public static List<ElementId> SelectPipeline(UIDocument uIDocument,Document document)
         {

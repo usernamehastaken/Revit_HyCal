@@ -11,6 +11,7 @@ using Autodesk.Revit.ApplicationServices;
 using Revit_FunExtension;
 using Autodesk.Revit.DB.Mechanical;
 using System.Threading;
+using Revit_Hycal_Userform;
 
 
 namespace Revit_HyCal
@@ -23,15 +24,10 @@ namespace Revit_HyCal
         }
         public static void test(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
-            //FrmProgressBar frmProgressBar = new FrmProgressBar();
-            //double i = 0;
-            //while (i <= 0.9)
-            //{
-            //    i = i + 0.05;
-            //    frmProgressBar.Show_ProgressBar("try", i);
-            //    Thread.Sleep(100);
-            //}
+            Main_From main_From = new Main_From();
+            main_From.ShowDialog();
             //frmProgressBar.Show();
+
         }
     }
 }

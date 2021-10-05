@@ -5,6 +5,10 @@ VisualStudioVersion = 16.0.30711.63
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Revit_HyCal", "Revit_HyCal.csproj", "{D5696A34-6182-41EF-B42A-977A38CC4268}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Revit_Hycal_Userform", "..\Revit_Hycal_Userform\Revit_Hycal_Userform.csproj", "{0783E801-C7C9-42F7-9AF2-63B80CB63529}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySConn", "..\MySConn\MySConn.csproj", "{AB2FEC59-4D52-4B45-8003-D3A66A6C06C7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +19,14 @@ Global
 		{D5696A34-6182-41EF-B42A-977A38CC4268}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D5696A34-6182-41EF-B42A-977A38CC4268}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D5696A34-6182-41EF-B42A-977A38CC4268}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0783E801-C7C9-42F7-9AF2-63B80CB63529}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0783E801-C7C9-42F7-9AF2-63B80CB63529}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0783E801-C7C9-42F7-9AF2-63B80CB63529}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0783E801-C7C9-42F7-9AF2-63B80CB63529}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AB2FEC59-4D52-4B45-8003-D3A66A6C06C7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AB2FEC59-4D52-4B45-8003-D3A66A6C06C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AB2FEC59-4D52-4B45-8003-D3A66A6C06C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AB2FEC59-4D52-4B45-8003-D3A66A6C06C7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

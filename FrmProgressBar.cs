@@ -16,10 +16,15 @@ namespace Revit_HyCal
         {
             
             InitializeComponent();
+            this.labFix.Top = this.labTitle.Height + 2;
+            this.Height = this.labFix.Top + this.labFix.Height;
+            this.Width = this.labFix.Width;
+            this.labProgressBar.Size = this.labFix.Size;
+            this.labProgressBar.Location = this.labFix.Location;
         }
         public void Show_ProgressBar(string str,double percent)//model funs single between 0~1
         {
-            if(percent <= 1 & percent >= 0)
+            if(percent < 1 & percent >= 0)
             {
                 this.Show();
                 int labWidth = this.labFix.Width;
