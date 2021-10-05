@@ -51,8 +51,9 @@ namespace Revit_HyCal
  
 
         }
-        public static IList<ElementId> SelectPipeline(UIDocument uIDocument,Document document)
+        public static List<ElementId> SelectPipeline(UIDocument uIDocument,Document document)
         {
+            //选取管道原件，并指定起始端，返回元素id集合，起始端id放最后
             //!!!Causion last one is element_origin
             List<ElementId> elementIds = new List<ElementId>();
             try
@@ -65,7 +66,7 @@ namespace Revit_HyCal
                 }
                 //if the elementids contain the group elements , 
                 //elementids kick off the group elements and union the groupelementids
-                IList<ElementId> groupElementIds = new List<ElementId>();
+                List<ElementId> groupElementIds = new List<ElementId>();
                 foreach (ElementId id in elementIds)
                 {
                     Group group = document.GetElement(id) as Group;
@@ -90,6 +91,63 @@ namespace Revit_HyCal
 
                 } while ((document.GetElement(elementId_origin) as Group) != null);
                 
+                elementIds.Add(elementId_origin);
+                return elementIds;
+            }
+            catch
+            {
+                throw new Exception("HVAC Hydraulic Calculation App Quit");
+            }
+        }
+
+        public static List<ElementId> SecSelectPipeline(UIDocument uIDocument, Document document,List<ElementId> elementIds)
+        {
+            //二次选取
+            //选取管道原件，并指定起始端，返回元素id集合，起始端id放最后
+            //!!!Causion last one is element_origin
+            //List<ElementId> elementIds = new List<ElementId>();
+            TaskDialog.Show("Second Selection!", "Second Selection!");
+            List<Reference> prereferences = new List<Reference>();
+            foreach (ElementId id in elementIds)
+            {
+                prereferences.Add(new Reference(document.GetElement(id)));
+            }
+            elementIds.Clear();
+            try
+            {
+                //pickup all the elementids of the pipeline
+                IList<Reference> references = uIDocument.Selection.PickObjects(ObjectType.Element,new MassSelectionFilter(),"Second Select", prereferences);
+                foreach (Reference reff in references)
+                {
+                    elementIds.Add(reff.ElementId);
+                }
+                //if the elementids contain the group elements , 
+                //elementids kick off the group elements and union the groupelementids
+                List<ElementId> groupElementIds = new List<ElementId>();
+                foreach (ElementId id in elementIds)
+                {
+                    Group group = document.GetElement(id) as Group;
+                    if (group != null) { groupElementIds.Add(id); }
+                }//get the groupids
+                if (groupElementIds.Count > 0)
+                {
+                    elementIds = elementIds.Except(groupElementIds).ToList<ElementId>();
+                    foreach (ElementId id in groupElementIds)
+                    {
+                        Group group = document.GetElement(id) as Group;
+                        elementIds = elementIds.Union(group.GetMemberIds()).ToList<ElementId>();//causion getmenberids contains elements of not solid elementid
+                    }
+                }
+                TaskDialog.Show("Prompt", "Please Select the Origin of Selection Before!(No Group Element)");
+
+                //pick up the original elementid of the pipeline
+                ElementId elementId_origin = null;
+                do
+                {
+                    elementId_origin = uIDocument.Selection.PickObject(ObjectType.Element).ElementId;
+
+                } while ((document.GetElement(elementId_origin) as Group) != null);
+
                 elementIds.Add(elementId_origin);
                 return elementIds;
             }
@@ -127,8 +185,9 @@ namespace Revit_HyCal
             }
         }
 
-        public static List<ElementId> GetPipelineElementID(Document document,IList<ElementId> elementIds,ElementId origin_elementid)
+        public static List<ElementId> GetPipelineElementID(Document document,List<ElementId> elementIds,ElementId origin_elementid)
         {
+            //根据传入的id集合及起始端id，根据链接键历遍所有链接管道,elementids 不包含origin_elementid
             List<ElementId> lstPipelineids = new List<ElementId>();
             lstPipelineids.Add(origin_elementid);
             while (elementIds.Count > 0)
