@@ -208,6 +208,23 @@ namespace Revit_HyCal
             }
             return lstPipelineids;
         }
+    
+        public static string get_Parameters(UIDocument uIDocument,Document document,string par_name,ElementId id)
+        {
+            Element element = document.GetElement(id);
+            ParameterSet parameterSet = element.Parameters;
+            foreach (Parameter par in parameterSet)
+            {
+                if (par.Definition.Name ==par_name)
+                {
+                    char[] s = { ' '};
+                    return par.AsValueString().Split(s)[0];
+                }
+            }
+            throw new Exception("Error: Can not get the parameter of " + par_name);
+            //return 0;
+        }
+
     }
     public class MassSelectionFilter : ISelectionFilter
     {

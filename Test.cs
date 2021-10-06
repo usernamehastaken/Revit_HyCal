@@ -24,10 +24,20 @@ namespace Revit_HyCal
         }
         public static void test(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
-            Main_From main_From = new Main_From();
-            main_From.ShowDialog();
-            //frmProgressBar.Show();
-
+            Reference reference = commandData.Application.ActiveUIDocument.Selection.PickObject(ObjectType.Element);
+            Element element = commandData.Application.ActiveUIDocument.Document.GetElement(reference.ElementId);
+            int i = 0;
+            foreach (Parameter p in element.Parameters)
+            {
+                if (p.Definition.Name=="直径")
+                {
+                    //new char()
+                    char[] s = { ' ' };
+                    TaskDialog.Show("1", p.AsValueString().Split(s)[0]);
+                    return;
+                }
+            }
+            throw new Exception("Error:");
         }
     }
 }
