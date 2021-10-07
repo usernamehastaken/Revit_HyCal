@@ -12,8 +12,10 @@ using Autodesk.Revit.UI.Selection;
 namespace Revit_HyCal
 {
     [Transaction(TransactionMode.Manual)]
-    public class UIOperation
+    public static class UIOperation
     {
+        //存储所有工程文件
+        public static List<Project> projects; 
         public static ConnectorSet GetConnectorSet(Document document, ElementId elementId)
         {
             //from the elementid to get all the connectors
@@ -207,6 +209,54 @@ namespace Revit_HyCal
                 if (lstOtherConnectElementIds.Count == 0) { break; }
             }
             return lstPipelineids;
+        }
+    
+        public static string get_Parameters(UIDocument uIDocument,Document document,string par_name,ElementId id)
+        {
+            Element element = document.GetElement(id);
+            ParameterSet parameterSet = element.Parameters;
+            foreach (Parameter par in parameterSet)
+            {
+                if (par.Definition.Name ==par_name)
+                {
+                    char[] s = { ' '};
+                    return par.AsValueString().Split(s)[0];
+                }
+            }
+            throw new Exception("Error: Can not get the parameter of " + par_name);
+            //return 0;
+        }
+
+        public static void pickPileLine(UIDocument uIDocument,Document document,out List<ElementId> elementIds)
+        {
+            //输入空list<> 返回list<>
+            //*************传统选取元素方法
+            elementIds = new List<ElementId>();
+            try
+            {
+                elementIds = UIOperation.SelectPipeline(uIDocument, document);
+            }
+            catch (Exception e)
+            {
+                TaskDialog.Show("Prompt", e.Message);
+            }
+            if (elementIds.Count == 0)
+            {
+                TaskDialog.Show("Prompt", "HVAC Hydraulic Calculation App Quit!");
+            }
+            //*****************按顺序录入管道系统(无组图元，组内非链接键连接则系统将分成两个部分）,使用连接键，不使用碰撞
+            List<ElementId> lstPipelineids = new List<ElementId>();
+            ElementId origin_elementid = elementIds[elementIds.Count - 1];
+            elementIds.Remove(origin_elementid); elementIds.Remove(origin_elementid);
+            try
+            {
+                lstPipelineids = UIOperation.GetPipelineElementID(document, elementIds, origin_elementid);
+            }
+            catch (Exception e)
+            {
+                TaskDialog.Show("Prompt", e.Message);
+            }
+            elementIds = lstPipelineids;
         }
     }
     public class MassSelectionFilter : ISelectionFilter

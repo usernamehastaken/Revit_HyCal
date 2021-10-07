@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RevitAddIns>
+  <AddIn Type="Command">
+    <Assembly>Revit_HyCal.dll</Assembly>
+    <ClientId>b9e3191d-01b9-4b67-84ff-4b66680bdccc</ClientId>
+    <FullClassName>Revit_HyCal.Class1</FullClassName>
+    <Text>Class1</Text>
+    <Description>""</Description>
+    <VisibilityMode>AlwaysVisible</VisibilityMode>
+    <VendorId>ADSK</VendorId>
+    <VendorDescription>Autodesk, www.autodesk.com</VendorDescription>
+  </AddIn>
+</RevitAddIns>
