@@ -39,12 +39,13 @@ namespace Revit_HyCal
             //    }
             //}
             //throw new Exception("Error:");
-            UIDocument uIDocument = commandData.Application.ActiveUIDocument;
-            Document document = uIDocument.Document;
-            List<ElementId> elementIds = new List<ElementId>();
-            UIOperation.pickPileLine(uIDocument, document,out elementIds);
-            uIDocument.Selection.SetElementIds(elementIds);
-            userform_Util.pick += UIOperation.pickPileLine(uIDocument, document, out elementIds);
+            //UIDocument uIDocument = commandData.Application.ActiveUIDocument;
+            //Document document = uIDocument.Document;
+            //List<ElementId> elementIds = new List<ElementId>();
+            //UIOperation.pickPileLine(uIDocument, document,out elementIds);
+            //uIDocument.Selection.SetElementIds(elementIds);
+            Main_From main_From = new Main_From();
+            main_From.ShowDialog();
         }
     }
 }

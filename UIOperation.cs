@@ -14,6 +14,7 @@ namespace Revit_HyCal
     [Transaction(TransactionMode.Manual)]
     public class UIOperation
     {
+        public static List<Revit_Hycal_Userform.userform_Util> userform_Utils;/*一个vuserform就是一个文件*/
         public static ConnectorSet GetConnectorSet(Document document, ElementId elementId)
         {
             //from the elementid to get all the connectors
