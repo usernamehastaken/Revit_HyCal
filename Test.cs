@@ -24,20 +24,27 @@ namespace Revit_HyCal
         }
         public static void test(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
-            Reference reference = commandData.Application.ActiveUIDocument.Selection.PickObject(ObjectType.Element);
-            Element element = commandData.Application.ActiveUIDocument.Document.GetElement(reference.ElementId);
-            int i = 0;
-            foreach (Parameter p in element.Parameters)
-            {
-                if (p.Definition.Name=="直径")
-                {
-                    //new char()
-                    char[] s = { ' ' };
-                    TaskDialog.Show("1", p.AsValueString().Split(s)[0]);
-                    return;
-                }
-            }
-            throw new Exception("Error:");
+            //用于前期测试
+            //Reference reference = commandData.Application.ActiveUIDocument.Selection.PickObject(ObjectType.Element);
+            //Element element = commandData.Application.ActiveUIDocument.Document.GetElement(reference.ElementId);
+            //int i = 0;
+            //foreach (Parameter p in element.Parameters)
+            //{
+            //    if (p.Definition.Name=="直径")
+            //    {
+            //        //new char()
+            //        char[] s = { ' ' };
+            //        TaskDialog.Show("1", p.AsValueString().Split(s)[0]);
+            //        return;
+            //    }
+            //}
+            //throw new Exception("Error:");
+            UIDocument uIDocument = commandData.Application.ActiveUIDocument;
+            Document document = uIDocument.Document;
+            List<ElementId> elementIds = new List<ElementId>();
+            UIOperation.pickPileLine(uIDocument, document,out elementIds);
+            uIDocument.Selection.SetElementIds(elementIds);
+            userform_Util.pick += UIOperation.pickPileLine(uIDocument, document, out elementIds);
         }
     }
 }

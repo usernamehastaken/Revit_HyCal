@@ -225,6 +225,37 @@ namespace Revit_HyCal
             //return 0;
         }
 
+        public static void pickPileLine(UIDocument uIDocument,Document document,out List<ElementId> elementIds)
+        {
+            //输入空list<> 返回list<>
+            //*************传统选取元素方法
+            elementIds = new List<ElementId>();
+            try
+            {
+                elementIds = UIOperation.SelectPipeline(uIDocument, document);
+            }
+            catch (Exception e)
+            {
+                TaskDialog.Show("Prompt", e.Message);
+            }
+            if (elementIds.Count == 0)
+            {
+                TaskDialog.Show("Prompt", "HVAC Hydraulic Calculation App Quit!");
+            }
+            //*****************按顺序录入管道系统(无组图元，组内非链接键连接则系统将分成两个部分）,使用连接键，不使用碰撞
+            List<ElementId> lstPipelineids = new List<ElementId>();
+            ElementId origin_elementid = elementIds[elementIds.Count - 1];
+            elementIds.Remove(origin_elementid); elementIds.Remove(origin_elementid);
+            try
+            {
+                lstPipelineids = UIOperation.GetPipelineElementID(document, elementIds, origin_elementid);
+            }
+            catch (Exception e)
+            {
+                TaskDialog.Show("Prompt", e.Message);
+            }
+            elementIds = lstPipelineids;
+        }
     }
     public class MassSelectionFilter : ISelectionFilter
     {

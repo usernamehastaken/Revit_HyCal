@@ -35,11 +35,11 @@
     <Reference Include="PresentationFramework" />
     <Reference Include="RevitAPI">
       <HintPath>D:\RevitAPI.dll</HintPath>
-      <Private>False</Private>
+      <Private>True</Private>
     </Reference>
     <Reference Include="RevitAPIUI">
       <HintPath>D:\RevitAPIUI.dll</HintPath>
-      <Private>False</Private>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Revit_FunExtension">
       <HintPath>..\Revit_FunExtension\bin\Debug\Revit_FunExtension.dll</HintPath>
@@ -58,7 +58,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Class1.cs" />
+    <Compile Include="Revit_Hycal_Run.cs" />
     <Compile Include="FrmProgressBar.cs">
       <SubType>Form</SubType>
     </Compile>
