@@ -33,9 +33,6 @@ C:\Users\c'x'x\source\repos\Revit_HyCal\obj\Debug\Revit_HyCal.Properties.Resourc
 C:\Users\chenxinxin.TCDRILAN\source\repos\Revit_HyCal\obj\Debug\Revit_HyCal.FrmProgressBar.resources
 C:\Users\chenxinxin.TCDRILAN\source\repos\Revit_HyCal\obj\Debug\Revit_HyCal.Properties.Resources.resources
 C:\Users\chenxinxin.TCDRILAN\source\repos\Revit_HyCal\obj\Debug\Revit_HyCal.csproj.GenerateResource.cache
-C:\Users\c'x'x\source\repos\Revit_HyCal\bin\Debug\Revit_Hycal_Userform.exe
-C:\Users\c'x'x\source\repos\Revit_HyCal\bin\Debug\Revit_Hycal_Userform.pdb
-C:\Users\c'x'x\source\repos\Revit_HyCal\bin\Debug\Revit_Hycal_Userform.exe.config
 C:\Users\c'x'x\source\repos\Revit_HyCal\bin\Debug\RevitAPI.dll
 C:\Users\c'x'x\source\repos\Revit_HyCal\bin\Debug\RevitAPIUI.dll
 C:\Users\C\source\repos\Revit_HyCal\bin\Debug\RevitAPI.dll
@@ -47,3 +44,6 @@ C:\Users\chenxinxin.TCDRILAN\source\repos\Revit_HyCal\bin\Debug\RevitAPI.dll
 C:\Users\chenxinxin.TCDRILAN\source\repos\Revit_HyCal\bin\Debug\RevitAPIUI.dll
 C:\Users\chenxinxin.TCDRILAN\source\repos\Revit_HyCal\obj\Debug\Revit_HyCal.MainForm.resources
 C:\Users\chenxinxin.TCDRILAN\source\repos\Revit_HyCal\obj\Debug\Revit_HyCal.ProjectForm.resources
+C:\Users\c'x'x\source\repos\Revit_HyCal\obj\Debug\Revit_HyCal.JCPZ.resources
+C:\Users\c'x'x\source\repos\Revit_HyCal\obj\Debug\Revit_HyCal.MainForm.resources
+C:\Users\c'x'x\source\repos\Revit_HyCal\obj\Debug\Revit_HyCal.ProjectForm.resources

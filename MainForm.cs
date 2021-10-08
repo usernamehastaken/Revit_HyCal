@@ -47,13 +47,7 @@ namespace Revit_HyCal
 
         private void 管道拾取ToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (this.MdiChildren.Count()==0)
-            {
-                MessageBox.Show("请先新建工程", "Error");
-                return;
-            }
-            UIOperation.ElementIds= UIOperation.pickPileLine(UIOperation.uIDocument, UIOperation.document);
-            UIOperation.uIDocument.Selection.SetElementIds(UIOperation.ElementIds);
+            Form_Operation.First_Pick(this);            
         }
 
         private void 二次拾取ToolStripMenuItem_Click(object sender, EventArgs e)

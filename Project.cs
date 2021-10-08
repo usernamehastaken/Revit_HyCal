@@ -158,6 +158,19 @@ namespace Revit_HyCal
                 save_project(mainForm);
             }
         }
+
+        public static void First_Pick(MainForm mainForm)
+        {
+            if (mainForm.MdiChildren.Count() == 0)
+            {
+                TaskDialog.Show("Error", "请新建工程");
+                return;
+            }
+            ProjectForm projectForm = (ProjectForm)mainForm.ActiveMdiChild;
+            List<ElementId> new_ids= UIOperation.pickPileLine(UIOperation.uIDocument, UIOperation.document);
+            UIOperation.uIDocument.Selection.SetElementIds(new_ids);
+            MessageBox.Show("1", "2");
+        }
     }
 
     public class UBinder : SerializationBinder
