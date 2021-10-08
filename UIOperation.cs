@@ -14,8 +14,9 @@ namespace Revit_HyCal
     [Transaction(TransactionMode.Manual)]
     public static class UIOperation
     {
-        //存储所有工程文件
-        public static List<Project> projects; 
+        public static UIDocument uIDocument;
+        public static Document document;
+        public static List<ElementId> ElementIds = new List<ElementId>();
         public static ConnectorSet GetConnectorSet(Document document, ElementId elementId)
         {
             //from the elementid to get all the connectors
@@ -121,6 +122,7 @@ namespace Revit_HyCal
                 {
                     elementIds.Add(reff.ElementId);
                 }
+                #region
                 //if the elementids contain the group elements , 
                 //elementids kick off the group elements and union the groupelementids
                 List<ElementId> groupElementIds = new List<ElementId>();
@@ -139,7 +141,7 @@ namespace Revit_HyCal
                     }
                 }
                 TaskDialog.Show("Prompt", "Please Select the Origin of Selection Before!(No Group Element)");
-
+                #endregion
                 //pick up the original elementid of the pipeline
                 ElementId elementId_origin = null;
                 do
@@ -149,7 +151,19 @@ namespace Revit_HyCal
                 } while ((document.GetElement(elementId_origin) as Group) != null);
 
                 elementIds.Add(elementId_origin);
-                return elementIds;
+                //*****************按顺序录入管道系统(无组图元，组内非链接键连接则系统将分成两个部分）,使用连接键，不使用碰撞
+                List<ElementId> lstPipelineids = new List<ElementId>();
+                ElementId origin_elementid = elementIds[elementIds.Count - 1];
+                elementIds.Remove(origin_elementid); elementIds.Remove(origin_elementid);
+                try
+                {
+                    lstPipelineids = UIOperation.GetPipelineElementID(document, elementIds, origin_elementid);
+                }
+                catch (Exception e)
+                {
+                    TaskDialog.Show("Prompt", e.Message);
+                }
+                return lstPipelineids;
             }
             catch
             {
@@ -227,11 +241,11 @@ namespace Revit_HyCal
             //return 0;
         }
 
-        public static void pickPileLine(UIDocument uIDocument,Document document,out List<ElementId> elementIds)
+        public static List<ElementId> pickPileLine(UIDocument uIDocument,Document document)
         {
             //输入空list<> 返回list<>
             //*************传统选取元素方法
-            elementIds = new List<ElementId>();
+            List<ElementId> elementIds = new List<ElementId>();
             try
             {
                 elementIds = UIOperation.SelectPipeline(uIDocument, document);
@@ -256,7 +270,7 @@ namespace Revit_HyCal
             {
                 TaskDialog.Show("Prompt", e.Message);
             }
-            elementIds = lstPipelineids;
+            return lstPipelineids;
         }
     }
     public class MassSelectionFilter : ISelectionFilter

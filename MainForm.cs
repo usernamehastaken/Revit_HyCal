@@ -20,11 +20,8 @@ namespace Revit_HyCal
         private void 新建工程ToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Project project = new Project();
-            project.name = "1111";
-            DataElement data = new DataElement();
-            data.ID = "123";data.No = 78;
-            project.dataElements.Add(data);
             Form_Operation.new_project(this,project);
+            //this.计算ToolStripMenuItem.Enabled = true;
         }
 
         private void 退出ToolStripMenuItem_Click(object sender, EventArgs e)
@@ -35,11 +32,34 @@ namespace Revit_HyCal
         private void 打开工程ToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Form_Operation.open_project(this);
+            //this.计算ToolStripMenuItem.Enabled = true;
         }
 
         private void 保存工程ToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Form_Operation.save_project(this);
+        }
+
+        private void 保存全部ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Form_Operation.save_all(this);
+        }
+
+        private void 管道拾取ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (this.MdiChildren.Count()==0)
+            {
+                MessageBox.Show("请先新建工程", "Error");
+                return;
+            }
+            UIOperation.ElementIds= UIOperation.pickPileLine(UIOperation.uIDocument, UIOperation.document);
+            UIOperation.uIDocument.Selection.SetElementIds(UIOperation.ElementIds);
+        }
+
+        private void 二次拾取ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            UIOperation.ElementIds = UIOperation.SecSelectPipeline(UIOperation.uIDocument, UIOperation.document, UIOperation.ElementIds);
+            UIOperation.uIDocument.Selection.SetElementIds(UIOperation.ElementIds);
         }
     }
 }

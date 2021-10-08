@@ -33,12 +33,18 @@ namespace Revit_HyCal
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.文件ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.新建工程ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.计算ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.管道拾取ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.打开工程ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.保存工程ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.保存全部ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.退出ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.计算ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.管道拾取ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.二次拾取ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.基础配置ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.危废风管ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.收尘ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.数据库ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.关于ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -46,10 +52,13 @@ namespace Revit_HyCal
             // 
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.文件ToolStripMenuItem,
-            this.计算ToolStripMenuItem});
+            this.计算ToolStripMenuItem,
+            this.基础配置ToolStripMenuItem,
+            this.数据库ToolStripMenuItem,
+            this.关于ToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(800, 28);
+            this.menuStrip1.Size = new System.Drawing.Size(800, 25);
             this.menuStrip1.TabIndex = 1;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -62,56 +71,99 @@ namespace Revit_HyCal
             this.保存全部ToolStripMenuItem,
             this.退出ToolStripMenuItem});
             this.文件ToolStripMenuItem.Name = "文件ToolStripMenuItem";
-            this.文件ToolStripMenuItem.Size = new System.Drawing.Size(51, 24);
+            this.文件ToolStripMenuItem.Size = new System.Drawing.Size(44, 21);
             this.文件ToolStripMenuItem.Text = "文件";
             // 
             // 新建工程ToolStripMenuItem
             // 
             this.新建工程ToolStripMenuItem.Name = "新建工程ToolStripMenuItem";
-            this.新建工程ToolStripMenuItem.Size = new System.Drawing.Size(180, 24);
+            this.新建工程ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.新建工程ToolStripMenuItem.Text = "新建工程";
             this.新建工程ToolStripMenuItem.Click += new System.EventHandler(this.新建工程ToolStripMenuItem_Click);
-            // 
-            // 计算ToolStripMenuItem
-            // 
-            this.计算ToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.管道拾取ToolStripMenuItem});
-            this.计算ToolStripMenuItem.Name = "计算ToolStripMenuItem";
-            this.计算ToolStripMenuItem.Size = new System.Drawing.Size(51, 24);
-            this.计算ToolStripMenuItem.Text = "计算";
-            // 
-            // 管道拾取ToolStripMenuItem
-            // 
-            this.管道拾取ToolStripMenuItem.Name = "管道拾取ToolStripMenuItem";
-            this.管道拾取ToolStripMenuItem.Size = new System.Drawing.Size(138, 24);
-            this.管道拾取ToolStripMenuItem.Text = "管道拾取";
             // 
             // 打开工程ToolStripMenuItem
             // 
             this.打开工程ToolStripMenuItem.Name = "打开工程ToolStripMenuItem";
-            this.打开工程ToolStripMenuItem.Size = new System.Drawing.Size(180, 24);
+            this.打开工程ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.打开工程ToolStripMenuItem.Text = "打开工程";
             this.打开工程ToolStripMenuItem.Click += new System.EventHandler(this.打开工程ToolStripMenuItem_Click);
             // 
             // 保存工程ToolStripMenuItem
             // 
             this.保存工程ToolStripMenuItem.Name = "保存工程ToolStripMenuItem";
-            this.保存工程ToolStripMenuItem.Size = new System.Drawing.Size(180, 24);
+            this.保存工程ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.保存工程ToolStripMenuItem.Text = "保存工程";
             this.保存工程ToolStripMenuItem.Click += new System.EventHandler(this.保存工程ToolStripMenuItem_Click);
             // 
             // 保存全部ToolStripMenuItem
             // 
             this.保存全部ToolStripMenuItem.Name = "保存全部ToolStripMenuItem";
-            this.保存全部ToolStripMenuItem.Size = new System.Drawing.Size(180, 24);
+            this.保存全部ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.保存全部ToolStripMenuItem.Text = "保存全部";
+            this.保存全部ToolStripMenuItem.Click += new System.EventHandler(this.保存全部ToolStripMenuItem_Click);
             // 
             // 退出ToolStripMenuItem
             // 
             this.退出ToolStripMenuItem.Name = "退出ToolStripMenuItem";
-            this.退出ToolStripMenuItem.Size = new System.Drawing.Size(180, 24);
+            this.退出ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.退出ToolStripMenuItem.Text = "退出";
             this.退出ToolStripMenuItem.Click += new System.EventHandler(this.退出ToolStripMenuItem_Click);
+            // 
+            // 计算ToolStripMenuItem
+            // 
+            this.计算ToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.管道拾取ToolStripMenuItem,
+            this.二次拾取ToolStripMenuItem});
+            this.计算ToolStripMenuItem.Name = "计算ToolStripMenuItem";
+            this.计算ToolStripMenuItem.Size = new System.Drawing.Size(44, 21);
+            this.计算ToolStripMenuItem.Text = "计算";
+            // 
+            // 管道拾取ToolStripMenuItem
+            // 
+            this.管道拾取ToolStripMenuItem.Name = "管道拾取ToolStripMenuItem";
+            this.管道拾取ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.管道拾取ToolStripMenuItem.Text = "管道拾取";
+            this.管道拾取ToolStripMenuItem.Click += new System.EventHandler(this.管道拾取ToolStripMenuItem_Click);
+            // 
+            // 二次拾取ToolStripMenuItem
+            // 
+            this.二次拾取ToolStripMenuItem.Name = "二次拾取ToolStripMenuItem";
+            this.二次拾取ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.二次拾取ToolStripMenuItem.Text = "二次拾取";
+            this.二次拾取ToolStripMenuItem.Click += new System.EventHandler(this.二次拾取ToolStripMenuItem_Click);
+            // 
+            // 基础配置ToolStripMenuItem
+            // 
+            this.基础配置ToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.危废风管ToolStripMenuItem,
+            this.收尘ToolStripMenuItem});
+            this.基础配置ToolStripMenuItem.Name = "基础配置ToolStripMenuItem";
+            this.基础配置ToolStripMenuItem.Size = new System.Drawing.Size(68, 21);
+            this.基础配置ToolStripMenuItem.Text = "基础配置";
+            // 
+            // 危废风管ToolStripMenuItem
+            // 
+            this.危废风管ToolStripMenuItem.Name = "危废风管ToolStripMenuItem";
+            this.危废风管ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.危废风管ToolStripMenuItem.Text = "危废风管";
+            // 
+            // 收尘ToolStripMenuItem
+            // 
+            this.收尘ToolStripMenuItem.Name = "收尘ToolStripMenuItem";
+            this.收尘ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.收尘ToolStripMenuItem.Text = "收尘风管";
+            // 
+            // 数据库ToolStripMenuItem
+            // 
+            this.数据库ToolStripMenuItem.Name = "数据库ToolStripMenuItem";
+            this.数据库ToolStripMenuItem.Size = new System.Drawing.Size(56, 21);
+            this.数据库ToolStripMenuItem.Text = "数据库";
+            // 
+            // 关于ToolStripMenuItem
+            // 
+            this.关于ToolStripMenuItem.Name = "关于ToolStripMenuItem";
+            this.关于ToolStripMenuItem.Size = new System.Drawing.Size(44, 21);
+            this.关于ToolStripMenuItem.Text = "关于";
             // 
             // MainForm
             // 
@@ -141,5 +193,11 @@ namespace Revit_HyCal
         private System.Windows.Forms.ToolStripMenuItem 保存工程ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem 保存全部ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem 退出ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem 二次拾取ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem 基础配置ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem 危废风管ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem 收尘ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem 数据库ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem 关于ToolStripMenuItem;
     }
 }

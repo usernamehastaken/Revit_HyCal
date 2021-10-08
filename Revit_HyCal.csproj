@@ -58,6 +58,12 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="JCPZ.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="JCPZ.Designer.cs">
+      <DependentUpon>JCPZ.cs</DependentUpon>
+    </Compile>
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -90,6 +96,9 @@
   <ItemGroup>
     <EmbeddedResource Include="FrmProgressBar.resx">
       <DependentUpon>FrmProgressBar.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="JCPZ.resx">
+      <DependentUpon>JCPZ.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>

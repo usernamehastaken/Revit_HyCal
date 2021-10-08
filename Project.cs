@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Xml.Serialization;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -14,7 +13,6 @@ using Autodesk.Revit.UI;
 
 namespace Revit_HyCal
 {
-    [Serializable] //注意类的定义及使用
     public class DataElement
     {
         public int No { get; set; }
@@ -33,7 +31,6 @@ namespace Revit_HyCal
         public string ID { get; set; }
     }
 
-    [Serializable]
     public class Project
     {
         //所有与窗体有关操作的接口都从这出
@@ -49,15 +46,11 @@ namespace Revit_HyCal
         //public static double doubleWD;
         //public static double doubleXDSD;
         public  double doubleMDXZ = 1;
-        //[]
         public List<DataElement> dataElements = new List<DataElement>();
-        [NonSerialized]
-        public List<ElementId> elementIds=new List<ElementId> ();//保存管道系统id，dataEle的信息由程序读取及计算，局部阻力参数保存到族中
 
-        [NonSerialized]
-        public UIDocument uIDocument;
-        [NonSerialized]
-        public Document document;
+        [XmlIgnore] public List<ElementId> elementIds=new List<ElementId> ();//保存管道系统id，dataEle的信息由程序读取及计算，局部阻力参数保存到族中
+        [XmlIgnore]public UIDocument uIDocument;
+        [XmlIgnore]public Document document;
         public double cal_R(double de, double V) /*计算沿程阻力系数 de(当量直径) V(流速)*/
         {
             //y=x+2lg(a + bx);
@@ -123,10 +116,8 @@ namespace Revit_HyCal
                 string name = System.IO.Path.GetFileNameWithoutExtension(fullpath);
                 using (FileStream fileStream=new FileStream(fullpath,FileMode.Open,FileAccess.Read))
                 {
-                    BinaryFormatter bf = new BinaryFormatter();
-                    bf.Binder = new UBinder();
-                    //bf.Deserialize(fileStream);
-                    Project project = (Project)bf.Deserialize(fileStream);
+                    XmlSerializer xs = new  XmlSerializer(typeof(Project));
+                    Project project = (Project)xs.Deserialize(fileStream);
                     Form_Operation.new_project(mainForm, project);
                 }
             }
@@ -155,16 +146,23 @@ namespace Revit_HyCal
             }
             using (FileStream fileStream=new FileStream (project.fullpath,FileMode.OpenOrCreate,FileAccess.Write))
             {
-                BinaryFormatter bf = new BinaryFormatter();
+                XmlSerializer bf = new XmlSerializer(typeof(Project));
                 bf.Serialize(fileStream,project);
-                
             }
 
+        }
+        public static void save_all(MainForm mainForm)
+        {
+            foreach (ProjectForm p in mainForm.MdiChildren)
+            {
+                save_project(mainForm);
+            }
         }
     }
 
     public class UBinder : SerializationBinder
     {
+        //二进制序列化需要binder
         public override Type BindToType(string assemblyName, string typeName)
         {
             //Assembly ass = Assembly.GetExecutingAssembly();
