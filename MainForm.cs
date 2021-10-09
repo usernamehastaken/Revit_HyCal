@@ -20,7 +20,7 @@ namespace Revit_HyCal
         private void 新建工程ToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Project project = new Project();
-            Form_Operation.new_project(this,project);
+            MainForm_Operation.new_project(this,project);
             //this.计算ToolStripMenuItem.Enabled = true;
         }
 
@@ -31,29 +31,45 @@ namespace Revit_HyCal
 
         private void 打开工程ToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Form_Operation.open_project(this);
+            MainForm_Operation.open_project(this);
             //this.计算ToolStripMenuItem.Enabled = true;
         }
 
         private void 保存工程ToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Form_Operation.save_project(this);
+            MainForm_Operation.save_project(this);
         }
 
         private void 保存全部ToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Form_Operation.save_all(this);
+            MainForm_Operation.save_all(this);
         }
 
         private void 管道拾取ToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Form_Operation.First_Pick(this);            
+            MainForm_Operation.First_Pick(this);            
         }
 
         private void 二次拾取ToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            UIOperation.ElementIds = UIOperation.SecSelectPipeline(UIOperation.uIDocument, UIOperation.document, UIOperation.ElementIds);
-            UIOperation.uIDocument.Selection.SetElementIds(UIOperation.ElementIds);
+            MainForm_Operation.Second_Pick(this);
+        }
+
+        private void 危废风管ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            JCPZ jCPZ = new JCPZ("危废风管",this);
+            jCPZ.ShowDialog();
+        }
+
+        private void 收尘ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            JCPZ jCPZ = new JCPZ("收尘风管",this);
+            jCPZ.ShowDialog();
+        }
+
+        private void 沿程阻力ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            MainForm_Operation.cal_R(this);
         }
     }
 }

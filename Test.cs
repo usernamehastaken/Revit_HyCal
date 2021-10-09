@@ -28,7 +28,7 @@ namespace Revit_HyCal
         public static void test(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             //用于前期测试
-
+            UIOperation.uIDocument = commandData.Application.ActiveUIDocument;
             MainForm mainForm = new MainForm();
             mainForm.Show();
         }

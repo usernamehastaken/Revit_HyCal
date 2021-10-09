@@ -47,3 +47,5 @@ C:\Users\chenxinxin.TCDRILAN\source\repos\Revit_HyCal\obj\Debug\Revit_HyCal.Proj
 C:\Users\c'x'x\source\repos\Revit_HyCal\obj\Debug\Revit_HyCal.JCPZ.resources
 C:\Users\c'x'x\source\repos\Revit_HyCal\obj\Debug\Revit_HyCal.MainForm.resources
 C:\Users\c'x'x\source\repos\Revit_HyCal\obj\Debug\Revit_HyCal.ProjectForm.resources
+C:\Users\chenxinxin.TCDRILAN\source\repos\Revit_HyCal\obj\Debug\Revit_HyCal.JCPZ.resources
+C:\Users\chenxinxin.TCDRILAN\source\repos\Revit_HyCal\obj\Debug\Revit_HyCal.MDXZ.resources

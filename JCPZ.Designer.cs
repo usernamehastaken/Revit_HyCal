@@ -60,7 +60,7 @@ namespace Revit_HyCal
             this.groupBox1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.groupBox1.Location = new System.Drawing.Point(8, 8);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(357, 239);
+            this.groupBox1.Size = new System.Drawing.Size(363, 251);
             this.groupBox1.TabIndex = 1;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "基本参数";
@@ -69,7 +69,7 @@ namespace Revit_HyCal
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(6, 198);
+            this.label5.Location = new System.Drawing.Point(6, 200);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(245, 12);
             this.label5.TabIndex = 10;
@@ -77,21 +77,23 @@ namespace Revit_HyCal
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(3, 212);
+            this.button1.Location = new System.Drawing.Point(8, 222);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(75, 23);
             this.button1.TabIndex = 9;
             this.button1.Text = "密度修正";
             this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // CmdOK
             // 
-            this.CmdOK.Location = new System.Drawing.Point(283, 212);
+            this.CmdOK.Location = new System.Drawing.Point(285, 222);
             this.CmdOK.Name = "CmdOK";
             this.CmdOK.Size = new System.Drawing.Size(75, 23);
             this.CmdOK.TabIndex = 8;
             this.CmdOK.Text = "确定";
             this.CmdOK.UseVisualStyleBackColor = true;
+            this.CmdOK.Click += new System.EventHandler(this.CmdOK_Click);
             // 
             // MD
             // 
@@ -165,12 +167,15 @@ namespace Revit_HyCal
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(373, 255);
+            this.ClientSize = new System.Drawing.Size(379, 267);
             this.Controls.Add(this.groupBox1);
             this.Cursor = System.Windows.Forms.Cursors.Default;
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Name = "JCPZ";
             this.Padding = new System.Windows.Forms.Padding(8);
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "JCPZ";
+            this.TopMost = true;
             this.Load += new System.EventHandler(this.JCPZ_Load);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();

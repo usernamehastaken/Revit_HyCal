@@ -22,8 +22,6 @@ namespace Revit_HyCal
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             //test
-            UIOperation.uIDocument = commandData.Application.ActiveUIDocument;
-            UIOperation.document = UIOperation.uIDocument.Document;
             Test.test(commandData,ref message, elements);
             return Result.Succeeded;
             //test

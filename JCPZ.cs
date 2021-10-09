@@ -12,9 +12,12 @@ namespace Revit_HyCal
 {
     public partial class JCPZ : Form
     {
-        public JCPZ()
+        private MainForm MainForm;
+        public JCPZ(string value,MainForm mainForm)
         {
             InitializeComponent();
+            this.MainForm = mainForm;
+            this.groupBox1.Text = value;
         }
 
         private void JCPZ_Load(object sender, EventArgs e)
@@ -25,6 +28,31 @@ namespace Revit_HyCal
         private void groupBox1_Enter(object sender, EventArgs e)
         {
 
+        }
+
+        private void CmdOK_Click(object sender, EventArgs e)
+        {
+            if (this.MainForm.MdiChildren.Count()==0)
+            {
+                MessageBox.Show("没有打开的工程！");
+                this.Dispose();
+                return;
+            }
+            ProjectForm projectForm = (ProjectForm)this.MainForm.ActiveMdiChild;
+
+            projectForm.myproject.doubleGBCCDXZXS = double.Parse(this.GBCCDXZXS.Text);
+            projectForm.myproject.doubleGBCCD = double.Parse(this.GBCCD.Text) * 0.001;
+            projectForm.myproject.doubleYDND = double.Parse(this.YDND.Text) * 0.000001;
+            projectForm.myproject.doubleMD = double.Parse(this.MD.Text);
+            this.Dispose();
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            this.MD.Text = "1.197803";
+            //this.MD.Enabled = false;
+            MDXZ mDXZ = new MDXZ(this.MainForm);
+            mDXZ.Show();
         }
     }
 }

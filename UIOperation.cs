@@ -14,9 +14,9 @@ namespace Revit_HyCal
     [Transaction(TransactionMode.Manual)]
     public static class UIOperation
     {
-        public static UIDocument uIDocument;
-        public static Document document;
-        public static List<ElementId> ElementIds = new List<ElementId>();
+        public static UIDocument uIDocument;//每次文件运行的时候，一个revit对应一个uidoc
+        //public static Document document;
+        //public static List<ElementId> ElementIds = new List<ElementId>();
         public static ConnectorSet GetConnectorSet(Document document, ElementId elementId)
         {
             //from the elementid to get all the connectors
@@ -271,6 +271,19 @@ namespace Revit_HyCal
                 TaskDialog.Show("Prompt", e.Message);
             }
             return lstPipelineids;
+        }
+
+        public static List<DataElement> EleIdsToDataEles(List<ElementId> ids)
+        {
+            List<DataElement> datas = new List<DataElement>();
+            for (int i = 1; i <= ids.Count(); i++)
+            {
+                DataElement data = new DataElement();
+                data.No = i;
+                data.ID = ids[i - 1].IntegerValue;
+                datas.Add(data);
+            }
+            return datas;
         }
     }
     public class MassSelectionFilter : ISelectionFilter

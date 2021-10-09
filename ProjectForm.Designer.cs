@@ -18,7 +18,7 @@ namespace Revit_HyCal
             {
                 components.Dispose();
             }
-            Form_Operation.check_before_close((MainForm)this.Parent);
+            MainForm_Operation.check_before_close((MainForm)this.MdiParent);
             base.Dispose(disposing);
         }
 

@@ -16,19 +16,19 @@ namespace Revit_HyCal
     public class DataElement
     {
         public int No { get; set; }
-        public float Airflow { get; set; } = 0;
-        public float Width { get; set; } = 0;
-        public float Height { get; set; } = 0;
-        public float Diameter { get; set; } = 0;
-        public float Length { get; set; } = 0;
-        public float V { get; set; } = 0;
-        public float R { get; set; } = 0;
-        public float Py { get; set; } = 0;
-        public float kSai { get; set; } = 0;
-        public float DPressure { get; set; } = 0;
-        public float Pj { get; set; } = 0;
-        public float TotalPressure { get; set; } = 0;
-        public string ID { get; set; }
+        public double Airflow { get; set; } = 0;
+        public double Width { get; set; } = 0;
+        public double Height { get; set; } = 0;
+        public double Diameter { get; set; } = 0;
+        public double Length { get; set; } = 0;
+        public double V { get; set; } = 0;
+        public double R { get; set; } = 0;
+        public double Py { get; set; } = 0;
+        public double kSai { get; set; } = 0;
+        public double DPressure { get; set; } = 0;
+        public double Pj { get; set; } = 0;
+        public double TotalPressure { get; set; } = 0;
+        public int ID { get; set; }
     }
 
     public class Project
@@ -38,6 +38,7 @@ namespace Revit_HyCal
         //管道需要一个沿程阻力参数,一个风量参数，管道性质参数放入this，
         public string name="新建工程";
         public string fullpath;
+        public string DocumentPathName;//储存相关的revit文件
         public  double doubleGBCCDXZXS;
         public  double doubleGBCCD;
         public  double doubleYDND;
@@ -49,8 +50,8 @@ namespace Revit_HyCal
         public List<DataElement> dataElements = new List<DataElement>();
 
         [XmlIgnore] public List<ElementId> elementIds=new List<ElementId> ();//保存管道系统id，dataEle的信息由程序读取及计算，局部阻力参数保存到族中
-        [XmlIgnore]public UIDocument uIDocument;
-        [XmlIgnore]public Document document;
+        //[XmlIgnore]public UIDocument uIDocument;
+        //[XmlIgnore]public Document document;
         public double cal_R(double de, double V) /*计算沿程阻力系数 de(当量直径) V(流速)*/
         {
             //y=x+2lg(a + bx);
@@ -92,14 +93,23 @@ namespace Revit_HyCal
 
     }
 
-    public class Form_Operation
+    public class MainForm_Operation
     {
         public static void check_before_close(MainForm mainForm)
         {
-            return;
+            MainForm_Operation.save_all(mainForm);
         }
         public static void new_project(MainForm mainFrom,Project project)
         {
+            //Project project = new Project();
+            if (project.DocumentPathName==null)
+            {
+                project.DocumentPathName = UIOperation.uIDocument.Document.PathName;
+            }
+            if (project.DocumentPathName!=UIOperation.uIDocument.Document.PathName)
+            {
+                TaskDialog.Show("Warning", "工程计算文件与当前打开的revit文档不一致！可能导致计算文件出错！");
+            }
             ProjectForm proForm = new ProjectForm(project);
             proForm.Text = proForm.myproject.name;
             proForm.MdiParent = mainFrom;
@@ -118,7 +128,7 @@ namespace Revit_HyCal
                 {
                     XmlSerializer xs = new  XmlSerializer(typeof(Project));
                     Project project = (Project)xs.Deserialize(fileStream);
-                    Form_Operation.new_project(mainForm, project);
+                    MainForm_Operation.new_project(mainForm, project);
                 }
             }
         }
@@ -126,19 +136,29 @@ namespace Revit_HyCal
         {
             if (mainForm.MdiChildren.Count()==0)
             {
-                TaskDialog.Show("保存", "没有需要保存的工程");
+                //TaskDialog.Show("保存", "没有需要保存的工程");
                 return;
             }
 
-            ProjectForm projectfrom = (ProjectForm)mainForm.ActiveMdiChild;
+            ProjectForm projectfrom = (ProjectForm)mainForm.ActiveMdiChild;//注意此处仅对激活窗口操作
             Project project = projectfrom.myproject;
-
+            if (project.fullpath!=null)
+            {
+                using (FileStream fileStream = new FileStream(project.fullpath, FileMode.OpenOrCreate, FileAccess.Write))
+                {
+                    XmlSerializer bf = new XmlSerializer(typeof(Project));
+                    bf.Serialize(fileStream, project);
+                }
+                return;
+            }
+            //新建工程完成以下步骤
             SaveFileDialog saveFileDialog = new SaveFileDialog();
             saveFileDialog.Filter = "工程文件|.hvac";
             if (saveFileDialog.ShowDialog()==DialogResult.OK)
             {
                 project.fullpath = saveFileDialog.FileName;
                 project.name = System.IO.Path.GetFileNameWithoutExtension(project.fullpath);
+                projectfrom.Text = project.name;
             }
             else
             {
@@ -153,8 +173,13 @@ namespace Revit_HyCal
         }
         public static void save_all(MainForm mainForm)
         {
+            if (mainForm.MdiChildren.Count()==0)
+            {
+                return;
+            }
             foreach (ProjectForm p in mainForm.MdiChildren)
             {
+                p.Activate();
                 save_project(mainForm);
             }
         }
@@ -167,9 +192,79 @@ namespace Revit_HyCal
                 return;
             }
             ProjectForm projectForm = (ProjectForm)mainForm.ActiveMdiChild;
-            List<ElementId> new_ids= UIOperation.pickPileLine(UIOperation.uIDocument, UIOperation.document);
-            UIOperation.uIDocument.Selection.SetElementIds(new_ids);
-            MessageBox.Show("1", "2");
+            List<ElementId> newIds = UIOperation.pickPileLine(UIOperation.uIDocument,UIOperation.uIDocument.Document);
+            if (newIds.Count==0)
+            {
+                return;
+            }
+            UIOperation.uIDocument.Selection.SetElementIds(newIds);
+            if (MessageBox.Show("是否将选择的管道系统写入（覆盖）工程？", "提示", MessageBoxButtons.YesNo) == DialogResult.Yes)
+            {
+                projectForm.myproject.elementIds = newIds;
+                projectForm.myproject.dataElements = UIOperation.EleIdsToDataEles(newIds);
+                projectForm.refresh_datagrid();
+            }
+        }
+
+        public static void Second_Pick(MainForm mainForm)
+        {
+            if (mainForm.MdiChildren.Count() == 0)
+            {
+                TaskDialog.Show("Error", "请新建工程");
+                return;
+            }
+            ProjectForm projectForm = (ProjectForm)mainForm.ActiveMdiChild;
+            if (projectForm.myproject.dataElements.Count==0)
+            {
+                First_Pick(mainForm);
+                return;
+            }
+            List<ElementId> oldIds = new List<ElementId>();
+            foreach (DataElement data in projectForm.myproject.dataElements)
+            {
+                oldIds.Add(new ElementId(data.ID));
+            }
+            List<ElementId> newIds = new List<ElementId>();
+            newIds = UIOperation.SecSelectPipeline(UIOperation.uIDocument, UIOperation.uIDocument.Document, oldIds);
+            if (newIds.Count==0)
+            {
+                return;
+            }
+            UIOperation.uIDocument.Selection.SetElementIds(newIds);
+            if (MessageBox.Show("是否将选择的管道系统写入（覆盖）工程？", "提示", MessageBoxButtons.YesNo) == DialogResult.Yes)
+            {
+                projectForm.myproject.elementIds = newIds;
+                projectForm.myproject.dataElements = UIOperation.EleIdsToDataEles(newIds);
+                projectForm.refresh_datagrid();
+            }
+        }
+
+        public static void cal_R(MainForm mainForm)
+        {
+            if (mainForm.MdiChildren.Count()==0)
+            {
+                return;
+            }
+
+            ProjectForm projectForm = (ProjectForm)mainForm.ActiveMdiChild;
+            foreach (DataElement data in projectForm.myproject.dataElements)
+            {
+                if (data.R==0)
+                {
+                    try
+                    {
+                        data.R = projectForm.myproject.cal_R(data.Diameter, data.V);
+                    }
+                    catch (Exception e)
+                    {
+
+                        MessageBox.Show(e.Message);
+                        return;
+                    }
+                    
+                }
+            }
+            projectForm.refresh_datagrid();
         }
     }
 
