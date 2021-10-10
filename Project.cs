@@ -28,6 +28,7 @@ namespace Revit_HyCal
         public double DPressure { get; set; } = 0;
         public double Pj { get; set; } = 0;
         public double TotalPressure { get; set; } = 0;
+        public string Remarks { get; set; } = "";//存储在工程文件，不返回到模型中
         public int ID { get; set; }
     }
 
@@ -59,7 +60,7 @@ namespace Revit_HyCal
             //y``=-2*b^2/(a+bx)^2
             if (this.doubleGBCCDXZXS == 0)
             {
-                throw new Exception("Error: 基础数据未初始化");
+                throw new Exception("Error: 工程未进行基础配置设置");
                 //return 0;
             }
             this.doubleGBCCD = this.doubleGBCCDXZXS * this.doubleGBCCD;
@@ -97,7 +98,7 @@ namespace Revit_HyCal
     {
         public static void check_before_close(MainForm mainForm)
         {
-            MainForm_Operation.save_all(mainForm);
+            MainForm_Operation.save_project(mainForm);
         }
         public static void new_project(MainForm mainFrom,Project project)
         {
@@ -111,7 +112,6 @@ namespace Revit_HyCal
                 TaskDialog.Show("Warning", "工程计算文件与当前打开的revit文档不一致！可能导致计算文件出错！");
             }
             ProjectForm proForm = new ProjectForm(project);
-            proForm.Text = proForm.myproject.name;
             proForm.MdiParent = mainFrom;
             proForm.Show();
         }
@@ -203,6 +203,7 @@ namespace Revit_HyCal
                 projectForm.myproject.elementIds = newIds;
                 projectForm.myproject.dataElements = UIOperation.EleIdsToDataEles(newIds);
                 projectForm.refresh_datagrid();
+                mainForm.Activate();
             }
         }
 
@@ -236,6 +237,7 @@ namespace Revit_HyCal
                 projectForm.myproject.elementIds = newIds;
                 projectForm.myproject.dataElements = UIOperation.EleIdsToDataEles(newIds);
                 projectForm.refresh_datagrid();
+                mainForm.Activate();
             }
         }
 
@@ -249,23 +251,22 @@ namespace Revit_HyCal
             ProjectForm projectForm = (ProjectForm)mainForm.ActiveMdiChild;
             foreach (DataElement data in projectForm.myproject.dataElements)
             {
-                if (data.R==0)
+                //每一个都校正
+                try
                 {
-                    try
-                    {
-                        data.R = projectForm.myproject.cal_R(data.Diameter, data.V);
-                    }
-                    catch (Exception e)
-                    {
-
-                        MessageBox.Show(e.Message);
-                        return;
-                    }
-                    
+                    data.R = projectForm.myproject.cal_R(data.Diameter, data.V);
+                    data.Py = data.R * data.Length;
                 }
+                catch (Exception e)
+                {
+                    MessageBox.Show(e.Message);
+                    return;
+                }
+                   
             }
             projectForm.refresh_datagrid();
         }
+
     }
 
     public class UBinder : SerializationBinder

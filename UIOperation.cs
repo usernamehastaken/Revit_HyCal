@@ -279,11 +279,59 @@ namespace Revit_HyCal
             for (int i = 1; i <= ids.Count(); i++)
             {
                 DataElement data = new DataElement();
+                Element ele = UIOperation.uIDocument.Document.GetElement(ids[i - 1]);
                 data.No = i;
                 data.ID = ids[i - 1].IntegerValue;
+                try
+                {
+                    Duct duct = (Duct)ele;
+                    if (duct!=null)
+                    {
+                        data.Airflow = double.Parse(get_Par(ids[i - 1], "流量"));
+                        data.Diameter = double.Parse(get_Par(ids[i - 1], "水力直径"));
+                        data.Height = double.Parse(get_Par(ids[i - 1], "高度"));
+                        data.Width = double.Parse(get_Par(ids[i - 1], "宽度"));
+                        data.Length = double.Parse(get_Par(ids[i - 1], "长度"));
+                    }
+
+                }
+                catch (Exception)
+                {
+
+                    //throw;
+                }
                 datas.Add(data);
             }
             return datas;
+        }
+
+        public static string get_Par(ElementId id,string name)
+        {
+            Element ele = UIOperation.uIDocument.Document.GetElement(id);
+            foreach (Parameter parameter in ele.Parameters)
+            {
+                if (parameter.Definition.Name==name)
+                {
+                    return parameter.AsValueString().Split(new char[] {' '})[0];
+                }
+            }
+            //throw new Exception("未能找到名称为："+name+"的参数！");
+            return null;
+        }
+
+        public static string get_Par(ElementId id, BuiltInParameter builtInParameter)
+        {
+            Element ele = UIOperation.uIDocument.Document.GetElement(id);
+            foreach (Parameter parameter in ele.Parameters)
+            {
+                InternalDefinition internalDefinition = (InternalDefinition)parameter.Definition;
+                if (internalDefinition.BuiltInParameter == builtInParameter)
+                {
+                    return parameter.AsValueString();
+                }
+            }
+            //throw new Exception("未能找到名称为："+name+"的参数！");
+            return null;
         }
     }
     public class MassSelectionFilter : ISelectionFilter

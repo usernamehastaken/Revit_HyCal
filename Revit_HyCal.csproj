@@ -123,5 +123,19 @@
   <ItemGroup>
     <None Include="Properties\DataSources\DataElement.datasource" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Icon\环境设置.png" />
+    <None Include="Icon\折线路径.png" />
+    <None Include="Icon\数据下载.png" />
+    <None Include="Icon\数据上传.png" />
+    <None Include="Icon\数据处理.png" />
+    <None Include="Icon\曲线路径.png" />
+    <None Include="Icon\打开文档.png" />
+    <Content Include="Icon\提取边界线.png" />
+    <Content Include="Icon\数据导入.png" />
+    <Content Include="Icon\数据导出.png" />
+    <Content Include="Icon\添加数据.png" />
+    <Content Include="Icon\线拓扑检查.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

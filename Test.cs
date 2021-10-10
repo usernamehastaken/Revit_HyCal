@@ -31,6 +31,7 @@ namespace Revit_HyCal
             UIOperation.uIDocument = commandData.Application.ActiveUIDocument;
             MainForm mainForm = new MainForm();
             mainForm.Show();
+            
         }
     }
     

@@ -31,13 +31,21 @@ namespace Revit_HyCal
             InitializeComponent();
             myproject = project;
             this.Text = myproject.name;
-            this.Project = project;
+            this.myproject = project;
 
         }
 
         public void refresh_datagrid()
         {
-            this.dataGridView1.DataSource = myproject.dataElements;
+            List<DataElement> show_datas = new List<DataElement>(myproject.dataElements);
+            double total_yancheng=0, total_jubu=0;
+            foreach (DataElement data in myproject.dataElements)
+            {
+                total_yancheng += data.Py;
+                total_jubu += data.Pj;
+            }
+            show_datas.Add(new DataElement() {Py = total_yancheng,Pj=total_jubu }) ;
+            this.dataGridView1.DataSource = show_datas;
             this.Refresh();
         }
     }
