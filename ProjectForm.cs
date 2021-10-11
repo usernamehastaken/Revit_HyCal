@@ -46,7 +46,14 @@ namespace Revit_HyCal
             }
             show_datas.Add(new DataElement() {Py = total_yancheng,Pj=total_jubu }) ;
             this.dataGridView1.DataSource = show_datas;
-            this.Refresh();
+            this.dataGridView1.Refresh();
         }
+
+        private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+
+        }
+
+
     }
 }

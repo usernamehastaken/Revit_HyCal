@@ -127,5 +127,11 @@ namespace Revit_HyCal
         {
             MainForm_Operation.Second_Pick(this);
         }
+
+        private void toolStripButton9_Click(object sender, EventArgs e)
+        {
+            ProjectForm projectForm = (ProjectForm)this.ActiveMdiChild;
+            projectForm.Refresh();
+        }
     }
 }
