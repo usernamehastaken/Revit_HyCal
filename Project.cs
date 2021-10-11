@@ -16,19 +16,177 @@ namespace Revit_HyCal
     public class DataElement
     {
         public int No { get; set; }
-        public double Airflow { get; set; } = 0;
-        public double Width { get; set; } = 0;
-        public double Height { get; set; } = 0;
-        public double Diameter { get; set; } = 0;
-        public double Length { get; set; } = 0;
-        public double V { get; set; } = 0;
-        public double R { get; set; } = 0;
-        public double Py { get; set; } = 0;
-        public double kSai { get; set; } = 0;
-        public double DPressure { get; set; } = 0;
-        public double Pj { get; set; } = 0;
+        public string Remarks { get; set; } = "";//存储在工程文件，不返回到模型中
+        private double airflow = 0;
+        public double Airflow
+        {
+            get
+            {
+                return airflow;
+            }
+            set
+            {
+                airflow = value;
+                //MessageBox.Show("a");
+                cal_V();
+            }
+        }
+        private double width = 0;
+        public double Width 
+        {
+            get
+            {
+                return width;
+            }
+            set
+            {
+                width = value;
+                cal_V();
+            }
+        }
+        private double height = 0;
+        public double Height
+        {
+            get
+            {
+                return height;
+            }
+            set
+            {
+                height = value;
+                cal_V();
+            }
+        }
+        private double diameter = 0;
+        public double Diameter
+        {
+            get
+            {
+                return diameter;
+            }
+            set
+            {
+                diameter = value;
+                cal_V();
+            }
+        }
+        private double length = 0;
+        public double Length
+        {
+            get
+            {
+                return length;
+            }
+            set
+            {
+                length = value;
+                cal_Py();
+            }
+        }
+        private double v = 0;
+        public double V 
+        {
+            get
+            {
+                return v;
+            }
+            set
+            {
+                v = value;
+                //cal_DPressure();
+            }
+        }
+        private double r = 0;
+        public double R
+        {
+            get
+            {
+                return r;
+            }
+            set
+            {
+                r = value;
+                cal_Py();
+            }
+        }
+        private double py = 0;
+        public double Py
+        {
+            get
+            {
+                return py;
+            }
+            set
+            {
+                py = value;
+                cal_Total();
+            }
+        }
+        private double ksai = 0;
+        public double kSai
+        {
+            get
+            {
+                return ksai;
+            }
+            set
+            {
+                ksai = value;
+                cal_Pj();
+            }
+        }
+        private double dpressure = 0;
+        public double DPressure
+        {
+            get
+            {
+                return dpressure;
+            }
+            set
+            {
+                dpressure = value;
+                cal_Pj();
+            }
+        }
+        private double pj = 0;
+        public double Pj
+        {
+            get
+            {
+                return pj;
+            }
+            set
+            {
+                pj = value;
+                cal_Total();
+            }
+        }
         public double TotalPressure { get; set; } = 0;
         public int ID { get; set; }
+
+        private void cal_V()
+        {
+            if (this.diameter==0)
+            {
+                this.v = this.airflow / 3600 / this.width / this.height * 1000000;
+            }
+            else
+            {
+                this.v = this.airflow / 3600 * 4 / 3.14 / this.diameter / this.diameter * 1000000;
+            }
+        }
+        private void cal_Py()
+        {
+            this.py = this.r * this.length/1000;
+        }
+        private void cal_Pj()
+        {
+            this.pj = this.ksai * this.dpressure;
+        }
+        private void cal_Total()
+        {
+            this.TotalPressure = this.py + this.pj;
+        }
     }
 
     public class Project
@@ -59,7 +217,7 @@ namespace Revit_HyCal
             //y``=-2*b^2/(a+bx)^2
             if (this.doubleGBCCDXZXS == 0)
             {
-                throw new Exception("Error: 基础数据未初始化");
+                throw new Exception("Error: 工程未进行基础配置设置");
                 //return 0;
             }
             this.doubleGBCCD = this.doubleGBCCDXZXS * this.doubleGBCCD;
@@ -97,7 +255,7 @@ namespace Revit_HyCal
     {
         public static void check_before_close(MainForm mainForm)
         {
-            MainForm_Operation.save_all(mainForm);
+            MainForm_Operation.save_project(mainForm);
         }
         public static void new_project(MainForm mainFrom,Project project)
         {
@@ -111,7 +269,6 @@ namespace Revit_HyCal
                 TaskDialog.Show("Warning", "工程计算文件与当前打开的revit文档不一致！可能导致计算文件出错！");
             }
             ProjectForm proForm = new ProjectForm(project);
-            proForm.Text = proForm.myproject.name;
             proForm.MdiParent = mainFrom;
             proForm.Show();
         }
@@ -200,9 +357,10 @@ namespace Revit_HyCal
             UIOperation.uIDocument.Selection.SetElementIds(newIds);
             if (MessageBox.Show("是否将选择的管道系统写入（覆盖）工程？", "提示", MessageBoxButtons.YesNo) == DialogResult.Yes)
             {
-                projectForm.myproject.elementIds = newIds;
-                projectForm.myproject.dataElements = UIOperation.EleIdsToDataEles(newIds);
+                projectForm.myproject.elementIds = newIds;//赋值eleids
+                projectForm.myproject = UIOperation.ElementIdsToProject(newIds,projectForm.myproject);
                 projectForm.refresh_datagrid();
+                mainForm.Activate();
             }
         }
 
@@ -214,7 +372,7 @@ namespace Revit_HyCal
                 return;
             }
             ProjectForm projectForm = (ProjectForm)mainForm.ActiveMdiChild;
-            if (projectForm.myproject.dataElements.Count==0)
+            if (projectForm.myproject.dataElements.Count==0)//如果之前未有模型录入
             {
                 First_Pick(mainForm);
                 return;
@@ -234,8 +392,9 @@ namespace Revit_HyCal
             if (MessageBox.Show("是否将选择的管道系统写入（覆盖）工程？", "提示", MessageBoxButtons.YesNo) == DialogResult.Yes)
             {
                 projectForm.myproject.elementIds = newIds;
-                projectForm.myproject.dataElements = UIOperation.EleIdsToDataEles(newIds);
+                projectForm.myproject = UIOperation.ElementIdsToProject(newIds,projectForm.myproject);
                 projectForm.refresh_datagrid();
+                mainForm.Activate();
             }
         }
 
@@ -249,23 +408,22 @@ namespace Revit_HyCal
             ProjectForm projectForm = (ProjectForm)mainForm.ActiveMdiChild;
             foreach (DataElement data in projectForm.myproject.dataElements)
             {
-                if (data.R==0)
+                //每一个都校正
+                try
                 {
-                    try
-                    {
-                        data.R = projectForm.myproject.cal_R(data.Diameter, data.V);
-                    }
-                    catch (Exception e)
-                    {
-
-                        MessageBox.Show(e.Message);
-                        return;
-                    }
-                    
+                    data.R = projectForm.myproject.cal_R(data.Diameter/1000, data.V);
+                    data.DPressure = projectForm.myproject.cal_DPressure(data.V);
                 }
+                catch (Exception e)
+                {
+                    MessageBox.Show(e.Message);
+                    return;
+                }
+                   
             }
             projectForm.refresh_datagrid();
         }
+
     }
 
     public class UBinder : SerializationBinder

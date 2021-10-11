@@ -14,11 +14,11 @@ namespace Revit_HyCal
         /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
+            MainForm_Operation.save_project((MainForm)this.MdiParent);
             if (disposing && (components != null))
             {
                 components.Dispose();
             }
-            MainForm_Operation.check_before_close((MainForm)this.MdiParent);
             base.Dispose(disposing);
         }
 
@@ -34,6 +34,7 @@ namespace Revit_HyCal
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
             this.dataElementBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.noDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.remarksDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.airflowDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.widthDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.heightDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -55,9 +56,11 @@ namespace Revit_HyCal
             // 
             this.dataGridView1.AutoGenerateColumns = false;
             this.dataGridView1.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
+            this.dataGridView1.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.DisplayedHeaders;
             this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataGridView1.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.noDataGridViewTextBoxColumn,
+            this.remarksDataGridViewTextBoxColumn,
             this.airflowDataGridViewTextBoxColumn,
             this.widthDataGridViewTextBoxColumn,
             this.heightDataGridViewTextBoxColumn,
@@ -88,6 +91,12 @@ namespace Revit_HyCal
             this.noDataGridViewTextBoxColumn.DataPropertyName = "No";
             this.noDataGridViewTextBoxColumn.HeaderText = "No";
             this.noDataGridViewTextBoxColumn.Name = "noDataGridViewTextBoxColumn";
+            // 
+            // remarksDataGridViewTextBoxColumn
+            // 
+            this.remarksDataGridViewTextBoxColumn.DataPropertyName = "Remarks";
+            this.remarksDataGridViewTextBoxColumn.HeaderText = "Remarks";
+            this.remarksDataGridViewTextBoxColumn.Name = "remarksDataGridViewTextBoxColumn";
             // 
             // airflowDataGridViewTextBoxColumn
             // 
@@ -184,8 +193,8 @@ namespace Revit_HyCal
         #endregion
 
         private System.Windows.Forms.DataGridView dataGridView1;
-        private System.Windows.Forms.BindingSource dataElementBindingSource;
         private System.Windows.Forms.DataGridViewTextBoxColumn noDataGridViewTextBoxColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn remarksDataGridViewTextBoxColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn airflowDataGridViewTextBoxColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn widthDataGridViewTextBoxColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn heightDataGridViewTextBoxColumn;
@@ -199,5 +208,6 @@ namespace Revit_HyCal
         private System.Windows.Forms.DataGridViewTextBoxColumn pjDataGridViewTextBoxColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn totalPressureDataGridViewTextBoxColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn iDDataGridViewTextBoxColumn;
+        private System.Windows.Forms.BindingSource dataElementBindingSource;
     }
 }

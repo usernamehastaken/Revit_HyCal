@@ -103,7 +103,7 @@ namespace Revit_HyCal
 
         public static List<ElementId> SecSelectPipeline(UIDocument uIDocument, Document document,List<ElementId> elementIds)
         {
-            //二次选取
+            //二次选取,输入的eleids有修改，不能传递原始集合
             //选取管道原件，并指定起始端，返回元素id集合，起始端id放最后
             //!!!Causion last one is element_origin
             //List<ElementId> elementIds = new List<ElementId>();
@@ -273,17 +273,84 @@ namespace Revit_HyCal
             return lstPipelineids;
         }
 
-        public static List<DataElement> EleIdsToDataEles(List<ElementId> ids)
+        public static Project ElementIdsToProject(List<ElementId> ElementIds, Project project)
         {
-            List<DataElement> datas = new List<DataElement>();
-            for (int i = 1; i <= ids.Count(); i++)
+            //补全project的eleids
+            if (project.elementIds.Count==0&& project.dataElements.Count>0)
             {
-                DataElement data = new DataElement();
-                data.No = i;
-                data.ID = ids[i - 1].IntegerValue;
-                datas.Add(data);
+                foreach (DataElement item in project.dataElements)
+                {
+                    project.elementIds.Add(new ElementId(item.ID));
+                }
             }
-            return datas;
+            //elementids 是有顺序的
+            project.dataElements.Clear();
+            for (int i = 0; i < ElementIds.Count; i++)
+            {
+                Element element = UIOperation.uIDocument.Document.GetElement(ElementIds[i]);
+                //不保存remark信息，一律重新改写
+                DataElement data = new DataElement();
+                data.No = i + 1;
+                data.ID = ElementIds[i].IntegerValue;
+                try
+                {
+                    Duct duct = (Duct)element;
+                    if (duct != null)
+                    {
+                        data.Remarks = "风管";
+                        data.Airflow = double.Parse(get_Par(ElementIds[i], "流量"));
+                        data.Width = double.Parse(get_Par(ElementIds[i], "宽度"));
+                        data.Height = double.Parse(get_Par(ElementIds[i], "高度"));
+                        data.Diameter = double.Parse(get_Par(ElementIds[i], "水力直径"));
+                        data.Length = double.Parse(get_Par(ElementIds[i], "长度"));
+                        if (double.Parse(get_Par(ElementIds[i],"直径"))>0)
+                        {
+                            data.V = data.Airflow / 3600 * 4 / 3.14 / data.Diameter / data.Diameter * 1000000;
+                        }
+                        else
+                        {
+                            data.V = data.Airflow / 3600 / data.Width / data.Height * 1000000;
+                        }
+                        data.R = project.cal_R(data.Diameter, data.V);
+                    }
+                }
+                catch (Exception e)
+                {
+                    ;
+                    
+                }
+                project.dataElements.Add(data);
+            }
+            return project;
+        }
+
+        public static string get_Par(ElementId id,string name)
+        {
+            Element ele = UIOperation.uIDocument.Document.GetElement(id);
+            foreach (Parameter parameter in ele.Parameters)
+            {
+                if (parameter.Definition.Name==name)
+                {
+                    return parameter.AsValueString().Split(new char[] {' '})[0];
+                }
+            }
+            //throw new Exception("未能找到名称为："+name+"的参数！");
+            return "0";
+        }
+
+        public static string get_Par(ElementId id, BuiltInParameter builtInParameter)
+        {
+            Element ele = UIOperation.uIDocument.Document.GetElement(id);
+            foreach (Parameter parameter in ele.Parameters)
+            {
+                InternalDefinition internalDefinition = (InternalDefinition)parameter.Definition;
+                if (internalDefinition.BuiltInParameter == builtInParameter)
+                {
+                    return parameter.AsValueString();
+                }
+            }
+            //throw new Exception("未能找到名称为："+name+"的参数！");
+            return null;
         }
     }
     public class MassSelectionFilter : ISelectionFilter
