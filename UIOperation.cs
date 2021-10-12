@@ -294,32 +294,67 @@ namespace Revit_HyCal
                 data.ID = ElementIds[i].IntegerValue;
                 try
                 {
-                    Duct duct = (Duct)element;
-                    if (duct != null)
+                    switch (element.Category.Name)
                     {
-                        data.Remarks = "风管";
-                        data.Airflow = double.Parse(get_Par(ElementIds[i], "流量"));
-                        data.Width = double.Parse(get_Par(ElementIds[i], "宽度"));
-                        data.Height = double.Parse(get_Par(ElementIds[i], "高度"));
-                        data.Diameter = double.Parse(get_Par(ElementIds[i], "水力直径"));
-                        data.Length = double.Parse(get_Par(ElementIds[i], "长度"));
-                        if (double.Parse(get_Par(ElementIds[i],"直径"))>0)
-                        {
-                            data.V = data.Airflow / 3600 * 4 / 3.14 / data.Diameter / data.Diameter * 1000000;
-                        }
-                        else
-                        {
-                            data.V = data.Airflow / 3600 / data.Width / data.Height * 1000000;
-                        }
-                        data.R = project.cal_R(data.Diameter, data.V);
+                        case "风管":
+                            data.Remarks = "风管";
+                            data.Width = double.Parse(get_Par(ElementIds[i], "宽度"));
+                            data.Height = double.Parse(get_Par(ElementIds[i], "高度"));
+                            data.Diameter = double.Parse(get_Par(ElementIds[i], "水力直径"));
+                            data.Length = double.Parse(get_Par(ElementIds[i], "长度"));
+                            data.Airflow = double.Parse(get_Par(ElementIds[i], "流量"));
+                            data.R = project.cal_R(data.Diameter, data.V);
+                            project.dataElements.Add(data);
+                            break;
+                        case "软风管":
+                            data.Remarks = "风管";
+                            data.Width = double.Parse(get_Par(ElementIds[i], "宽度"));
+                            data.Height = double.Parse(get_Par(ElementIds[i], "高度"));
+                            data.Diameter = double.Parse(get_Par(ElementIds[i], "水力直径"));
+                            data.Length = double.Parse(get_Par(ElementIds[i], "长度"));
+                            data.Airflow = double.Parse(get_Par(ElementIds[i], "流量"));
+                            data.R = project.cal_R(data.Diameter, data.V);
+                            project.dataElements.Add(data);
+                            break;
+                        case "风管管件":
+                            FamilyInstance familyInstance = (FamilyInstance)element;
+                            MechanicalFitting mechanicalFitting = (MechanicalFitting)familyInstance.MEPModel;
+                            if (mechanicalFitting.PartType.ToString()=="Elbow")
+                            {
+                                data.Remarks = "弯头";
+                                data.Width = double.Parse(get_Par(ElementIds[i], "宽度"));
+                                data.Height = double.Parse(get_Par(ElementIds[i], "高度"));
+                                data.Diameter = double.Parse(get_Par(ElementIds[i], "水力直径"));
+                                data.R = 0.42;
+                                project.dataElements.Add(data);
+                            }
+                            if (mechanicalFitting.PartType.ToString()=="Tee")
+                            {
+                                data.Remarks = "三通";
+                                FamilySymbol familySymbol = familyInstance.Symbol;
+                                Family family = familySymbol.Family;
+                                foreach (Parameter item in family.Parameters)
+                                {
+                                    if (item.Definition.Name=="零件类型")
+                                    {
+                                        data.Remarks = data.Remarks + ":" + item.AsValueString();
+                                    }
+                                }
+                                project.dataElements.Add(data);
+                            }
+                            break;
+                        default :
+                            data.Remarks = "附件";
+                            project.dataElements.Add(data);
+                            break;
                     }
+
                 }
                 catch (Exception e)
                 {
-                    ;
-                    
+                    TaskDialog.Show("Error", e.Message);
+                    return project;
                 }
-                project.dataElements.Add(data);
             }
             return project;
         }

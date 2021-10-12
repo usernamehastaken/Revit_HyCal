@@ -7,10 +7,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Autodesk.Revit.DB;
+using Autodesk.Revit.Attributes;
+using Autodesk.Revit.UI;
 
 namespace Revit_HyCal
 {
-    public partial class ProjectForm : Form
+    public partial class ProjectForm : System.Windows.Forms.Form
     {
         private Project Project;
         public Project myproject 
@@ -49,9 +52,17 @@ namespace Revit_HyCal
             this.dataGridView1.Refresh();
         }
 
-        private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        private void datagridview1_RowHeaderMouseClick(object sender, DataGridViewCellMouseEventArgs e)
         {
-
+            //int id = int.Parse(this.dataGridView1["iDDataGridViewTextBoxColumn", this.dataGridView1.CurrentRow.Index].Value.ToString());
+            //ElementId elementId = new ElementId(id);
+            //UIOperation.uIDocument.Selection.SetElementIds(new List<ElementId>() { elementId });
+            List<ElementId> elementIds = new List<ElementId>();
+            foreach (DataGridViewRow item in this.dataGridView1.SelectedRows)
+            {
+                elementIds.Add(new ElementId(int.Parse(item.Cells["iDDataGridViewTextBoxColumn"].Value.ToString())));
+            }
+            UIOperation.uIDocument.Selection.SetElementIds(elementIds);
         }
 
 

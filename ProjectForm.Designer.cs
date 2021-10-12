@@ -85,8 +85,8 @@ namespace Revit_HyCal
             this.dataGridView1.RowTemplate.Height = 23;
             this.dataGridView1.Size = new System.Drawing.Size(1200, 675);
             this.dataGridView1.TabIndex = 0;
-            this.dataGridView1.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_CellContentClick);
             this.dataGridView1.CellEndEdit += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_CellEnter);
+            this.dataGridView1.RowHeaderMouseClick += new DataGridViewCellMouseEventHandler(this.datagridview1_RowHeaderMouseClick);
             // 
             // noDataGridViewTextBoxColumn
             // 
@@ -211,6 +211,8 @@ namespace Revit_HyCal
             this.ResumeLayout(false);
 
         }
+
+ 
 
         private void dataGridView1_CellEnter(object sender, DataGridViewCellEventArgs e)
         {
