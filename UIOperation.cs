@@ -319,16 +319,16 @@ namespace Revit_HyCal
                         case "风管管件":
                             FamilyInstance familyInstance = (FamilyInstance)element;
                             MechanicalFitting mechanicalFitting = (MechanicalFitting)familyInstance.MEPModel;
-                            if (mechanicalFitting.PartType.ToString()=="Elbow")
+                            if (mechanicalFitting.PartType==PartType.Elbow)
                             {
                                 data.Remarks = "弯头";
                                 data.Width = double.Parse(get_Par(ElementIds[i], "宽度"));
                                 data.Height = double.Parse(get_Par(ElementIds[i], "高度"));
                                 data.Diameter = double.Parse(get_Par(ElementIds[i], "水力直径"));
-                                data.R = 0.42;
+                                //data.kSai = 0.42;//统一由cal_ksai来赋值
                                 project.dataElements.Add(data);
                             }
-                            if (mechanicalFitting.PartType.ToString()=="Tee")
+                            if (mechanicalFitting.PartType==PartType.Tee)
                             {
                                 data.Remarks = "三通";
                                 FamilySymbol familySymbol = familyInstance.Symbol;
@@ -342,6 +342,16 @@ namespace Revit_HyCal
                                 }
                                 project.dataElements.Add(data);
                             }
+                            break;
+                        case "风道末端":
+                            data.Remarks = "风管末端";
+                            //data.Width = double.Parse(get_Par(ElementIds[i], "宽度"));
+                            //data.Height = double.Parse(get_Par(ElementIds[i], "高度"));
+                            //data.Diameter = double.Parse(get_Par(ElementIds[i], "水力直径"));
+                            //data.Length = double.Parse(get_Par(ElementIds[i], "长度"));
+                            data.Airflow = double.Parse(get_Par(ElementIds[i], "流量"));
+                            //data.R = project.cal_R(data.Diameter, data.V);
+                            project.dataElements.Add(data);
                             break;
                         default :
                             data.Remarks = "附件";

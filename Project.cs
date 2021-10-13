@@ -9,7 +9,9 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB;
+using Autodesk.Revit.DB.Mechanical;
 using Autodesk.Revit.UI;
+using System.Text.RegularExpressions;
 
 namespace Revit_HyCal
 {
@@ -422,6 +424,43 @@ namespace Revit_HyCal
                    
             }
             projectForm.refresh_datagrid();
+        }
+
+        public static void cal_ksi(MainForm mainForm)
+        {
+            if (mainForm.MdiChildren.Count()==0)
+            {
+                return;
+            }
+
+            ProjectForm projectForm = (ProjectForm)mainForm.ActiveMdiChild;
+            Project project = projectForm.myproject;
+            if (project.dataElements.Count==0)
+            {
+                return;
+            }
+
+            for (int i = 0; i < project.dataElements.Count(); i++)//按顺序读取
+            {
+                Element element = UIOperation.uIDocument.Document.GetElement(new ElementId(project.dataElements[i].ID));
+                switch (element.Category.Name)
+                {
+                    case "风管":
+                        if (i==0)
+                        {
+                            project.dataElements[i].kSai = 0.5;//风管作为风口
+                        }
+                        break;
+                    case "风道末端":
+                        project.dataElements[i].kSai = 3.3;//回风口
+                        break;
+                    case "风管管件":
+                        ///分弯头，T三通，Y三通，变径
+                        break
+                    default:
+                        break;
+                }   
+            } 
         }
 
     }

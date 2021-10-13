@@ -125,7 +125,7 @@ namespace Revit_HyCal
 
         private void toolStripButton6_Click(object sender, EventArgs e)
         {
-            MainForm_Operation.Second_Pick(this);
+            ;
         }
 
         private void toolStripButton9_Click(object sender, EventArgs e)
