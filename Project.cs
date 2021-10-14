@@ -428,14 +428,14 @@ namespace Revit_HyCal
 
         public static void cal_ksi(MainForm mainForm)
         {
-            if (mainForm.MdiChildren.Count()==0)
+            if (mainForm.MdiChildren.Count()==0)//无打开工程
             {
                 return;
             }
 
             ProjectForm projectForm = (ProjectForm)mainForm.ActiveMdiChild;
             Project project = projectForm.myproject;
-            if (project.dataElements.Count==0)
+            if (project.dataElements.Count==0)//空白工程
             {
                 return;
             }
@@ -455,8 +455,154 @@ namespace Revit_HyCal
                         project.dataElements[i].kSai = 3.3;//回风口
                         break;
                     case "风管管件":
-                        ///分弯头，T三通，Y三通，变径
-                        break
+                        ///分弯头，T三通，Y三通，变径//根据给定类型选定数据表，需要定义一个常量表
+                        MEPModel mEPModel = ((FamilyInstance)element).MEPModel;
+                        switch (((MechanicalFitting)mEPModel).PartType)
+                        {
+                            case PartType.Undefined:
+                                break;
+                            case PartType.Normal:
+                                break;
+                            case PartType.DuctMounted:
+                                break;
+                            case PartType.JunctionBox:
+                                break;
+                            case PartType.AttachesTo:
+                                break;
+                            case PartType.BreaksInto:
+                                break;
+                            case PartType.Elbow://弯头
+                                project.dataElements[i].kSai = 0.38;
+                                break;
+                            case PartType.Tee://T型三通
+                                break;
+                            case PartType.Transition://过渡件
+                                FamilySymbol familySymbol = ((FamilyInstance)element).Symbol;
+                                foreach (Parameter parameter in familySymbol.Parameters)
+                                {
+                                    if (parameter.Definition.Name=="角度")
+                                    {
+                                        double theta = double.Parse(Regex.Match(parameter.AsValueString(), @"(\d+.\d+)").Groups[1].Value);
+                                    }
+                                }
+
+                                foreach (Parameter parameter in familySymbol.Parameters)
+                                {
+                                    if (parameter.Definition.Name=="尺寸")
+                                    {
+                                        string[] strvalue = parameter.AsString().Split(new char[] { '-'});
+                                        700ø - 300ø;
+                                    }
+                                }
+                                break;
+                            case PartType.Cross:
+                                break;
+                            case PartType.Cap:
+                                break;
+                            case PartType.TapPerpendicular:
+                                break;
+                            case PartType.TapAdjustable:
+                                break;
+                            case PartType.Offset:
+                                break;
+                            case PartType.Union:
+                                break;
+                            case PartType.PanelBoard:
+                                break;
+                            case PartType.Transformer:
+                                break;
+                            case PartType.SwitchBoard:
+                                break;
+                            case PartType.OtherPanel:
+                                break;
+                            case PartType.EquipmentSwitch:
+                                break;
+                            case PartType.Switch:
+                                break;
+                            case PartType.ValveBreaksInto:
+                                break;
+                            case PartType.SpudPerpendicular:
+                                break;
+                            case PartType.SpudAdjustable:
+                                break;
+                            case PartType.Damper:
+                                break;
+                            case PartType.Wye://Y型三通
+                                break;
+                            case PartType.LateralTee:
+                                break;
+                            case PartType.LateralCross:
+                                break;
+                            case PartType.Pants:
+                                break;
+                            case PartType.MultiPort:
+                                break;
+                            case PartType.ValveNormal:
+                                break;
+                            case PartType.JunctionBoxTee:
+                                break;
+                            case PartType.JunctionBoxCross:
+                                break;
+                            case PartType.PipeFlange:
+                                break;
+                            case PartType.JunctionBoxElbow:
+                                break;
+                            case PartType.ChannelCableTrayElbow:
+                                break;
+                            case PartType.ChannelCableTrayVerticalElbow:
+                                break;
+                            case PartType.ChannelCableTrayCross:
+                                break;
+                            case PartType.ChannelCableTrayTee:
+                                break;
+                            case PartType.ChannelCableTrayTransition:
+                                break;
+                            case PartType.ChannelCableTrayUnion:
+                                break;
+                            case PartType.ChannelCableTrayOffset:
+                                break;
+                            case PartType.ChannelCableTrayMultiPort:
+                                break;
+                            case PartType.LadderCableTrayElbow:
+                                break;
+                            case PartType.LadderCableTrayVerticalElbow:
+                                break;
+                            case PartType.LadderCableTrayCross:
+                                break;
+                            case PartType.LadderCableTrayTee:
+                                break;
+                            case PartType.LadderCableTrayTransition:
+                                break;
+                            case PartType.LadderCableTrayUnion:
+                                break;
+                            case PartType.LadderCableTrayOffset:
+                                break;
+                            case PartType.LadderCableTrayMultiPort:
+                                break;
+                            case PartType.InlineSensor:
+                                break;
+                            case PartType.Sensor:
+                                break;
+                            case PartType.EndCap:
+                                break;
+                            case PartType.HandrailBracketHardware:
+                                break;
+                            case PartType.PanelBracketHardware:
+                                break;
+                            case PartType.TerminationHardware:
+                                break;
+                            case PartType.Rails:
+                                break;
+                            case PartType.Handrails:
+                                break;
+                            case PartType.TopRails:
+                                break;
+                            case PartType.PipeMechanicalCoupling:
+                                break;
+                            default:
+                                break;
+                        }
+                        break;
                     default:
                         break;
                 }   
