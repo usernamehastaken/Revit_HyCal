@@ -459,147 +459,71 @@ namespace Revit_HyCal
                         MEPModel mEPModel = ((FamilyInstance)element).MEPModel;
                         switch (((MechanicalFitting)mEPModel).PartType)
                         {
-                            case PartType.Undefined:
-                                break;
-                            case PartType.Normal:
-                                break;
-                            case PartType.DuctMounted:
-                                break;
-                            case PartType.JunctionBox:
-                                break;
-                            case PartType.AttachesTo:
-                                break;
-                            case PartType.BreaksInto:
-                                break;
                             case PartType.Elbow://弯头
+                                foreach (Parameter p in element.Parameters)
+                                {
+                                    if (p.Definition.Name=="角度")
+                                    {
+
+                                    }
+                                }
                                 project.dataElements[i].kSai = 0.38;
                                 break;
                             case PartType.Tee://T型三通
+
                                 break;
                             case PartType.Transition://过渡件
                                 FamilySymbol familySymbol = ((FamilyInstance)element).Symbol;
-                                foreach (Parameter parameter in familySymbol.Parameters)
+                                double theta=0; double F0; double F1; double F0_F1=0;
+                                foreach (Parameter parameter in familySymbol.Parameters)//读取角度
                                 {
                                     if (parameter.Definition.Name=="角度")
                                     {
-                                        double theta = double.Parse(Regex.Match(parameter.AsValueString(), @"(\d+.\d+)").Groups[1].Value);
+                                        theta = double.Parse(Regex.Match(parameter.AsValueString(), @"(\d+.\d+)").Groups[1].Value);
                                     }
                                 }
-
-                                foreach (Parameter parameter in familySymbol.Parameters)
+                                foreach (Parameter parameter in familySymbol.Parameters)//计算F0_F1
                                 {
                                     if (parameter.Definition.Name=="尺寸")
                                     {
                                         string[] strvalue = parameter.AsString().Split(new char[] { '-'});
-                                        700ø - 300ø;
+                                        //计算F0
+                                        strvalue[0] = Regex.Replace(strvalue[0], @"mm", "");//去除单位
+                                        strvalue[0] = Regex.Replace(strvalue[0], @"ø", "");//去除fai
+                                        if (strvalue[0].Split(new char[] { 'x'}).Count()>1)
+                                        {
+                                            F0 = double.Parse(strvalue[0].Split(new char[] { 'x' })[0]) * double.Parse(strvalue[0].Split(new char[] { 'x' })[1]);
+                                        }
+                                        else
+                                        {
+                                            F0 = double.Parse(strvalue[0]) * double.Parse(strvalue[0]) * 3.14 / 4;
+                                        }
+                                        //计算F1
+                                        strvalue[1] = Regex.Replace(strvalue[1], @"mm", "");//去除单位
+                                        strvalue[1] = Regex.Replace(strvalue[1], @"ø", "");//去除fai
+                                        if (strvalue[1].Split(new char[] { 'x' }).Count() > 1)
+                                        {
+                                            F1 = double.Parse(strvalue[1].Split(new char[] { 'x' })[0]) * double.Parse(strvalue[1].Split(new char[] { 'x' })[1]);
+                                        }
+                                        else
+                                        {
+                                            F1 = double.Parse(strvalue[1]) * double.Parse(strvalue[1]) * 3.14 / 4;
+                                        }
+
+                                        if (F0 > F1)
+                                        {
+                                            F0_F1 = F1 / F0;
+                                        }
+                                        else
+                                        {
+                                            F0_F1 = F0 / F1;
+                                        }
+                                        //project.dataElements[i].kSai = get_ksi();
                                     }
                                 }
-                                break;
-                            case PartType.Cross:
-                                break;
-                            case PartType.Cap:
-                                break;
-                            case PartType.TapPerpendicular:
-                                break;
-                            case PartType.TapAdjustable:
-                                break;
-                            case PartType.Offset:
-                                break;
-                            case PartType.Union:
-                                break;
-                            case PartType.PanelBoard:
-                                break;
-                            case PartType.Transformer:
-                                break;
-                            case PartType.SwitchBoard:
-                                break;
-                            case PartType.OtherPanel:
-                                break;
-                            case PartType.EquipmentSwitch:
-                                break;
-                            case PartType.Switch:
-                                break;
-                            case PartType.ValveBreaksInto:
-                                break;
-                            case PartType.SpudPerpendicular:
-                                break;
-                            case PartType.SpudAdjustable:
-                                break;
-                            case PartType.Damper:
+                                TaskDialog.Show(F0_F1.ToString(), theta.ToString());
                                 break;
                             case PartType.Wye://Y型三通
-                                break;
-                            case PartType.LateralTee:
-                                break;
-                            case PartType.LateralCross:
-                                break;
-                            case PartType.Pants:
-                                break;
-                            case PartType.MultiPort:
-                                break;
-                            case PartType.ValveNormal:
-                                break;
-                            case PartType.JunctionBoxTee:
-                                break;
-                            case PartType.JunctionBoxCross:
-                                break;
-                            case PartType.PipeFlange:
-                                break;
-                            case PartType.JunctionBoxElbow:
-                                break;
-                            case PartType.ChannelCableTrayElbow:
-                                break;
-                            case PartType.ChannelCableTrayVerticalElbow:
-                                break;
-                            case PartType.ChannelCableTrayCross:
-                                break;
-                            case PartType.ChannelCableTrayTee:
-                                break;
-                            case PartType.ChannelCableTrayTransition:
-                                break;
-                            case PartType.ChannelCableTrayUnion:
-                                break;
-                            case PartType.ChannelCableTrayOffset:
-                                break;
-                            case PartType.ChannelCableTrayMultiPort:
-                                break;
-                            case PartType.LadderCableTrayElbow:
-                                break;
-                            case PartType.LadderCableTrayVerticalElbow:
-                                break;
-                            case PartType.LadderCableTrayCross:
-                                break;
-                            case PartType.LadderCableTrayTee:
-                                break;
-                            case PartType.LadderCableTrayTransition:
-                                break;
-                            case PartType.LadderCableTrayUnion:
-                                break;
-                            case PartType.LadderCableTrayOffset:
-                                break;
-                            case PartType.LadderCableTrayMultiPort:
-                                break;
-                            case PartType.InlineSensor:
-                                break;
-                            case PartType.Sensor:
-                                break;
-                            case PartType.EndCap:
-                                break;
-                            case PartType.HandrailBracketHardware:
-                                break;
-                            case PartType.PanelBracketHardware:
-                                break;
-                            case PartType.TerminationHardware:
-                                break;
-                            case PartType.Rails:
-                                break;
-                            case PartType.Handrails:
-                                break;
-                            case PartType.TopRails:
-                                break;
-                            case PartType.PipeMechanicalCoupling:
-                                break;
-                            default:
                                 break;
                         }
                         break;
