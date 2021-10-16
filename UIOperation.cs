@@ -397,6 +397,25 @@ namespace Revit_HyCal
             //throw new Exception("未能找到名称为："+name+"的参数！");
             return null;
         }
+
+        public static double get_Angle(XYZ p1,XYZ p2)
+        {
+            double angle = p1.AngleTo(p2);
+            if (angle>90)
+            {
+                return 180 - angle;
+            }
+            return angle;
+        }
+
+        public static XYZ get_XYZfromConnector(Connector connector)
+        {
+            double X = connector.CoordinateSystem.BasisX.X;
+            double Y = connector.CoordinateSystem.BasisY.X;
+            double Z = connector.CoordinateSystem.BasisZ.X;
+            return new XYZ(X, Y, Z);
+        }
+
     }
     public class MassSelectionFilter : ISelectionFilter
     {

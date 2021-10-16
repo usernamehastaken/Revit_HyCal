@@ -460,14 +460,27 @@ namespace Revit_HyCal
                         switch (((MechanicalFitting)mEPModel).PartType)
                         {
                             case PartType.Elbow://弯头
-                                foreach (Parameter p in element.Parameters)
+                                List<XYZ> points = new List<XYZ>();
+                                ConnectorSet connectorSet = mEPModel.ConnectorManager.Connectors;
+                                foreach (Connector connector in connectorSet)
                                 {
-                                    if (p.Definition.Name=="角度")
-                                    {
-
-                                    }
+                                    points[points.Count] = UIOperation.get_XYZfromConnector(connector);
                                 }
-                                project.dataElements[i].kSai = 0.38;
+                                double angle = UIOperation.get_Angle(points[0], points[1]);
+                                if (Math.Round(angle,2)<=90 || Math.Round(angle,2)>60)
+                                {
+                                    project.dataElements[i].kSai = 0.38;
+                                    break;
+                                }
+                                if (Math.Round(angle,2)<=60 || Math.Round(angle,2)>45)
+                                {
+                                    project.dataElements[i].kSai = 0.2;
+                                    break;
+                                }
+                                if (Math.Round(angle,2)<=45)
+                                {
+                                    project.dataElements[i].kSai = 0.2;
+                                }
                                 break;
                             case PartType.Tee://T型三通
 
