@@ -400,7 +400,7 @@ namespace Revit_HyCal
 
         public static double get_Angle(XYZ p1,XYZ p2)
         {
-            double angle = p1.AngleTo(p2);
+            double angle = Math.Round(p1.AngleTo(p2)/Math.PI*180,2);
             if (angle>90)
             {
                 return 180 - angle;
@@ -408,12 +408,19 @@ namespace Revit_HyCal
             return angle;
         }
 
-        public static XYZ get_XYZfromConnector(Connector connector)
+        public static XYZ get_VectorFromConnector(Connector connector,XYZ origin)
         {
-            double X = connector.CoordinateSystem.BasisX.X;
-            double Y = connector.CoordinateSystem.BasisY.X;
-            double Z = connector.CoordinateSystem.BasisZ.X;
+            double X = connector.CoordinateSystem.BasisX.X*origin.X + connector.CoordinateSystem.BasisX.Y * origin.Y + connector.CoordinateSystem.BasisX.Z * origin.Z;
+            double Y = connector.CoordinateSystem.BasisY.X*origin.X + connector.CoordinateSystem.BasisY.Y * origin.Y + connector.CoordinateSystem.BasisY.Z * origin.Z;
+            double Z = connector.CoordinateSystem.BasisZ.X*origin.X + connector.CoordinateSystem.BasisZ.Y * origin.Y + connector.CoordinateSystem.BasisZ.Z * origin.Z;
             return new XYZ(X, Y, Z);
+        }
+
+        public static double get_DistanceFromConnectors(Connector connector1,Connector connector2)
+        {
+            XYZ p1 = connector1.Origin;
+            XYZ p2 = connector2.Origin;
+            return p1.DistanceTo(p2);
         }
 
     }
