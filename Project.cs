@@ -459,29 +459,93 @@ namespace Revit_HyCal
                         MEPModel mEPModel = ((FamilyInstance)element).MEPModel;
                         switch (((MechanicalFitting)mEPModel).PartType)
                         {
-                            case PartType.Elbow://弯头
-                                foreach (Parameter p in element.Parameters)
+                            case PartType.Elbow://弯头三维计算完成
+                                #region
+                                FamilyInstance familyInstance = (FamilyInstance)element;
+                                XYZ face_origin = familyInstance.FacingOrientation;
+                                List<XYZ> vectors = new List<XYZ>();
+                                ConnectorSet connectorSet = mEPModel.ConnectorManager.Connectors;
+                                foreach (Connector connector in connectorSet)
                                 {
-                                    if (p.Definition.Name=="角度")
+                                    vectors.Add(UIOperation.get_VectorFromConnector(connector,face_origin));
+                                }
+                                double Eangle = UIOperation.get_Angle(vectors[0], vectors[1]);
+                                if (Math.Round(Eangle,2)<=90 || Math.Round(Eangle,2)>60)
+                                {
+                                    project.dataElements[i].kSai = 0.38;
+                                    break;
+                                }
+                                if (Math.Round(Eangle,2)<=60 || Math.Round(Eangle,2)>45)
+                                {
+                                    project.dataElements[i].kSai = 0.2;
+                                    break;
+                                }
+                                if (Math.Round(Eangle,2)<=45)
+                                {
+                                    project.dataElements[i].kSai = 0.2;
+                                }
+                                break;
+                            #endregion
+                            case PartType.Tee://T型三通
+                                List<Connector> Tconnectors = new List<Connector>();
+                                ElementId TelementId=new ElementId(0);//T型三通的ID
+                                double Ttheta=0;//此处T型三通不需要计算夹角
+                                #region //完成T型管道id的识别
+                                foreach (Connector connector in mEPModel.ConnectorManager.Connectors)
+                                {
+                                    Tconnectors.Add(connector);
+                                }
+                                XYZ v1 = UIOperation.get_VectorFromConnector(Tconnectors[0], ((FamilyInstance)element).FacingOrientation);
+                                XYZ v2 = UIOperation.get_VectorFromConnector(Tconnectors[1], ((FamilyInstance)element).FacingOrientation);
+                                XYZ v3 = UIOperation.get_VectorFromConnector(Tconnectors[2], ((FamilyInstance)element).FacingOrientation);
+                                if (UIOperation.get_Angle(v1,v2)==0)
+                                {
+                                    TelementId = UIOperation.GetAnotherIDAtConnector(element.Id, Tconnectors[2]);
+                                }
+                                if (UIOperation.get_Angle(v1,v2)==90)
+                                {
+                                    if (UIOperation.get_Angle(v1,v3)==0)
                                     {
-
+                                        TelementId = UIOperation.GetAnotherIDAtConnector(element.Id, Tconnectors[1]);
+                                    }
+                                    else
+                                    {
+                                        TelementId = UIOperation.GetAnotherIDAtConnector(element.Id, Tconnectors[0]);
                                     }
                                 }
-                                project.dataElements[i].kSai = 0.38;
-                                break;
-                            case PartType.Tee://T型三通
+                                #endregion
+                                #region//角度查询
+                                foreach (Parameter parameter in element.Parameters)
+                                {
+                                    if (parameter.Definition.Name=="角度"||parameter.Definition.Name=="Angle")
+                                    {
+                                        Ttheta = double.Parse(Regex.Replace(parameter.AsValueString(), @"°",""));
+                                    }
+                                }
+                                #endregion
+                                if (project.dataElements[i-1].ID==TelementId.IntegerValue)//T管道查询
+                                {
 
+                                }
+                                else//直管查询
+                                {
+
+                                }
                                 break;
-                            case PartType.Transition://过渡件
+                            case PartType.Transition://过渡件三维计算完成
+                                #region
                                 FamilySymbol familySymbol = ((FamilyInstance)element).Symbol;
                                 double theta=0; double F0; double F1; double F0_F1=0;
-                                foreach (Parameter parameter in familySymbol.Parameters)//读取角度
+                                List<double> ds = new List<double>();
+                                List<Connector> Trconnectors = new List<Connector>();
+                                foreach (Connector connector in ((FamilyInstance)element).MEPModel.ConnectorManager.Connectors)//读取角度
                                 {
-                                    if (parameter.Definition.Name=="角度")
-                                    {
-                                        theta = double.Parse(Regex.Match(parameter.AsValueString(), @"(\d+.\d+)").Groups[1].Value);
-                                    }
+                                    ds.Add(connector.Width);//连接件的水力计算直径
+                                    Trconnectors.Add(connector);
                                 }
+                                theta = Math.Atan(Math.Abs(ds[0] - ds[1]) / UIOperation.get_DistanceFromConnectors(Trconnectors[0], Trconnectors[1]) / 2) * 2;
+                                theta = Math.Round(theta / Math.PI * 180, 2);
+
                                 foreach (Parameter parameter in familySymbol.Parameters)//计算F0_F1
                                 {
                                     if (parameter.Definition.Name=="尺寸")
@@ -523,7 +587,9 @@ namespace Revit_HyCal
                                 }
                                 TaskDialog.Show(F0_F1.ToString(), theta.ToString());
                                 break;
-                            case PartType.Wye://Y型三通
+                            #endregion
+                            case PartType.Wye://Y型三通 特殊放到Y型
+
                                 break;
                         }
                         break;

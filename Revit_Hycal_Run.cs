@@ -22,10 +22,14 @@ namespace Revit_HyCal
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             //test
-            Test.test(commandData,ref message, elements);
+            Test.test(commandData, ref message, elements);
             return Result.Succeeded;
             //test
-
+            ///
+            //XYZ p1 = new XYZ(0, 0, -1);
+            //XYZ p2 = new XYZ(0.61566147532566, 0, 0.788010753606721);
+            //TaskDialog.Show("1", (p1.AngleTo(p2) / Math.PI * 180).ToString());
+            //return Result.Succeeded;
         }
 
 
