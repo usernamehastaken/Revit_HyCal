@@ -490,6 +490,7 @@ namespace Revit_HyCal
                                 List<Connector> Tconnectors = new List<Connector>();
                                 ElementId TelementId=new ElementId(0);//T型三通的ID
                                 double Ttheta=0;//此处T型三通不需要计算夹角
+                                bool Tflag = false;//判断是否45度锥形三通=>D_16
                                 #region //完成T型管道id的识别
                                 foreach (Connector connector in mEPModel.ConnectorManager.Connectors)
                                 {
@@ -500,16 +501,28 @@ namespace Revit_HyCal
                                 XYZ v3 = UIOperation.get_VectorFromConnector(Tconnectors[2], ((FamilyInstance)element).FacingOrientation);
                                 if (UIOperation.get_Angle(v1,v2)==0)
                                 {
+                                    if (Tconnectors[0].Width!=Tconnectors[1].Width)
+                                    {
+                                        Tflag = true;
+                                    }
                                     TelementId = UIOperation.GetAnotherIDAtConnector(element.Id, Tconnectors[2]);
                                 }
                                 if (UIOperation.get_Angle(v1,v2)==90)
                                 {
                                     if (UIOperation.get_Angle(v1,v3)==0)
                                     {
+                                        if (Tconnectors[0].Width != Tconnectors[2].Width)
+                                        {
+                                            Tflag = true;
+                                        }
                                         TelementId = UIOperation.GetAnotherIDAtConnector(element.Id, Tconnectors[1]);
                                     }
                                     else
                                     {
+                                        if (Tconnectors[1].Width != Tconnectors[2].Width)
+                                        {
+                                            Tflag = true;
+                                        }
                                         TelementId = UIOperation.GetAnotherIDAtConnector(element.Id, Tconnectors[0]);
                                     }
                                 }
