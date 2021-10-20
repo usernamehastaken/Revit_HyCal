@@ -12,6 +12,7 @@ using Autodesk.Revit.DB;
 using Autodesk.Revit.DB.Mechanical;
 using Autodesk.Revit.UI;
 using System.Text.RegularExpressions;
+using MySConn.Tables;
 
 namespace Revit_HyCal
 {
@@ -435,6 +436,8 @@ namespace Revit_HyCal
 
             ProjectForm projectForm = (ProjectForm)mainForm.ActiveMdiChild;
             Project project = projectForm.myproject;
+            List<double> keys = new List<double>();
+            List<double> values = new List<double>();
             if (project.dataElements.Count==0)//空白工程
             {
                 return;
@@ -545,10 +548,10 @@ namespace Revit_HyCal
 
                                 }
                                 break;
-                            case PartType.Transition://过渡件三维计算完成
+                            case PartType.Transition://过渡件三维计算完成=>C_1
                                 #region
+                                double theta = 0; double F0; double F1; double F0_F1 = 0;
                                 FamilySymbol familySymbol = ((FamilyInstance)element).Symbol;
-                                double theta=0; double F0; double F1; double F0_F1=0;
                                 List<double> ds = new List<double>();
                                 List<Connector> Trconnectors = new List<Connector>();
                                 foreach (Connector connector in ((FamilyInstance)element).MEPModel.ConnectorManager.Connectors)//读取角度
@@ -595,10 +598,15 @@ namespace Revit_HyCal
                                         {
                                             F0_F1 = F0 / F1;
                                         }
-                                        //project.dataElements[i].kSai = get_ksi();
+                                        List<C_1> c_1s = mainForm.myDbContext.c_1.ToList<C_1>();
+                                        for (int ii = 0; ii < c_1s.Count; ii++)
+                                        {
+                                            keys.Add(c_1s[ii].get_distance(new C_1() { theta = theta, F0_F1 = F0_F1 }));
+                                            values.Add(c_1s[ii].ksai);
+                                        }
+                                        project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(keys, values);
                                     }
                                 }
-                                TaskDialog.Show(F0_F1.ToString(), theta.ToString());
                                 break;
                             #endregion
                             case PartType.Wye://Y型三通 特殊放到Y型

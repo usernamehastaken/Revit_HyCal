@@ -1,13 +1,26 @@
 ﻿using System;
 using System.Linq;
 using System.Windows.Forms;
+using MySConn;
+using MySConn.Tables;
+
 
 namespace Revit_HyCal
 {
     public partial class MainForm : Form
     {
+        public MyDbContext myDbContext;//初始化数据库
         public MainForm()
         {
+            try
+            {
+                myDbContext = new MyDbContext();
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("连接数据库失败！请联系chenxinxin@sinoma-tianjin.cn");
+                this.Dispose();
+            }
             InitializeComponent();
         }
 
