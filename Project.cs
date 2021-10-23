@@ -12,6 +12,7 @@ using Autodesk.Revit.DB;
 using Autodesk.Revit.DB.Mechanical;
 using Autodesk.Revit.UI;
 using System.Text.RegularExpressions;
+using MySConn;
 using MySConn.Tables;
 
 namespace Revit_HyCal
@@ -490,9 +491,10 @@ namespace Revit_HyCal
                                 break;
                             #endregion
                             case PartType.Tee://T型三通
+                                #region
                                 List<Connector> Tconnectors = new List<Connector>();
-                                ElementId TelementId=new ElementId(0);//T型三通的ID
-                                double Ttheta=0;//此处T型三通不需要计算夹角
+                                ElementId TelementId = new ElementId(0);//T型三通的ID
+                                double Ttheta = 0;//此处T型三通不需要计算夹角
                                 bool Tflag = false;//判断是否45度锥形三通=>D_16
                                 #region //完成T型管道id的识别
                                 foreach (Connector connector in mEPModel.ConnectorManager.Connectors)
@@ -502,17 +504,17 @@ namespace Revit_HyCal
                                 XYZ v1 = UIOperation.get_VectorFromConnector(Tconnectors[0], ((FamilyInstance)element).FacingOrientation);
                                 XYZ v2 = UIOperation.get_VectorFromConnector(Tconnectors[1], ((FamilyInstance)element).FacingOrientation);
                                 XYZ v3 = UIOperation.get_VectorFromConnector(Tconnectors[2], ((FamilyInstance)element).FacingOrientation);
-                                if (UIOperation.get_Angle(v1,v2)==0)
+                                if (UIOperation.get_Angle(v1, v2) == 0)
                                 {
-                                    if (Tconnectors[0].Width!=Tconnectors[1].Width)
+                                    if (Tconnectors[0].Width != Tconnectors[1].Width)
                                     {
                                         Tflag = true;
                                     }
                                     TelementId = UIOperation.GetAnotherIDAtConnector(element.Id, Tconnectors[2]);
                                 }
-                                if (UIOperation.get_Angle(v1,v2)==90)
+                                if (UIOperation.get_Angle(v1, v2) == 90)
                                 {
-                                    if (UIOperation.get_Angle(v1,v3)==0)
+                                    if (UIOperation.get_Angle(v1, v3) == 0)
                                     {
                                         if (Tconnectors[0].Width != Tconnectors[2].Width)
                                         {
@@ -533,13 +535,13 @@ namespace Revit_HyCal
                                 #region//角度查询
                                 foreach (Parameter parameter in element.Parameters)
                                 {
-                                    if (parameter.Definition.Name=="角度"||parameter.Definition.Name=="Angle")
+                                    if (parameter.Definition.Name == "角度" || parameter.Definition.Name == "Angle")
                                     {
-                                        Ttheta = double.Parse(Regex.Replace(parameter.AsValueString(), @"°",""));
+                                        Ttheta = double.Parse(Regex.Replace(parameter.AsValueString(), @"°", ""));
                                     }
                                 }
                                 #endregion
-                                if (project.dataElements[i-1].ID==TelementId.IntegerValue)//T管道查询
+                                if (project.dataElements[i - 1].ID == TelementId.IntegerValue)//T管道查询
                                 {
 
                                 }
@@ -547,6 +549,7 @@ namespace Revit_HyCal
                                 {
 
                                 }
+                                #endregion
                                 break;
                             case PartType.Transition://过渡件三维计算完成=>C_1
                                 #region
@@ -564,13 +567,13 @@ namespace Revit_HyCal
 
                                 foreach (Parameter parameter in familySymbol.Parameters)//计算F0_F1
                                 {
-                                    if (parameter.Definition.Name=="尺寸")
+                                    if (parameter.Definition.Name == "尺寸")
                                     {
-                                        string[] strvalue = parameter.AsString().Split(new char[] { '-'});
+                                        string[] strvalue = parameter.AsString().Split(new char[] { '-' });
                                         //计算F0
                                         strvalue[0] = Regex.Replace(strvalue[0], @"mm", "");//去除单位
                                         strvalue[0] = Regex.Replace(strvalue[0], @"ø", "");//去除fai
-                                        if (strvalue[0].Split(new char[] { 'x'}).Count()>1)
+                                        if (strvalue[0].Split(new char[] { 'x' }).Count() > 1)
                                         {
                                             F0 = double.Parse(strvalue[0].Split(new char[] { 'x' })[0]) * double.Parse(strvalue[0].Split(new char[] { 'x' })[1]);
                                         }
@@ -607,8 +610,8 @@ namespace Revit_HyCal
                                         project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(keys, values);
                                     }
                                 }
+                                #endregion
                                 break;
-                            #endregion
                             case PartType.Wye://Y型三通 特殊放到Y型
 
                                 break;
@@ -617,7 +620,13 @@ namespace Revit_HyCal
                     default:
                         break;
                 }   
-            } 
+            }
+            projectForm.refresh_datagrid();
+        }
+
+        public static void test(MainForm mainForm)
+        {
+            MessageBox.Show(mainForm.myDbContext.c_1.ToList<C_1>().Count.ToString());
         }
 
     }
