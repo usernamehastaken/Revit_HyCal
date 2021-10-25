@@ -467,16 +467,28 @@ namespace Revit_HyCal
                                 #region
                                 FamilyInstance familyInstance = (FamilyInstance)element;
                                 XYZ face_origin = familyInstance.FacingOrientation;
-                                List<XYZ> vectors = new List<XYZ>();
-                                ConnectorSet connectorSet = mEPModel.ConnectorManager.Connectors;
-                                foreach (Connector connector in connectorSet)
+                                List<XYZ> Evectors = new List<XYZ>();
+                                List<Connector> Econnectors = new List<Connector>();
+                                foreach (Connector connector in mEPModel.ConnectorManager.Connectors)
                                 {
-                                    vectors.Add(UIOperation.get_VectorFromConnector(connector,face_origin));
+                                    Econnectors.Add(connector);
+                                    Evectors.Add(UIOperation.get_VectorFromConnector(connector,face_origin));
                                 }
-                                double Eangle = UIOperation.get_Angle(vectors[0], vectors[1]);
+                                double Eangle = UIOperation.get_Angle(Evectors[0], Evectors[1]);
+                                double Edis = UIOperation.get_DistanceFromConnectors(Econnectors[0], Econnectors[1]);
+                                double qulvbanjing = Math.Round(Edis / 2 / Math.Sin(Eangle / 2 / 180 * Math.PI), 2);
+                                double r_D = qulvbanjing / project.dataElements[i].Diameter;
                                 if (Math.Round(Eangle,2)<=90 || Math.Round(Eangle,2)>60)
                                 {
-                                    project.dataElements[i].kSai = 0.38;
+                                    List<double> Ekeys = new List<double>();
+                                    List<double> Evalues = new List<double>();
+                                    B_7 b_7 = new B_7() { r_D = r_D };
+                                    foreach (B_7 item in mainForm.myDbContext.b_7.ToList<B_7>())
+                                    {
+                                        Ekeys.Add(item.get_distance(b_7));
+                                        Evalues.Add(item.ksai);
+                                    }
+                                    project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(Ekeys, Evalues);
                                     break;
                                 }
                                 if (Math.Round(Eangle,2)<=60 || Math.Round(Eangle,2)>45)
@@ -559,7 +571,14 @@ namespace Revit_HyCal
                                 List<Connector> Trconnectors = new List<Connector>();
                                 foreach (Connector connector in ((FamilyInstance)element).MEPModel.ConnectorManager.Connectors)//读取角度
                                 {
-                                    ds.Add(connector.Width);//连接件的水力计算直径
+                                    if (connector.Radius>0)
+                                    {
+                                        ds.Add(connector.Radius);
+                                    }
+                                    else
+                                    {
+                                        ds.Add(connector.Width);//连接件的水力计算直径,方形风管会有错误
+                                    }
                                     Trconnectors.Add(connector);
                                 }
                                 theta = Math.Atan(Math.Abs(ds[0] - ds[1]) / UIOperation.get_DistanceFromConnectors(Trconnectors[0], Trconnectors[1]) / 2) * 2;

@@ -33,6 +33,21 @@ namespace Revit_HyCal
             MainForm mainForm = new MainForm();
             mainForm.Show();
 
+            //Reference reference = UIOperation.uIDocument.Selection.PickObject(ObjectType.Element);
+            //Element element = UIOperation.uIDocument.Document.GetElement(reference.ElementId);
+            //FamilyInstance familyInstance = (FamilyInstance)element;
+            //List<XYZ> xYZs = new List<XYZ>();
+            //List<Connector> connectors = new List<Connector>();
+            //foreach (Connector item in familyInstance.MEPModel.ConnectorManager.Connectors)
+            //{
+            //    xYZs.Add(UIOperation.get_VectorFromConnector(item, familyInstance.FacingOrientation));
+            //    connectors.Add(item);
+            //}
+            //double dis = UIOperation.get_DistanceFromConnectors(connectors[0], connectors[1]);
+            //double angle = UIOperation.get_Angle(xYZs[0], xYZs[1]);
+            //MessageBox.Show(dis.ToString());
+            //MessageBox.Show(angle.ToString());
+            //MessageBox.Show((dis/2 / Math.Sin(angle/2 / 180 * Math.PI)).ToString());
 
         }
     }
