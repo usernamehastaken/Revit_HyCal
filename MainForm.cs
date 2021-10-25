@@ -14,9 +14,13 @@ namespace Revit_HyCal
         {
             try
             {
+                FrmProgressBar frmProgressBar = new FrmProgressBar();
+                frmProgressBar.Show();
+                frmProgressBar.Show_ProgressBar("数据库连接中。。。", 0.99);
                 myDbContext = new MyDbContext();
                 if (myDbContext.a_1.ToList<A_1>().Count>1)
                 {
+                    frmProgressBar.Dispose();
                     MessageBox.Show("数据库连接正常！");
                 }
             }
