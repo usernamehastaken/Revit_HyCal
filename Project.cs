@@ -435,8 +435,8 @@ namespace Revit_HyCal
                 return;
             }
 
-            ProjectForm projectForm = (ProjectForm)mainForm.ActiveMdiChild;
-            Project project = projectForm.myproject;
+            ProjectForm projectForm = (ProjectForm)mainForm.ActiveMdiChild;//当前工程
+            Project project = projectForm.myproject;//工程数据
             List<double> keys = new List<double>();
             List<double> values = new List<double>();
             if (project.dataElements.Count==0)//空白工程
@@ -575,10 +575,12 @@ namespace Revit_HyCal
                                         strvalue[0] = Regex.Replace(strvalue[0], @"ø", "");//去除fai
                                         if (strvalue[0].Split(new char[] { 'x' }).Count() > 1)
                                         {
+                                            //方形连接件
                                             F0 = double.Parse(strvalue[0].Split(new char[] { 'x' })[0]) * double.Parse(strvalue[0].Split(new char[] { 'x' })[1]);
                                         }
                                         else
                                         {
+                                            //圆形连接件
                                             F0 = double.Parse(strvalue[0]) * double.Parse(strvalue[0]) * 3.14 / 4;
                                         }
                                         //计算F1
@@ -622,11 +624,6 @@ namespace Revit_HyCal
                 }   
             }
             projectForm.refresh_datagrid();
-        }
-
-        public static void test(MainForm mainForm)
-        {
-            MessageBox.Show(mainForm.myDbContext.c_1.ToList<C_1>().Count.ToString());
         }
 
     }
