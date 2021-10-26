@@ -12,6 +12,7 @@ using Autodesk.Revit.DB;
 using Autodesk.Revit.DB.Mechanical;
 using Autodesk.Revit.UI;
 using System.Text.RegularExpressions;
+using MySConn;
 using MySConn.Tables;
 
 namespace Revit_HyCal
@@ -434,8 +435,8 @@ namespace Revit_HyCal
                 return;
             }
 
-            ProjectForm projectForm = (ProjectForm)mainForm.ActiveMdiChild;
-            Project project = projectForm.myproject;
+            ProjectForm projectForm = (ProjectForm)mainForm.ActiveMdiChild;//当前工程
+            Project project = projectForm.myproject;//工程数据
             List<double> keys = new List<double>();
             List<double> values = new List<double>();
             if (project.dataElements.Count==0)//空白工程
@@ -466,16 +467,28 @@ namespace Revit_HyCal
                                 #region
                                 FamilyInstance familyInstance = (FamilyInstance)element;
                                 XYZ face_origin = familyInstance.FacingOrientation;
-                                List<XYZ> vectors = new List<XYZ>();
-                                ConnectorSet connectorSet = mEPModel.ConnectorManager.Connectors;
-                                foreach (Connector connector in connectorSet)
+                                List<XYZ> Evectors = new List<XYZ>();
+                                List<Connector> Econnectors = new List<Connector>();
+                                foreach (Connector connector in mEPModel.ConnectorManager.Connectors)
                                 {
-                                    vectors.Add(UIOperation.get_VectorFromConnector(connector,face_origin));
+                                    Econnectors.Add(connector);
+                                    Evectors.Add(UIOperation.get_VectorFromConnector(connector,face_origin));
                                 }
-                                double Eangle = UIOperation.get_Angle(vectors[0], vectors[1]);
+                                double Eangle = UIOperation.get_Angle(Evectors[0], Evectors[1]);
+                                double Edis = UIOperation.get_DistanceFromConnectors(Econnectors[0], Econnectors[1]);
+                                double qulvbanjing = Math.Round(Edis / 2 / Math.Sin(Eangle / 2 / 180 * Math.PI), 2);
+                                double r_D = qulvbanjing / project.dataElements[i].Diameter;
                                 if (Math.Round(Eangle,2)<=90 || Math.Round(Eangle,2)>60)
                                 {
-                                    project.dataElements[i].kSai = 0.38;
+                                    List<double> Ekeys = new List<double>();
+                                    List<double> Evalues = new List<double>();
+                                    B_7 b_7 = new B_7() { r_D = r_D };
+                                    foreach (B_7 item in mainForm.myDbContext.b_7.ToList<B_7>())
+                                    {
+                                        Ekeys.Add(item.get_distance(b_7));
+                                        Evalues.Add(item.ksai);
+                                    }
+                                    project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(Ekeys, Evalues);
                                     break;
                                 }
                                 if (Math.Round(Eangle,2)<=60 || Math.Round(Eangle,2)>45)
@@ -490,9 +503,10 @@ namespace Revit_HyCal
                                 break;
                             #endregion
                             case PartType.Tee://T型三通
+                                #region
                                 List<Connector> Tconnectors = new List<Connector>();
-                                ElementId TelementId=new ElementId(0);//T型三通的ID
-                                double Ttheta=0;//此处T型三通不需要计算夹角
+                                ElementId TelementId = new ElementId(0);//T型三通的ID
+                                double Ttheta = 0;//此处T型三通不需要计算夹角
                                 bool Tflag = false;//判断是否45度锥形三通=>D_16
                                 #region //完成T型管道id的识别
                                 foreach (Connector connector in mEPModel.ConnectorManager.Connectors)
@@ -502,17 +516,17 @@ namespace Revit_HyCal
                                 XYZ v1 = UIOperation.get_VectorFromConnector(Tconnectors[0], ((FamilyInstance)element).FacingOrientation);
                                 XYZ v2 = UIOperation.get_VectorFromConnector(Tconnectors[1], ((FamilyInstance)element).FacingOrientation);
                                 XYZ v3 = UIOperation.get_VectorFromConnector(Tconnectors[2], ((FamilyInstance)element).FacingOrientation);
-                                if (UIOperation.get_Angle(v1,v2)==0)
+                                if (UIOperation.get_Angle(v1, v2) == 0)
                                 {
-                                    if (Tconnectors[0].Width!=Tconnectors[1].Width)
+                                    if (Tconnectors[0].Width != Tconnectors[1].Width)
                                     {
                                         Tflag = true;
                                     }
                                     TelementId = UIOperation.GetAnotherIDAtConnector(element.Id, Tconnectors[2]);
                                 }
-                                if (UIOperation.get_Angle(v1,v2)==90)
+                                if (UIOperation.get_Angle(v1, v2) == 90)
                                 {
-                                    if (UIOperation.get_Angle(v1,v3)==0)
+                                    if (UIOperation.get_Angle(v1, v3) == 0)
                                     {
                                         if (Tconnectors[0].Width != Tconnectors[2].Width)
                                         {
@@ -533,13 +547,13 @@ namespace Revit_HyCal
                                 #region//角度查询
                                 foreach (Parameter parameter in element.Parameters)
                                 {
-                                    if (parameter.Definition.Name=="角度"||parameter.Definition.Name=="Angle")
+                                    if (parameter.Definition.Name == "角度" || parameter.Definition.Name == "Angle")
                                     {
-                                        Ttheta = double.Parse(Regex.Replace(parameter.AsValueString(), @"°",""));
+                                        Ttheta = double.Parse(Regex.Replace(parameter.AsValueString(), @"°", ""));
                                     }
                                 }
                                 #endregion
-                                if (project.dataElements[i-1].ID==TelementId.IntegerValue)//T管道查询
+                                if (project.dataElements[i - 1].ID == TelementId.IntegerValue)//T管道查询
                                 {
 
                                 }
@@ -547,6 +561,7 @@ namespace Revit_HyCal
                                 {
 
                                 }
+                                #endregion
                                 break;
                             case PartType.Transition://过渡件三维计算完成=>C_1
                                 #region
@@ -556,7 +571,14 @@ namespace Revit_HyCal
                                 List<Connector> Trconnectors = new List<Connector>();
                                 foreach (Connector connector in ((FamilyInstance)element).MEPModel.ConnectorManager.Connectors)//读取角度
                                 {
-                                    ds.Add(connector.Width);//连接件的水力计算直径
+                                    if (connector.Radius>0)
+                                    {
+                                        ds.Add(connector.Radius);
+                                    }
+                                    else
+                                    {
+                                        ds.Add(connector.Width);//连接件的水力计算直径,方形风管会有错误
+                                    }
                                     Trconnectors.Add(connector);
                                 }
                                 theta = Math.Atan(Math.Abs(ds[0] - ds[1]) / UIOperation.get_DistanceFromConnectors(Trconnectors[0], Trconnectors[1]) / 2) * 2;
@@ -564,18 +586,20 @@ namespace Revit_HyCal
 
                                 foreach (Parameter parameter in familySymbol.Parameters)//计算F0_F1
                                 {
-                                    if (parameter.Definition.Name=="尺寸")
+                                    if (parameter.Definition.Name == "尺寸")
                                     {
-                                        string[] strvalue = parameter.AsString().Split(new char[] { '-'});
+                                        string[] strvalue = parameter.AsString().Split(new char[] { '-' });
                                         //计算F0
                                         strvalue[0] = Regex.Replace(strvalue[0], @"mm", "");//去除单位
                                         strvalue[0] = Regex.Replace(strvalue[0], @"ø", "");//去除fai
-                                        if (strvalue[0].Split(new char[] { 'x'}).Count()>1)
+                                        if (strvalue[0].Split(new char[] { 'x' }).Count() > 1)
                                         {
+                                            //方形连接件
                                             F0 = double.Parse(strvalue[0].Split(new char[] { 'x' })[0]) * double.Parse(strvalue[0].Split(new char[] { 'x' })[1]);
                                         }
                                         else
                                         {
+                                            //圆形连接件
                                             F0 = double.Parse(strvalue[0]) * double.Parse(strvalue[0]) * 3.14 / 4;
                                         }
                                         //计算F1
@@ -607,8 +631,8 @@ namespace Revit_HyCal
                                         project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(keys, values);
                                     }
                                 }
+                                #endregion
                                 break;
-                            #endregion
                             case PartType.Wye://Y型三通 特殊放到Y型
 
                                 break;
@@ -617,7 +641,8 @@ namespace Revit_HyCal
                     default:
                         break;
                 }   
-            } 
+            }
+            projectForm.refresh_datagrid();
         }
 
     }

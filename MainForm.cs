@@ -9,12 +9,20 @@ namespace Revit_HyCal
 {
     public partial class MainForm : Form
     {
-        public MyDbContext myDbContext;//初始化数据库
+        public MyDbContext myDbContext { get; set; }
         public MainForm()
         {
             try
             {
+                FrmProgressBar frmProgressBar = new FrmProgressBar();
+                frmProgressBar.Show();
+                frmProgressBar.Show_ProgressBar("数据库连接中。。。", 0.99);
                 myDbContext = new MyDbContext();
+                if (myDbContext.a_1.ToList<A_1>().Count>1)
+                {
+                    frmProgressBar.Dispose();
+                    MessageBox.Show("数据库连接正常！");
+                }
             }
             catch (Exception)
             {
@@ -138,7 +146,7 @@ namespace Revit_HyCal
 
         private void toolStripButton6_Click(object sender, EventArgs e)
         {
-            ;
+            MainForm_Operation.cal_ksi(this);
         }
 
         private void toolStripButton9_Click(object sender, EventArgs e)

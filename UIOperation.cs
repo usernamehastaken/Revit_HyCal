@@ -8,6 +8,8 @@ using Autodesk.Revit.UI;
 using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB.Mechanical;
 using Autodesk.Revit.UI.Selection;
+using MySConn;
+using MySConn.Tables;
 
 namespace Revit_HyCal
 {
