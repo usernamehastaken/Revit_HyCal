@@ -321,28 +321,40 @@ namespace Revit_HyCal
                         case "风管管件":
                             FamilyInstance familyInstance = (FamilyInstance)element;
                             MechanicalFitting mechanicalFitting = (MechanicalFitting)familyInstance.MEPModel;
-                            if (mechanicalFitting.PartType==PartType.Elbow)
+                            switch (mechanicalFitting.PartType)
                             {
-                                data.Remarks = "弯头";
-                                data.Width = double.Parse(get_Par(ElementIds[i], "宽度"));
-                                data.Height = double.Parse(get_Par(ElementIds[i], "高度"));
-                                data.Diameter = double.Parse(get_Par(ElementIds[i], "水力直径"));
-                                //data.kSai = 0.42;//统一由cal_ksai来赋值
-                                project.dataElements.Add(data);
-                            }
-                            if (mechanicalFitting.PartType==PartType.Tee)
-                            {
-                                data.Remarks = "三通";
-                                FamilySymbol familySymbol = familyInstance.Symbol;
-                                Family family = familySymbol.Family;
-                                foreach (Parameter item in family.Parameters)
-                                {
-                                    if (item.Definition.Name=="零件类型")
+                                case PartType.Elbow://默认非变径弯头
+                                    #region
+                                    data.Remarks = "弯头";
+                                    foreach (Connector connector in mechanicalFitting.ConnectorManager.Connectors)
                                     {
-                                        data.Remarks = data.Remarks + ":" + item.AsValueString();
+                                        if (connector.Shape==ConnectorProfileType.Round)
+                                        {
+                                            data.Diameter = 2*UnitUtils.Convert(connector.Radius, DisplayUnitType.DUT_DECIMAL_FEET, DisplayUnitType.DUT_MILLIMETERS);
+                                        }
+                                        else
+                                        {
+                                            data.Width = UnitUtils.Convert(connector.Width, DisplayUnitType.DUT_DECIMAL_FEET, DisplayUnitType.DUT_MILLIMETERS);
+                                            data.Height = UnitUtils.Convert(connector.Height, DisplayUnitType.DUT_DECIMAL_FEET, DisplayUnitType.DUT_MILLIMETERS);
+                                            data.Diameter = project.cal_de(data.Width, data.Height);
+                                        }
+                                        project.dataElements.Add(data);
+                                        break;
                                     }
-                                }
-                                project.dataElements.Add(data);
+                                    #endregion
+                                    break;
+                                case PartType.Tee:
+                                    data.Remarks = "T型三通";
+                                    project.dataElements.Add(data);
+                                    break;
+                                case PartType.Transition:
+                                    data.Remarks = "过渡件";
+                                    project.dataElements.Add(data);
+                                    break;
+                                case PartType.Wye:
+                                    data.Remarks = "Y型三通";
+                                    project.dataElements.Add(data);
+                                    break;
                             }
                             break;
                         case "风道末端":
@@ -424,6 +436,7 @@ namespace Revit_HyCal
             XYZ p2 = connector2.Origin;
             return p1.DistanceTo(p2);
         }
+
 
     }
     public class MassSelectionFilter : ISelectionFilter

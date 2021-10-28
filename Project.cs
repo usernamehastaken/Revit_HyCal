@@ -469,6 +469,8 @@ namespace Revit_HyCal
                                 XYZ face_origin = familyInstance.FacingOrientation;
                                 List<XYZ> Evectors = new List<XYZ>();
                                 List<Connector> Econnectors = new List<Connector>();
+                                List<double> Ekeys = new List<double>();
+                                List<double> Evalues = new List<double>();
                                 foreach (Connector connector in mEPModel.ConnectorManager.Connectors)
                                 {
                                     Econnectors.Add(connector);
@@ -476,12 +478,11 @@ namespace Revit_HyCal
                                 }
                                 double Eangle = UIOperation.get_Angle(Evectors[0], Evectors[1]);
                                 double Edis = UIOperation.get_DistanceFromConnectors(Econnectors[0], Econnectors[1]);
-                                double qulvbanjing = Math.Round(Edis / 2 / Math.Sin(Eangle / 2 / 180 * Math.PI), 2);
+                                double qulvbanjing =Edis / 2 / Math.Sin(Eangle / 2 / 180 * Math.PI);
+                                qulvbanjing = UnitUtils.Convert(qulvbanjing, DisplayUnitType.DUT_DECIMAL_FEET, DisplayUnitType.DUT_MILLIMETERS);
                                 double r_D = qulvbanjing / project.dataElements[i].Diameter;
-                                if (Math.Round(Eangle,2)<=90 || Math.Round(Eangle,2)>60)
+                                if (Math.Round(Eangle,2)<=90 || Math.Round(Eangle,2)>60)//====>>>>>B_7
                                 {
-                                    List<double> Ekeys = new List<double>();
-                                    List<double> Evalues = new List<double>();
                                     B_7 b_7 = new B_7() { r_D = r_D };
                                     foreach (B_7 item in mainForm.myDbContext.b_7.ToList<B_7>())
                                     {
@@ -491,14 +492,26 @@ namespace Revit_HyCal
                                     project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(Ekeys, Evalues);
                                     break;
                                 }
-                                if (Math.Round(Eangle,2)<=60 || Math.Round(Eangle,2)>45)
+                                if (Math.Round(Eangle,2)<=60 || Math.Round(Eangle,2)>45)//====>>>>B_8
                                 {
-                                    project.dataElements[i].kSai = 0.2;
+                                    B_8 b_8 = new B_8() { D=project.dataElements[i].Diameter };
+                                    foreach (B_8 item in mainForm.myDbContext.b_8.ToList<B_8>())
+                                    {
+                                        Ekeys.Add(item.get_distance(b_8));
+                                        Evalues.Add(item.ksai);
+                                    }
+                                    project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(Ekeys, Evalues);
                                     break;
                                 }
-                                if (Math.Round(Eangle,2)<=45)
+                                if (Math.Round(Eangle,2)<=45)//====>>>>B_9
                                 {
-                                    project.dataElements[i].kSai = 0.2;
+                                    B_9 b_9 = new B_9() { D = project.dataElements[i].Diameter };
+                                    foreach (B_9 item in mainForm.myDbContext.b_9.ToList<B_9>())
+                                    {
+                                        Ekeys.Add(item.get_distance(b_9));
+                                        Evalues.Add(item.ksai);
+                                    }
+                                    project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(Ekeys, Evalues);
                                 }
                                 break;
                             #endregion
@@ -567,61 +580,61 @@ namespace Revit_HyCal
                                 #region
                                 double theta = 0; double F0; double F1; double F0_F1 = 0;
                                 FamilySymbol familySymbol = ((FamilyInstance)element).Symbol;
-                                List<double> ds = new List<double>();
-                                List<Connector> Trconnectors = new List<Connector>();
-                                foreach (Connector connector in ((FamilyInstance)element).MEPModel.ConnectorManager.Connectors)//读取角度
-                                {
-                                    if (connector.Radius>0)
-                                    {
-                                        ds.Add(connector.Radius);
-                                    }
-                                    else
-                                    {
-                                        ds.Add(connector.Width);//连接件的水力计算直径,方形风管会有错误
-                                    }
-                                    Trconnectors.Add(connector);
-                                }
-                                theta = Math.Atan(Math.Abs(ds[0] - ds[1]) / UIOperation.get_DistanceFromConnectors(Trconnectors[0], Trconnectors[1]) / 2) * 2;
-                                theta = Math.Round(theta / Math.PI * 180, 2);
+                                //List<double> ds = new List<double>();
+                                //List<Connector> Trconnectors = new List<Connector>();
+                                //foreach (Connector connector in ((FamilyInstance)element).MEPModel.ConnectorManager.Connectors)//读取角度
+                                //{
+                                //    if (connector.Radius>0)
+                                //    {
+                                //        ds.Add(connector.Radius);
+                                //    }
+                                //    else
+                                //    {
+                                //        ds.Add(connector.Width);//连接件的水力计算直径,方形风管会有错误
+                                //    }
+                                //    Trconnectors.Add(connector);
+                                //}
+                                //theta = Math.Atan(Math.Abs(ds[0] - ds[1]) / UIOperation.get_DistanceFromConnectors(Trconnectors[0], Trconnectors[1]) / 2) * 2;
+                                //theta = Math.Round(theta / Math.PI * 180, 2);
 
-                                foreach (Parameter parameter in familySymbol.Parameters)//计算F0_F1
-                                {
-                                    if (parameter.Definition.Name == "尺寸")
-                                    {
-                                        string[] strvalue = parameter.AsString().Split(new char[] { '-' });
-                                        //计算F0
-                                        strvalue[0] = Regex.Replace(strvalue[0], @"mm", "");//去除单位
-                                        strvalue[0] = Regex.Replace(strvalue[0], @"ø", "");//去除fai
-                                        if (strvalue[0].Split(new char[] { 'x' }).Count() > 1)
-                                        {
-                                            //方形连接件
-                                            F0 = double.Parse(strvalue[0].Split(new char[] { 'x' })[0]) * double.Parse(strvalue[0].Split(new char[] { 'x' })[1]);
-                                        }
-                                        else
-                                        {
-                                            //圆形连接件
-                                            F0 = double.Parse(strvalue[0]) * double.Parse(strvalue[0]) * 3.14 / 4;
-                                        }
-                                        //计算F1
-                                        strvalue[1] = Regex.Replace(strvalue[1], @"mm", "");//去除单位
-                                        strvalue[1] = Regex.Replace(strvalue[1], @"ø", "");//去除fai
-                                        if (strvalue[1].Split(new char[] { 'x' }).Count() > 1)
-                                        {
-                                            F1 = double.Parse(strvalue[1].Split(new char[] { 'x' })[0]) * double.Parse(strvalue[1].Split(new char[] { 'x' })[1]);
-                                        }
-                                        else
-                                        {
-                                            F1 = double.Parse(strvalue[1]) * double.Parse(strvalue[1]) * 3.14 / 4;
-                                        }
+                                //foreach (Parameter parameter in familySymbol.Parameters)//计算F0_F1
+                                //{
+                                //    if (parameter.Definition.Name == "尺寸")
+                                //    {
+                                //        string[] strvalue = parameter.AsString().Split(new char[] { '-' });
+                                //        //计算F0
+                                //        strvalue[0] = Regex.Replace(strvalue[0], @"mm", "");//去除单位
+                                //        strvalue[0] = Regex.Replace(strvalue[0], @"ø", "");//去除fai
+                                //        if (strvalue[0].Split(new char[] { 'x' }).Count() > 1)
+                                //        {
+                                //            //方形连接件
+                                //            F0 = double.Parse(strvalue[0].Split(new char[] { 'x' })[0]) * double.Parse(strvalue[0].Split(new char[] { 'x' })[1]);
+                                //        }
+                                //        else
+                                //        {
+                                //            //圆形连接件
+                                //            F0 = double.Parse(strvalue[0]) * double.Parse(strvalue[0]) * 3.14 / 4;
+                                //        }
+                                //        //计算F1
+                                //        strvalue[1] = Regex.Replace(strvalue[1], @"mm", "");//去除单位
+                                //        strvalue[1] = Regex.Replace(strvalue[1], @"ø", "");//去除fai
+                                //        if (strvalue[1].Split(new char[] { 'x' }).Count() > 1)
+                                //        {
+                                //            F1 = double.Parse(strvalue[1].Split(new char[] { 'x' })[0]) * double.Parse(strvalue[1].Split(new char[] { 'x' })[1]);
+                                //        }
+                                //        else
+                                //        {
+                                //            F1 = double.Parse(strvalue[1]) * double.Parse(strvalue[1]) * 3.14 / 4;
+                                //        }
 
-                                        if (F0 > F1)
-                                        {
-                                            F0_F1 = F1 / F0;
-                                        }
-                                        else
-                                        {
-                                            F0_F1 = F0 / F1;
-                                        }
+                                //        if (F0 > F1)
+                                //        {
+                                //            F0_F1 = F1 / F0;
+                                //        }
+                                //        else
+                                //        {
+                                //            F0_F1 = F0 / F1;
+                                //        }
                                         List<C_1> c_1s = mainForm.myDbContext.c_1.ToList<C_1>();
                                         for (int ii = 0; ii < c_1s.Count; ii++)
                                         {
