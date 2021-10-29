@@ -436,7 +436,18 @@ namespace Revit_HyCal
             XYZ p2 = connector2.Origin;
             return p1.DistanceTo(p2);
         }
-
+        public static double get_AreaOfConnector(Connector connector)
+        {
+            if (connector.Shape==ConnectorProfileType.Rectangular)
+            {
+                return connector.Width * connector.Height;
+            }
+            if (connector.Shape==ConnectorProfileType.Round)
+            {
+                return connector.Radius * connector.Radius * Math.PI;
+            }
+            return 0;
+        }
 
     }
     public class MassSelectionFilter : ISelectionFilter

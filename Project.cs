@@ -437,7 +437,7 @@ namespace Revit_HyCal
 
             ProjectForm projectForm = (ProjectForm)mainForm.ActiveMdiChild;//当前工程
             Project project = projectForm.myproject;//工程数据
-            List<double> keys = new List<double>();
+            List<double> keys = new List<double>();//存储计算结果用于ksai计算
             List<double> values = new List<double>();
             if (project.dataElements.Count==0)//空白工程
             {
@@ -469,14 +469,15 @@ namespace Revit_HyCal
                                 XYZ face_origin = familyInstance.FacingOrientation;
                                 List<XYZ> Evectors = new List<XYZ>();
                                 List<Connector> Econnectors = new List<Connector>();
-                                List<double> Ekeys = new List<double>();
-                                List<double> Evalues = new List<double>();
                                 foreach (Connector connector in mEPModel.ConnectorManager.Connectors)
                                 {
                                     Econnectors.Add(connector);
                                     Evectors.Add(UIOperation.get_VectorFromConnector(connector,face_origin));
                                 }
                                 double Eangle = UIOperation.get_Angle(Evectors[0], Evectors[1]);
+                                //==============================================================
+                                MessageBox.Show(project.dataElements[i].Remarks + "  " + Eangle.ToString());
+                                //==============================================================
                                 double Edis = UIOperation.get_DistanceFromConnectors(Econnectors[0], Econnectors[1]);
                                 double qulvbanjing =Edis / 2 / Math.Sin(Eangle / 2 / 180 * Math.PI);
                                 qulvbanjing = UnitUtils.Convert(qulvbanjing, DisplayUnitType.DUT_DECIMAL_FEET, DisplayUnitType.DUT_MILLIMETERS);
@@ -486,10 +487,10 @@ namespace Revit_HyCal
                                     B_7 b_7 = new B_7() { r_D = r_D };
                                     foreach (B_7 item in mainForm.myDbContext.b_7.ToList<B_7>())
                                     {
-                                        Ekeys.Add(item.get_distance(b_7));
-                                        Evalues.Add(item.ksai);
+                                        keys.Add(item.get_distance(b_7));
+                                        values.Add(item.ksai);
                                     }
-                                    project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(Ekeys, Evalues);
+                                    project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(keys, values);
                                     break;
                                 }
                                 if (Math.Round(Eangle,2)<=60 || Math.Round(Eangle,2)>45)//====>>>>B_8
@@ -497,10 +498,10 @@ namespace Revit_HyCal
                                     B_8 b_8 = new B_8() { D=project.dataElements[i].Diameter };
                                     foreach (B_8 item in mainForm.myDbContext.b_8.ToList<B_8>())
                                     {
-                                        Ekeys.Add(item.get_distance(b_8));
-                                        Evalues.Add(item.ksai);
+                                        keys.Add(item.get_distance(b_8));
+                                        values.Add(item.ksai);
                                     }
-                                    project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(Ekeys, Evalues);
+                                    project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(keys, values);
                                     break;
                                 }
                                 if (Math.Round(Eangle,2)<=45)//====>>>>B_9
@@ -508,146 +509,151 @@ namespace Revit_HyCal
                                     B_9 b_9 = new B_9() { D = project.dataElements[i].Diameter };
                                     foreach (B_9 item in mainForm.myDbContext.b_9.ToList<B_9>())
                                     {
-                                        Ekeys.Add(item.get_distance(b_9));
-                                        Evalues.Add(item.ksai);
+                                        keys.Add(item.get_distance(b_9));
+                                        values.Add(item.ksai);
                                     }
-                                    project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(Ekeys, Evalues);
+                                    project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(keys, values);
                                 }
+                                #endregion
                                 break;
-                            #endregion
                             case PartType.Tee://T型三通
-                                #region
                                 List<Connector> Tconnectors = new List<Connector>();
                                 ElementId TelementId = new ElementId(0);//T型三通的ID
-                                double Ttheta = 0;//此处T型三通不需要计算夹角
-                                bool Tflag = false;//判断是否45度锥形三通=>D_16
-                                #region //完成T型管道id的识别
+                                double Fs_Fc=0; double Fb_Fc=0;double Lb_Lc=0;double Ls_Lc=0;
+                                double F0;double F1;double F2;
                                 foreach (Connector connector in mEPModel.ConnectorManager.Connectors)
                                 {
                                     Tconnectors.Add(connector);
                                 }
-                                XYZ v1 = UIOperation.get_VectorFromConnector(Tconnectors[0], ((FamilyInstance)element).FacingOrientation);
-                                XYZ v2 = UIOperation.get_VectorFromConnector(Tconnectors[1], ((FamilyInstance)element).FacingOrientation);
-                                XYZ v3 = UIOperation.get_VectorFromConnector(Tconnectors[2], ((FamilyInstance)element).FacingOrientation);
-                                if (UIOperation.get_Angle(v1, v2) == 0)
+                                XYZ v0 = UIOperation.get_VectorFromConnector(Tconnectors[0], ((FamilyInstance)element).FacingOrientation);
+                                XYZ v1 = UIOperation.get_VectorFromConnector(Tconnectors[1], ((FamilyInstance)element).FacingOrientation);
+                                XYZ v2 = UIOperation.get_VectorFromConnector(Tconnectors[2], ((FamilyInstance)element).FacingOrientation);
+                                F0 = UIOperation.get_AreaOfConnector(Tconnectors[0]);
+                                F1 = UIOperation.get_AreaOfConnector(Tconnectors[1]);
+                                F2 = UIOperation.get_AreaOfConnector(Tconnectors[2]);
+                                #region //完成T型管道id的识别
+                                //判断T管并计算Fs_Fc,Fb_Fc
+                                if (UIOperation.get_Angle(v0, v1) == 0)
                                 {
-                                    if (Tconnectors[0].Width != Tconnectors[1].Width)
-                                    {
-                                        Tflag = true;
-                                    }
                                     TelementId = UIOperation.GetAnotherIDAtConnector(element.Id, Tconnectors[2]);
-                                }
-                                if (UIOperation.get_Angle(v1, v2) == 90)
-                                {
-                                    if (UIOperation.get_Angle(v1, v3) == 0)
+                                    //F2>T
+                                    if (F0>F1)
                                     {
-                                        if (Tconnectors[0].Width != Tconnectors[2].Width)
-                                        {
-                                            Tflag = true;
-                                        }
-                                        TelementId = UIOperation.GetAnotherIDAtConnector(element.Id, Tconnectors[1]);
+                                        Fs_Fc = F1 / F0;
+                                        Fb_Fc = F2 / F0;
                                     }
                                     else
                                     {
-                                        if (Tconnectors[1].Width != Tconnectors[2].Width)
-                                        {
-                                            Tflag = true;
-                                        }
-                                        TelementId = UIOperation.GetAnotherIDAtConnector(element.Id, Tconnectors[0]);
+                                        Fs_Fc = F0 / F1;
+                                        Fb_Fc = F2 / F1;
                                     }
                                 }
-                                #endregion
-                                #region//角度查询
-                                foreach (Parameter parameter in element.Parameters)
+                                if (UIOperation.get_Angle(v0, v1) == 90)
                                 {
-                                    if (parameter.Definition.Name == "角度" || parameter.Definition.Name == "Angle")
+                                    if (UIOperation.get_Angle(v1, v2) == 0)
                                     {
-                                        Ttheta = double.Parse(Regex.Replace(parameter.AsValueString(), @"°", ""));
+                                        TelementId = UIOperation.GetAnotherIDAtConnector(element.Id, Tconnectors[0]);
+                                        //F0>T
+                                        if (F1 > F2)
+                                        {
+                                            Fs_Fc = F2 / F1;
+                                            Fb_Fc = F0 / F1;
+                                        }
+                                        else
+                                        {
+                                            Fs_Fc = F1 / F2;
+                                            Fb_Fc = F0 / F2;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        TelementId = UIOperation.GetAnotherIDAtConnector(element.Id, Tconnectors[1]);
+                                        //F1>T
+                                        if (F0>F2)
+                                        {
+                                            Fs_Fc = F2 / F0;
+                                            Fb_Fc = F1 / F0;
+                                        }
+                                        else
+                                        {
+                                            Fs_Fc = F0 / F2;
+                                            Fb_Fc = F1 / F2;
+                                        }
                                     }
                                 }
                                 #endregion
+                                #region 完成对支管直管的判断Lb_Lc,Ls_Lc,
                                 if (project.dataElements[i - 1].ID == TelementId.IntegerValue)//T管道查询
                                 {
-
+                                    //===========>>>D_2_b
+                                    Lb_Lc = project.dataElements[i - 1].Airflow / project.dataElements[i + 1].Airflow;
+                                    List<D_2_b> d_2_Bs = mainForm.myDbContext.d_2_b.ToList<D_2_b>();
+                                    foreach (D_2_b item in d_2_Bs)
+                                    {
+                                        keys.Add(item.get_distance(new D_2_b() { Fb_Fc = Fb_Fc,Fs_Fc=Fs_Fc,Lb_Lc=Lb_Lc }));
+                                        values.Add(item.ksai);
+                                    }
+                                    project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(keys, values)+0.15;
                                 }
                                 else//直管查询
                                 {
-
+                                    //==========>>>D_2_s
+                                    Ls_Lc = project.dataElements[i - 1].Airflow / project.dataElements[i + 1].Airflow;
+                                    List<D_2_s> d_2_Ss = mainForm.myDbContext.d_2_s.ToList<D_2_s>();
+                                    foreach (D_2_s item in d_2_Ss)
+                                    {
+                                        keys.Add(item.get_distance(new D_2_s() { Fb_Fc = Fb_Fc, Fs_Fc = Fs_Fc, Ls_Lc = Ls_Lc }));
+                                        values.Add(item.ksai);
+                                    }
+                                    project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(keys, values) + 0.15;
                                 }
                                 #endregion
                                 break;
                             case PartType.Transition://过渡件三维计算完成=>C_1
                                 #region
-                                double theta = 0; double F0; double F1; double F0_F1 = 0;
+                                double theta = 0; double F0_F1 = 0;
                                 FamilySymbol familySymbol = ((FamilyInstance)element).Symbol;
-                                //List<double> ds = new List<double>();
-                                //List<Connector> Trconnectors = new List<Connector>();
-                                //foreach (Connector connector in ((FamilyInstance)element).MEPModel.ConnectorManager.Connectors)//读取角度
-                                //{
-                                //    if (connector.Radius>0)
-                                //    {
-                                //        ds.Add(connector.Radius);
-                                //    }
-                                //    else
-                                //    {
-                                //        ds.Add(connector.Width);//连接件的水力计算直径,方形风管会有错误
-                                //    }
-                                //    Trconnectors.Add(connector);
-                                //}
-                                //theta = Math.Atan(Math.Abs(ds[0] - ds[1]) / UIOperation.get_DistanceFromConnectors(Trconnectors[0], Trconnectors[1]) / 2) * 2;
-                                //theta = Math.Round(theta / Math.PI * 180, 2);
-
-                                //foreach (Parameter parameter in familySymbol.Parameters)//计算F0_F1
-                                //{
-                                //    if (parameter.Definition.Name == "尺寸")
-                                //    {
-                                //        string[] strvalue = parameter.AsString().Split(new char[] { '-' });
-                                //        //计算F0
-                                //        strvalue[0] = Regex.Replace(strvalue[0], @"mm", "");//去除单位
-                                //        strvalue[0] = Regex.Replace(strvalue[0], @"ø", "");//去除fai
-                                //        if (strvalue[0].Split(new char[] { 'x' }).Count() > 1)
-                                //        {
-                                //            //方形连接件
-                                //            F0 = double.Parse(strvalue[0].Split(new char[] { 'x' })[0]) * double.Parse(strvalue[0].Split(new char[] { 'x' })[1]);
-                                //        }
-                                //        else
-                                //        {
-                                //            //圆形连接件
-                                //            F0 = double.Parse(strvalue[0]) * double.Parse(strvalue[0]) * 3.14 / 4;
-                                //        }
-                                //        //计算F1
-                                //        strvalue[1] = Regex.Replace(strvalue[1], @"mm", "");//去除单位
-                                //        strvalue[1] = Regex.Replace(strvalue[1], @"ø", "");//去除fai
-                                //        if (strvalue[1].Split(new char[] { 'x' }).Count() > 1)
-                                //        {
-                                //            F1 = double.Parse(strvalue[1].Split(new char[] { 'x' })[0]) * double.Parse(strvalue[1].Split(new char[] { 'x' })[1]);
-                                //        }
-                                //        else
-                                //        {
-                                //            F1 = double.Parse(strvalue[1]) * double.Parse(strvalue[1]) * 3.14 / 4;
-                                //        }
-
-                                //        if (F0 > F1)
-                                //        {
-                                //            F0_F1 = F1 / F0;
-                                //        }
-                                //        else
-                                //        {
-                                //            F0_F1 = F0 / F1;
-                                //        }
-                                        List<C_1> c_1s = mainForm.myDbContext.c_1.ToList<C_1>();
-                                        for (int ii = 0; ii < c_1s.Count; ii++)
-                                        {
-                                            keys.Add(c_1s[ii].get_distance(new C_1() { theta = theta, F0_F1 = F0_F1 }));
-                                            values.Add(c_1s[ii].ksai);
-                                        }
-                                        project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(keys, values);
+                                List<double> Fs = new List<double>();//存储计算面积
+                                List<Connector> Trconnectors = new List<Connector>();
+                                foreach (Connector connector in ((FamilyInstance)element).MEPModel.ConnectorManager.Connectors)
+                                {
+                                    if (connector.Shape==ConnectorProfileType.Round)
+                                    {
+                                        Fs.Add(connector.Radius * connector.Radius * Math.PI);//单位未换算
                                     }
+                                    if (connector.Shape==ConnectorProfileType.Rectangular)
+                                    {
+                                        Fs.Add(Math.Pow(project.cal_de(connector.Height, connector.Width), 2) * Math.PI / 4);
+                                    }
+                                    Trconnectors.Add(connector);
                                 }
+                                double conDis = UIOperation.get_DistanceFromConnectors(Trconnectors[0], Trconnectors[1]);
+                                theta = Math.Atan(Math.Abs(Fs[0] - Fs[1])/2/conDis) * 2;
+                                theta = Math.Round(theta / Math.PI * 180, 2);
+                                if (Fs[0]>Fs[1])
+                                {
+                                    F0_F1 = Fs[1] / Fs[0];
+                                }
+                                else
+                                {
+                                    F0_F1 = Fs[0] / Fs[1];
+                                }
+                                //=====================
+                                MessageBox.Show(theta.ToString() + "   " + F0_F1.ToString());
+                                //=====================
+                                List<C_1> c_1s = mainForm.myDbContext.c_1.ToList<C_1>();
+                                for (int ii = 0; ii < c_1s.Count; ii++)
+                                {
+                                    keys.Add(c_1s[ii].get_distance(new C_1() { theta = theta, F0_F1 = F0_F1 }));
+                                    values.Add(c_1s[ii].ksai);
+                                }
+                                project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(keys, values);
                                 #endregion
                                 break;
                             case PartType.Wye://Y型三通 特殊放到Y型
-
+                                #region
+                                //1.判断主管支管
+                                #endregion
                                 break;
                         }
                         break;
