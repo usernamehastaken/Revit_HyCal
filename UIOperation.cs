@@ -436,10 +436,15 @@ namespace Revit_HyCal
             XYZ p2 = connector2.Origin;
             return p1.DistanceTo(p2);
         }
-        public static double get_AreaOfConnector(Connector connector)
+        public static double get_AreaOfConnector(Connector connector,bool deFlag=true)
         {
             if (connector.Shape==ConnectorProfileType.Rectangular)
             {
+                if (deFlag)
+                {
+                    double de = (new Project()).cal_de(connector.Width, connector.Height);
+                    return de * de * Math.PI / 4;
+                }
                 return connector.Width * connector.Height;
             }
             if (connector.Shape==ConnectorProfileType.Round)
