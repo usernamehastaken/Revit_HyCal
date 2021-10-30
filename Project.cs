@@ -213,7 +213,7 @@ namespace Revit_HyCal
         public  double doubleMDXZ = 1;
         public List<DataElement> dataElements = new List<DataElement>();
 
-        [XmlIgnore] public List<ElementId> elementIds=new List<ElementId> ();//保存管道系统id，dataEle的信息由程序读取及计算，局部阻力参数保存到族中
+        [XmlIgnore] public List<ElementId> elementIds=new List<ElementId> ();//保存管道系统id，dataEle的信息由程序读取及计算，局部阻力参数不保存到族中
         //[XmlIgnore]public UIDocument uIDocument;
         //[XmlIgnore]public Document document;
         public double cal_R(double de, double V) /*计算沿程阻力系数 de(当量直径) V(流速)*/
@@ -417,8 +417,11 @@ namespace Revit_HyCal
                 //每一个都校正
                 try
                 {
-                    data.R = projectForm.myproject.cal_R(data.Diameter/1000, data.V);
-                    data.DPressure = projectForm.myproject.cal_DPressure(data.V);
+                    if (data.Remarks=="风管")
+                    {
+                        data.R = projectForm.myproject.cal_R(data.Diameter / 1000, data.V);
+                        data.DPressure = projectForm.myproject.cal_DPressure(data.V);
+                    }
                 }
                 catch (Exception e)
                 {
@@ -448,457 +451,465 @@ namespace Revit_HyCal
 
             for (int i = 0; i < project.dataElements.Count(); i++)//按顺序读取
             {
-                Element element = UIOperation.uIDocument.Document.GetElement(new ElementId(project.dataElements[i].ID));
-                switch (element.Category.Name)
+                if (project.dataElements[i].kSai==0)
                 {
-                    case "风管":
-                        if (i==0)
-                        {
-                            project.dataElements[i].kSai = 0.5;//风管作为风口
-                        }
-                        break;
-                    case "风道末端":
-                        if (project.dataElements[i-1].DPressure>0)
-                        {
-                            project.dataElements[i].DPressure = project.dataElements[i - 1].DPressure;
-                        }
-                        else
-                        {
-                            project.dataElements[i].DPressure = project.dataElements[i + 1].DPressure;
-                        }
-                        project.dataElements[i].kSai = 3.3;//回风口
-                        break;
-                    case "风管管件":
-                        ///分弯头，T三通，Y三通，变径//根据给定类型选定数据表，需要定义一个常量表
-                        MEPModel mEPModel = ((FamilyInstance)element).MEPModel;
-                        if (project.dataElements[i-1].DPressure>0)
-                        {
-                            project.dataElements[i].DPressure = project.dataElements[i - 1].DPressure;
-                        }
-                        else
-                        {
-                            project.dataElements[i].DPressure = project.dataElements[i + 1].DPressure;
-                        }
-                        switch (((MechanicalFitting)mEPModel).PartType)
-                        {
-                            case PartType.Elbow://弯头三维计算完成
-                                #region
-                                FamilyInstance familyInstance = (FamilyInstance)element;
-                                XYZ face_origin = familyInstance.FacingOrientation;
-                                List<XYZ> Evectors = new List<XYZ>();
-                                List<Connector> Econnectors = new List<Connector>();
-                                foreach (Connector connector in mEPModel.ConnectorManager.Connectors)
-                                {
-                                    Econnectors.Add(connector);
-                                    Evectors.Add(UIOperation.get_VectorFromConnector(connector,face_origin));
-                                }
-                                double Eangle = UIOperation.get_Angle(Evectors[0], Evectors[1]);
-                                //==============================================================
-                                MessageBox.Show(project.dataElements[i].Remarks + "  " + Eangle.ToString());
-                                //==============================================================
-                                double Edis = UIOperation.get_DistanceFromConnectors(Econnectors[0], Econnectors[1]);
-                                double qulvbanjing =Edis / 2 / Math.Sin(Eangle / 2 / 180 * Math.PI);
-                                qulvbanjing = UnitUtils.Convert(qulvbanjing, DisplayUnitType.DUT_DECIMAL_FEET, DisplayUnitType.DUT_MILLIMETERS);
-                                double r_D = qulvbanjing / project.dataElements[i].Diameter;
-                                if (Math.Round(Eangle,2)<=90 || Math.Round(Eangle,2)>60)//====>>>>>B_7
-                                {
-                                    B_7 b_7 = new B_7() { r_D = r_D };
-                                    foreach (B_7 item in mainForm.myDbContext.b_7.ToList<B_7>())
+                    Element element = UIOperation.uIDocument.Document.GetElement(new ElementId(project.dataElements[i].ID));
+                    switch (element.Category.Name)
+                    {
+                        case "风管":
+                            if (i == 0)
+                            {
+                                project.dataElements[i].kSai = 0.5;//风管作为风口
+                            }
+                            break;
+                        case "风道末端":
+                            if (project.dataElements[i - 1].DPressure > 0)
+                            {
+                                project.dataElements[i].DPressure = project.dataElements[i - 1].DPressure;
+                            }
+                            else
+                            {
+                                project.dataElements[i].DPressure = project.dataElements[i + 1].DPressure;
+                            }
+                            project.dataElements[i].kSai = 3.3;//回风口
+                            break;
+                        case "风管管件":
+                            ///分弯头，T三通，Y三通，变径//根据给定类型选定数据表，需要定义一个常量表
+                            if (i == 0)
+                            {
+                                MessageBox.Show("系统的初始或者末端不能为风管管件");
+                                return;
+                            }
+                            MEPModel mEPModel = ((FamilyInstance)element).MEPModel;
+                            if (project.dataElements[i - 1].DPressure > 0)
+                            {
+                                project.dataElements[i].DPressure = project.dataElements[i - 1].DPressure;
+                            }
+                            else
+                            {
+                                project.dataElements[i].DPressure = project.dataElements[i + 1].DPressure;
+                            }
+                            switch (((MechanicalFitting)mEPModel).PartType)
+                            {
+                                case PartType.Elbow://弯头三维计算完成
+                                    #region
+                                    FamilyInstance familyInstance = (FamilyInstance)element;
+                                    XYZ face_origin = familyInstance.FacingOrientation;
+                                    List<XYZ> Evectors = new List<XYZ>();
+                                    List<Connector> Econnectors = new List<Connector>();
+                                    foreach (Connector connector in mEPModel.ConnectorManager.Connectors)
                                     {
-                                        keys.Add(item.get_distance(b_7));
-                                        values.Add(item.ksai);
+                                        Econnectors.Add(connector);
+                                        Evectors.Add(UIOperation.get_VectorFromConnector(connector, face_origin));
                                     }
-                                    project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(keys, values);
+                                    double Eangle = UIOperation.get_Angle(Evectors[0], Evectors[1]);
+                                    //==============================================================
+                                    MessageBox.Show(project.dataElements[i].Remarks + "  " + Eangle.ToString());
+                                    //==============================================================
+                                    double Edis = UIOperation.get_DistanceFromConnectors(Econnectors[0], Econnectors[1]);
+                                    double qulvbanjing = Edis / 2 / Math.Sin(Eangle / 2 / 180 * Math.PI);
+                                    qulvbanjing = UnitUtils.Convert(qulvbanjing, DisplayUnitType.DUT_DECIMAL_FEET, DisplayUnitType.DUT_MILLIMETERS);
+                                    double r_D = qulvbanjing / project.dataElements[i].Diameter;
+                                    if (Math.Round(Eangle, 2) <= 90 || Math.Round(Eangle, 2) > 60)//====>>>>>B_7
+                                    {
+                                        B_7 b_7 = new B_7() { r_D = r_D };
+                                        foreach (B_7 item in mainForm.myDbContext.b_7.ToList<B_7>())
+                                        {
+                                            keys.Add(item.get_distance(b_7));
+                                            values.Add(item.ksai);
+                                        }
+                                        project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(keys, values);
+                                        break;
+                                    }
+                                    if (Math.Round(Eangle, 2) <= 60 || Math.Round(Eangle, 2) > 45)//====>>>>B_8
+                                    {
+                                        B_8 b_8 = new B_8() { D = project.dataElements[i].Diameter };
+                                        foreach (B_8 item in mainForm.myDbContext.b_8.ToList<B_8>())
+                                        {
+                                            keys.Add(item.get_distance(b_8));
+                                            values.Add(item.ksai);
+                                        }
+                                        project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(keys, values);
+                                        break;
+                                    }
+                                    if (Math.Round(Eangle, 2) <= 45)//====>>>>B_9
+                                    {
+                                        B_9 b_9 = new B_9() { D = project.dataElements[i].Diameter };
+                                        foreach (B_9 item in mainForm.myDbContext.b_9.ToList<B_9>())
+                                        {
+                                            keys.Add(item.get_distance(b_9));
+                                            values.Add(item.ksai);
+                                        }
+                                        project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(keys, values);
+                                    }
+                                    #endregion
                                     break;
-                                }
-                                if (Math.Round(Eangle,2)<=60 || Math.Round(Eangle,2)>45)//====>>>>B_8
-                                {
-                                    B_8 b_8 = new B_8() { D=project.dataElements[i].Diameter };
-                                    foreach (B_8 item in mainForm.myDbContext.b_8.ToList<B_8>())
+                                case PartType.Tee://T型三通
+                                    List<Connector> Tconnectors = new List<Connector>();
+                                    ElementId TelementId = new ElementId(0);//T型三通的ID
+                                    double Fs_Fc = 0; double Fb_Fc = 0; double Lb_Lc = 0; double Ls_Lc = 0;
+                                    double F0; double F1; double F2;
+                                    foreach (Connector connector in mEPModel.ConnectorManager.Connectors)
                                     {
-                                        keys.Add(item.get_distance(b_8));
-                                        values.Add(item.ksai);
+                                        Tconnectors.Add(connector);
                                     }
-                                    project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(keys, values);
+                                    XYZ v0 = UIOperation.get_VectorFromConnector(Tconnectors[0], ((FamilyInstance)element).FacingOrientation);
+                                    XYZ v1 = UIOperation.get_VectorFromConnector(Tconnectors[1], ((FamilyInstance)element).FacingOrientation);
+                                    XYZ v2 = UIOperation.get_VectorFromConnector(Tconnectors[2], ((FamilyInstance)element).FacingOrientation);
+                                    F0 = UIOperation.get_AreaOfConnector(Tconnectors[0]);
+                                    F1 = UIOperation.get_AreaOfConnector(Tconnectors[1]);
+                                    F2 = UIOperation.get_AreaOfConnector(Tconnectors[2]);
+                                    #region //完成T型管道id的识别
+                                    //判断T管并计算Fs_Fc,Fb_Fc
+                                    if (UIOperation.get_Angle(v0, v1) == 0)
+                                    {
+                                        TelementId = UIOperation.GetAnotherIDAtConnector(element.Id, Tconnectors[2]);
+                                        //F2>T
+                                        if (F0 > F1)
+                                        {
+                                            Fs_Fc = F1 / F0;
+                                            Fb_Fc = F2 / F0;
+                                        }
+                                        else
+                                        {
+                                            Fs_Fc = F0 / F1;
+                                            Fb_Fc = F2 / F1;
+                                        }
+                                    }
+                                    if (UIOperation.get_Angle(v0, v1) == 90)
+                                    {
+                                        if (UIOperation.get_Angle(v1, v2) == 0)
+                                        {
+                                            TelementId = UIOperation.GetAnotherIDAtConnector(element.Id, Tconnectors[0]);
+                                            //F0>T
+                                            if (F1 > F2)
+                                            {
+                                                Fs_Fc = F2 / F1;
+                                                Fb_Fc = F0 / F1;
+                                            }
+                                            else
+                                            {
+                                                Fs_Fc = F1 / F2;
+                                                Fb_Fc = F0 / F2;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            TelementId = UIOperation.GetAnotherIDAtConnector(element.Id, Tconnectors[1]);
+                                            //F1>T
+                                            if (F0 > F2)
+                                            {
+                                                Fs_Fc = F2 / F0;
+                                                Fb_Fc = F1 / F0;
+                                            }
+                                            else
+                                            {
+                                                Fs_Fc = F0 / F2;
+                                                Fb_Fc = F1 / F2;
+                                            }
+                                        }
+                                    }
+                                    #endregion
+                                    #region 完成对支管直管的判断Lb_Lc,Ls_Lc,
+                                    if (project.dataElements[i - 1].ID == TelementId.IntegerValue)//T管道查询
+                                    {
+                                        //===========>>>D_2_b
+                                        Lb_Lc = project.dataElements[i - 1].Airflow / project.dataElements[i + 1].Airflow;
+                                        List<D_2_b> d_2_Bs = mainForm.myDbContext.d_2_b.ToList<D_2_b>();
+                                        foreach (D_2_b item in d_2_Bs)
+                                        {
+                                            keys.Add(item.get_distance(new D_2_b() { Fb_Fc = Fb_Fc, Fs_Fc = Fs_Fc, Lb_Lc = Lb_Lc }));
+                                            values.Add(item.ksai);
+                                        }
+                                        project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(keys, values) + 0.15;
+                                    }
+                                    else//直管查询
+                                    {
+                                        //==========>>>D_2_s
+                                        Ls_Lc = project.dataElements[i - 1].Airflow / project.dataElements[i + 1].Airflow;
+                                        List<D_2_s> d_2_Ss = mainForm.myDbContext.d_2_s.ToList<D_2_s>();
+                                        foreach (D_2_s item in d_2_Ss)
+                                        {
+                                            keys.Add(item.get_distance(new D_2_s() { Fb_Fc = Fb_Fc, Fs_Fc = Fs_Fc, Ls_Lc = Ls_Lc }));
+                                            values.Add(item.ksai);
+                                        }
+                                        project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(keys, values) + 0.15;
+                                    }
+                                    #endregion
                                     break;
-                                }
-                                if (Math.Round(Eangle,2)<=45)//====>>>>B_9
-                                {
-                                    B_9 b_9 = new B_9() { D = project.dataElements[i].Diameter };
-                                    foreach (B_9 item in mainForm.myDbContext.b_9.ToList<B_9>())
+                                case PartType.Transition://过渡件三维计算完成=>C_1
+                                    #region
+                                    double theta = 0; double F0_F1 = 0;
+                                    FamilySymbol familySymbol = ((FamilyInstance)element).Symbol;
+                                    List<double> Fs = new List<double>();//存储计算面积
+                                    List<Connector> Trconnectors = new List<Connector>();
+                                    foreach (Connector connector in ((FamilyInstance)element).MEPModel.ConnectorManager.Connectors)
                                     {
-                                        keys.Add(item.get_distance(b_9));
-                                        values.Add(item.ksai);
+                                        if (connector.Shape == ConnectorProfileType.Round)
+                                        {
+                                            Fs.Add(connector.Radius * connector.Radius * Math.PI);//单位未换算
+                                        }
+                                        if (connector.Shape == ConnectorProfileType.Rectangular)
+                                        {
+                                            Fs.Add(Math.Pow(project.cal_de(connector.Height, connector.Width), 2) * Math.PI / 4);
+                                        }
+                                        Trconnectors.Add(connector);
+                                    }
+                                    double conDis = UIOperation.get_DistanceFromConnectors(Trconnectors[0], Trconnectors[1]);
+                                    theta = Math.Atan(Math.Abs(Fs[0] - Fs[1]) / 2 / conDis) * 2;
+                                    theta = Math.Round(theta / Math.PI * 180, 2);
+                                    if (Fs[0] > Fs[1])
+                                    {
+                                        F0_F1 = Fs[1] / Fs[0];
+                                    }
+                                    else
+                                    {
+                                        F0_F1 = Fs[0] / Fs[1];
+                                    }
+                                    //=====================
+                                    MessageBox.Show(theta.ToString() + "   " + F0_F1.ToString());
+                                    //=====================
+                                    List<C_1> c_1s = mainForm.myDbContext.c_1.ToList<C_1>();
+                                    for (int ii = 0; ii < c_1s.Count; ii++)
+                                    {
+                                        keys.Add(c_1s[ii].get_distance(new C_1() { theta = theta, F0_F1 = F0_F1 }));
+                                        values.Add(c_1s[ii].ksai);
                                     }
                                     project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(keys, values);
-                                }
-                                #endregion
-                                break;
-                            case PartType.Tee://T型三通
-                                List<Connector> Tconnectors = new List<Connector>();
-                                ElementId TelementId = new ElementId(0);//T型三通的ID
-                                double Fs_Fc=0; double Fb_Fc=0;double Lb_Lc=0;double Ls_Lc=0;
-                                double F0;double F1;double F2;
-                                foreach (Connector connector in mEPModel.ConnectorManager.Connectors)
-                                {
-                                    Tconnectors.Add(connector);
-                                }
-                                XYZ v0 = UIOperation.get_VectorFromConnector(Tconnectors[0], ((FamilyInstance)element).FacingOrientation);
-                                XYZ v1 = UIOperation.get_VectorFromConnector(Tconnectors[1], ((FamilyInstance)element).FacingOrientation);
-                                XYZ v2 = UIOperation.get_VectorFromConnector(Tconnectors[2], ((FamilyInstance)element).FacingOrientation);
-                                F0 = UIOperation.get_AreaOfConnector(Tconnectors[0]);
-                                F1 = UIOperation.get_AreaOfConnector(Tconnectors[1]);
-                                F2 = UIOperation.get_AreaOfConnector(Tconnectors[2]);
-                                #region //完成T型管道id的识别
-                                //判断T管并计算Fs_Fc,Fb_Fc
-                                if (UIOperation.get_Angle(v0, v1) == 0)
-                                {
-                                    TelementId = UIOperation.GetAnotherIDAtConnector(element.Id, Tconnectors[2]);
-                                    //F2>T
-                                    if (F0>F1)
+                                    #endregion
+                                    break;
+                                case PartType.Wye://Y型三通 特殊放到Y型
+                                    #region =======>>>>>>D_6  Db1>=Db2
+                                    //1.判断主管支管
+                                    List<Connector> Wconnectors = new List<Connector>();
+                                    foreach (Connector item in mEPModel.ConnectorManager.Connectors)
                                     {
-                                        Fs_Fc = F1 / F0;
-                                        Fb_Fc = F2 / F0;
+                                        Wconnectors.Add(item);
                                     }
-                                    else
-                                    {
-                                        Fs_Fc = F0 / F1;
-                                        Fb_Fc = F2 / F1;
-                                    }
-                                }
-                                if (UIOperation.get_Angle(v0, v1) == 90)
-                                {
-                                    if (UIOperation.get_Angle(v1, v2) == 0)
-                                    {
-                                        TelementId = UIOperation.GetAnotherIDAtConnector(element.Id, Tconnectors[0]);
-                                        //F0>T
-                                        if (F1 > F2)
-                                        {
-                                            Fs_Fc = F2 / F1;
-                                            Fb_Fc = F0 / F1;
-                                        }
-                                        else
-                                        {
-                                            Fs_Fc = F1 / F2;
-                                            Fb_Fc = F0 / F2;
-                                        }
-                                    }
-                                    else
-                                    {
-                                        TelementId = UIOperation.GetAnotherIDAtConnector(element.Id, Tconnectors[1]);
-                                        //F1>T
-                                        if (F0>F2)
-                                        {
-                                            Fs_Fc = F2 / F0;
-                                            Fb_Fc = F1 / F0;
-                                        }
-                                        else
-                                        {
-                                            Fs_Fc = F0 / F2;
-                                            Fb_Fc = F1 / F2;
-                                        }
-                                    }
-                                }
-                                #endregion
-                                #region 完成对支管直管的判断Lb_Lc,Ls_Lc,
-                                if (project.dataElements[i - 1].ID == TelementId.IntegerValue)//T管道查询
-                                {
-                                    //===========>>>D_2_b
-                                    Lb_Lc = project.dataElements[i - 1].Airflow / project.dataElements[i + 1].Airflow;
-                                    List<D_2_b> d_2_Bs = mainForm.myDbContext.d_2_b.ToList<D_2_b>();
-                                    foreach (D_2_b item in d_2_Bs)
-                                    {
-                                        keys.Add(item.get_distance(new D_2_b() { Fb_Fc = Fb_Fc,Fs_Fc=Fs_Fc,Lb_Lc=Lb_Lc }));
-                                        values.Add(item.ksai);
-                                    }
-                                    project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(keys, values)+0.15;
-                                }
-                                else//直管查询
-                                {
-                                    //==========>>>D_2_s
-                                    Ls_Lc = project.dataElements[i - 1].Airflow / project.dataElements[i + 1].Airflow;
-                                    List<D_2_s> d_2_Ss = mainForm.myDbContext.d_2_s.ToList<D_2_s>();
-                                    foreach (D_2_s item in d_2_Ss)
-                                    {
-                                        keys.Add(item.get_distance(new D_2_s() { Fb_Fc = Fb_Fc, Fs_Fc = Fs_Fc, Ls_Lc = Ls_Lc }));
-                                        values.Add(item.ksai);
-                                    }
-                                    project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(keys, values) + 0.15;
-                                }
-                                #endregion
-                                break;
-                            case PartType.Transition://过渡件三维计算完成=>C_1
-                                #region
-                                double theta = 0; double F0_F1 = 0;
-                                FamilySymbol familySymbol = ((FamilyInstance)element).Symbol;
-                                List<double> Fs = new List<double>();//存储计算面积
-                                List<Connector> Trconnectors = new List<Connector>();
-                                foreach (Connector connector in ((FamilyInstance)element).MEPModel.ConnectorManager.Connectors)
-                                {
-                                    if (connector.Shape==ConnectorProfileType.Round)
-                                    {
-                                        Fs.Add(connector.Radius * connector.Radius * Math.PI);//单位未换算
-                                    }
-                                    if (connector.Shape==ConnectorProfileType.Rectangular)
-                                    {
-                                        Fs.Add(Math.Pow(project.cal_de(connector.Height, connector.Width), 2) * Math.PI / 4);
-                                    }
-                                    Trconnectors.Add(connector);
-                                }
-                                double conDis = UIOperation.get_DistanceFromConnectors(Trconnectors[0], Trconnectors[1]);
-                                theta = Math.Atan(Math.Abs(Fs[0] - Fs[1])/2/conDis) * 2;
-                                theta = Math.Round(theta / Math.PI * 180, 2);
-                                if (Fs[0]>Fs[1])
-                                {
-                                    F0_F1 = Fs[1] / Fs[0];
-                                }
-                                else
-                                {
-                                    F0_F1 = Fs[0] / Fs[1];
-                                }
-                                //=====================
-                                MessageBox.Show(theta.ToString() + "   " + F0_F1.ToString());
-                                //=====================
-                                List<C_1> c_1s = mainForm.myDbContext.c_1.ToList<C_1>();
-                                for (int ii = 0; ii < c_1s.Count; ii++)
-                                {
-                                    keys.Add(c_1s[ii].get_distance(new C_1() { theta = theta, F0_F1 = F0_F1 }));
-                                    values.Add(c_1s[ii].ksai);
-                                }
-                                project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(keys, values);
-                                #endregion
-                                break;
-                            case PartType.Wye://Y型三通 特殊放到Y型
-                                #region =======>>>>>>D_6  Db1>=Db2
-                                //1.判断主管支管
-                                List<Connector> Wconnectors = new List<Connector>();
-                                foreach (Connector item in mEPModel.ConnectorManager.Connectors)
-                                {
-                                    Wconnectors.Add(item);
-                                }
-                                XYZ Wv0 = UIOperation.get_VectorFromConnector(Wconnectors[0], ((FamilyInstance)element).FacingOrientation);
-                                XYZ Wv1 = UIOperation.get_VectorFromConnector(Wconnectors[1], ((FamilyInstance)element).FacingOrientation);
-                                XYZ Wv2 = UIOperation.get_VectorFromConnector(Wconnectors[2], ((FamilyInstance)element).FacingOrientation);
+                                    XYZ Wv0 = UIOperation.get_VectorFromConnector(Wconnectors[0], ((FamilyInstance)element).FacingOrientation);
+                                    XYZ Wv1 = UIOperation.get_VectorFromConnector(Wconnectors[1], ((FamilyInstance)element).FacingOrientation);
+                                    XYZ Wv2 = UIOperation.get_VectorFromConnector(Wconnectors[2], ((FamilyInstance)element).FacingOrientation);
 
-                                List<D_6_b1> d_6_B1s = new List<D_6_b1>();
-                                List<D_6_b2> d_6_B2s = new List<D_6_b2>();
-                                double Fb1_Fc ;double Fb2_Fc ;double Lb1_Lc;double Lb2_Lc ; 
-                                if (UIOperation.get_Angle(Wv0,Wv1)==0)
-                                {
-                                    #region
-                                    //Wv2>>主管
-                                    if (UIOperation.get_AreaOfConnector(Wconnectors[0])>UIOperation.get_AreaOfConnector(Wconnectors[1]))
+                                    List<D_6_b1> d_6_B1s = new List<D_6_b1>();
+                                    List<D_6_b2> d_6_B2s = new List<D_6_b2>();
+                                    double Fb1_Fc; double Fb2_Fc; double Lb1_Lc; double Lb2_Lc;
+                                    if (UIOperation.get_Angle(Wv0, Wv1) == 0)
                                     {
-                                        if (project.dataElements[i-1].ID==UIOperation.GetAnotherIDAtConnector(element.Id,Wconnectors[0]).IntegerValue)
+                                        #region
+                                        //Wv2>>主管
+                                        if (UIOperation.get_AreaOfConnector(Wconnectors[0]) > UIOperation.get_AreaOfConnector(Wconnectors[1]))
                                         {
-                                            //Db1
-                                            Lb1_Lc = project.dataElements[i - 1].Airflow / project.dataElements[i + 1].Airflow;
-                                            Fb1_Fc = UIOperation.get_AreaOfConnector(Wconnectors[0]) / UIOperation.get_AreaOfConnector(Wconnectors[2]);
-                                            Fb2_Fc = UIOperation.get_AreaOfConnector(Wconnectors[1]) / UIOperation.get_AreaOfConnector(Wconnectors[2]);
-                                            d_6_B1s = mainForm.myDbContext.d_6_b1.ToList<D_6_b1>();
-                                            foreach (D_6_b1 item in d_6_B1s)
+                                            if (project.dataElements[i - 1].ID == UIOperation.GetAnotherIDAtConnector(element.Id, Wconnectors[0]).IntegerValue)
                                             {
-                                                keys.Add(item.get_distance(new D_6_b1() { Fb1_Fc = Fb1_Fc, Fb2_Fc = Fb2_Fc, Lb1_Lc = Lb1_Lc }));
-                                                values.Add(item.ksai);
+                                                //Db1
+                                                Lb1_Lc = project.dataElements[i - 1].Airflow / project.dataElements[i + 1].Airflow;
+                                                Fb1_Fc = UIOperation.get_AreaOfConnector(Wconnectors[0]) / UIOperation.get_AreaOfConnector(Wconnectors[2]);
+                                                Fb2_Fc = UIOperation.get_AreaOfConnector(Wconnectors[1]) / UIOperation.get_AreaOfConnector(Wconnectors[2]);
+                                                d_6_B1s = mainForm.myDbContext.d_6_b1.ToList<D_6_b1>();
+                                                foreach (D_6_b1 item in d_6_B1s)
+                                                {
+                                                    keys.Add(item.get_distance(new D_6_b1() { Fb1_Fc = Fb1_Fc, Fb2_Fc = Fb2_Fc, Lb1_Lc = Lb1_Lc }));
+                                                    values.Add(item.ksai);
+                                                }
+                                                project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(keys, values);
                                             }
-                                            project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(keys, values);
+                                            else
+                                            {
+                                                //Db2
+                                                Lb2_Lc = project.dataElements[i - 1].Airflow / project.dataElements[i + 1].Airflow;
+                                                Fb1_Fc = UIOperation.get_AreaOfConnector(Wconnectors[0]) / UIOperation.get_AreaOfConnector(Wconnectors[2]);
+                                                Fb2_Fc = UIOperation.get_AreaOfConnector(Wconnectors[1]) / UIOperation.get_AreaOfConnector(Wconnectors[2]);
+                                                d_6_B2s = mainForm.myDbContext.d_6_b2.ToList<D_6_b2>();
+                                                foreach (D_6_b2 item in d_6_B2s)
+                                                {
+                                                    keys.Add(item.get_distance(new D_6_b2() { Fb1_Fc = Fb1_Fc, Fb2_Fc = Fb2_Fc, Lb2_Lc = Lb2_Lc }));
+                                                    values.Add(item.ksai);
+                                                }
+                                                project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(keys, values);
+                                            }
                                         }
                                         else
                                         {
-                                            //Db2
-                                            Lb2_Lc = project.dataElements[i - 1].Airflow / project.dataElements[i + 1].Airflow;
-                                            Fb1_Fc = UIOperation.get_AreaOfConnector(Wconnectors[0]) / UIOperation.get_AreaOfConnector(Wconnectors[2]);
-                                            Fb2_Fc = UIOperation.get_AreaOfConnector(Wconnectors[1]) / UIOperation.get_AreaOfConnector(Wconnectors[2]);
-                                            d_6_B2s = mainForm.myDbContext.d_6_b2.ToList<D_6_b2>();
-                                            foreach (D_6_b2 item in d_6_B2s)
+                                            if (project.dataElements[i - 1].ID == UIOperation.GetAnotherIDAtConnector(element.Id, Wconnectors[0]).IntegerValue)
                                             {
-                                                keys.Add(item.get_distance(new D_6_b2() { Fb1_Fc = Fb1_Fc, Fb2_Fc = Fb2_Fc, Lb2_Lc = Lb2_Lc }));
-                                                values.Add(item.ksai);
+                                                //Db2
+                                                Lb2_Lc = project.dataElements[i - 1].Airflow / project.dataElements[i + 1].Airflow;
+                                                Fb1_Fc = UIOperation.get_AreaOfConnector(Wconnectors[1]) / UIOperation.get_AreaOfConnector(Wconnectors[2]);
+                                                Fb2_Fc = UIOperation.get_AreaOfConnector(Wconnectors[0]) / UIOperation.get_AreaOfConnector(Wconnectors[2]);
+                                                d_6_B2s = mainForm.myDbContext.d_6_b2.ToList<D_6_b2>();
+                                                foreach (D_6_b2 item in d_6_B2s)
+                                                {
+                                                    keys.Add(item.get_distance(new D_6_b2() { Fb1_Fc = Fb1_Fc, Fb2_Fc = Fb2_Fc, Lb2_Lc = Lb2_Lc }));
+                                                    values.Add(item.ksai);
+                                                }
+                                                project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(keys, values);
+
                                             }
-                                            project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(keys, values);
+                                            else
+                                            {
+                                                //Db1
+                                                Lb1_Lc = project.dataElements[i - 1].Airflow / project.dataElements[i + 1].Airflow;
+                                                Fb1_Fc = UIOperation.get_AreaOfConnector(Wconnectors[1]) / UIOperation.get_AreaOfConnector(Wconnectors[2]);
+                                                Fb2_Fc = UIOperation.get_AreaOfConnector(Wconnectors[0]) / UIOperation.get_AreaOfConnector(Wconnectors[2]);
+                                                d_6_B1s = mainForm.myDbContext.d_6_b1.ToList<D_6_b1>();
+                                                foreach (D_6_b1 item in d_6_B1s)
+                                                {
+                                                    keys.Add(item.get_distance(new D_6_b1() { Fb1_Fc = Fb1_Fc, Fb2_Fc = Fb2_Fc, Lb1_Lc = Lb1_Lc }));
+                                                    values.Add(item.ksai);
+                                                }
+                                                project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(keys, values);
+
+                                            }
                                         }
+                                        #endregion
                                     }
-                                    else
+                                    if (UIOperation.get_Angle(Wv1, Wv2) == 0)
                                     {
-                                        if (project.dataElements[i - 1].ID == UIOperation.GetAnotherIDAtConnector(element.Id, Wconnectors[0]).IntegerValue)
+                                        #region
+                                        //Wv0>>主管
+                                        if (UIOperation.get_AreaOfConnector(Wconnectors[1]) > UIOperation.get_AreaOfConnector(Wconnectors[2]))
                                         {
-                                            //Db2
-                                            Lb2_Lc = project.dataElements[i - 1].Airflow / project.dataElements[i + 1].Airflow;
-                                            Fb1_Fc = UIOperation.get_AreaOfConnector(Wconnectors[1]) / UIOperation.get_AreaOfConnector(Wconnectors[2]);
-                                            Fb2_Fc = UIOperation.get_AreaOfConnector(Wconnectors[0]) / UIOperation.get_AreaOfConnector(Wconnectors[2]);
-                                            d_6_B2s = mainForm.myDbContext.d_6_b2.ToList<D_6_b2>();
-                                            foreach (D_6_b2 item in d_6_B2s)
+                                            if (project.dataElements[i - 1].ID == UIOperation.GetAnotherIDAtConnector(element.Id, Wconnectors[1]).IntegerValue)
                                             {
-                                                keys.Add(item.get_distance(new D_6_b2() { Fb1_Fc = Fb1_Fc, Fb2_Fc = Fb2_Fc, Lb2_Lc = Lb2_Lc }));
-                                                values.Add(item.ksai);
+                                                //Db1
+                                                Lb1_Lc = project.dataElements[i - 1].Airflow / project.dataElements[i + 1].Airflow;
+                                                Fb1_Fc = UIOperation.get_AreaOfConnector(Wconnectors[1]) / UIOperation.get_AreaOfConnector(Wconnectors[0]);
+                                                Fb2_Fc = UIOperation.get_AreaOfConnector(Wconnectors[2]) / UIOperation.get_AreaOfConnector(Wconnectors[0]);
+                                                d_6_B1s = mainForm.myDbContext.d_6_b1.ToList<D_6_b1>();
+                                                foreach (D_6_b1 item in d_6_B1s)
+                                                {
+                                                    keys.Add(item.get_distance(new D_6_b1() { Fb1_Fc = Fb1_Fc, Fb2_Fc = Fb2_Fc, Lb1_Lc = Lb1_Lc }));
+                                                    values.Add(item.ksai);
+                                                }
+                                                project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(keys, values);
                                             }
-                                            project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(keys, values);
-
+                                            else
+                                            {
+                                                //Db2
+                                                Lb2_Lc = project.dataElements[i - 1].Airflow / project.dataElements[i + 1].Airflow;
+                                                Fb1_Fc = UIOperation.get_AreaOfConnector(Wconnectors[1]) / UIOperation.get_AreaOfConnector(Wconnectors[0]);
+                                                Fb2_Fc = UIOperation.get_AreaOfConnector(Wconnectors[2]) / UIOperation.get_AreaOfConnector(Wconnectors[0]);
+                                                d_6_B2s = mainForm.myDbContext.d_6_b2.ToList<D_6_b2>();
+                                                foreach (D_6_b2 item in d_6_B2s)
+                                                {
+                                                    keys.Add(item.get_distance(new D_6_b2() { Fb1_Fc = Fb1_Fc, Fb2_Fc = Fb2_Fc, Lb2_Lc = Lb2_Lc }));
+                                                    values.Add(item.ksai);
+                                                }
+                                                project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(keys, values);
+                                            }
                                         }
                                         else
                                         {
-                                            //Db1
-                                            Lb1_Lc = project.dataElements[i - 1].Airflow / project.dataElements[i + 1].Airflow;
-                                            Fb1_Fc = UIOperation.get_AreaOfConnector(Wconnectors[1]) / UIOperation.get_AreaOfConnector(Wconnectors[2]);
-                                            Fb2_Fc = UIOperation.get_AreaOfConnector(Wconnectors[0]) / UIOperation.get_AreaOfConnector(Wconnectors[2]);
-                                            d_6_B1s = mainForm.myDbContext.d_6_b1.ToList<D_6_b1>();
-                                            foreach (D_6_b1 item in d_6_B1s)
+                                            if (project.dataElements[i - 1].ID == UIOperation.GetAnotherIDAtConnector(element.Id, Wconnectors[1]).IntegerValue)
                                             {
-                                                keys.Add(item.get_distance(new D_6_b1() { Fb1_Fc = Fb1_Fc, Fb2_Fc = Fb2_Fc, Lb1_Lc = Lb1_Lc }));
-                                                values.Add(item.ksai);
-                                            }
-                                            project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(keys, values);
+                                                //Db2
+                                                Lb2_Lc = project.dataElements[i - 1].Airflow / project.dataElements[i + 1].Airflow;
+                                                Fb1_Fc = UIOperation.get_AreaOfConnector(Wconnectors[2]) / UIOperation.get_AreaOfConnector(Wconnectors[0]);
+                                                Fb2_Fc = UIOperation.get_AreaOfConnector(Wconnectors[1]) / UIOperation.get_AreaOfConnector(Wconnectors[0]);
+                                                d_6_B2s = mainForm.myDbContext.d_6_b2.ToList<D_6_b2>();
+                                                foreach (D_6_b2 item in d_6_B2s)
+                                                {
+                                                    keys.Add(item.get_distance(new D_6_b2() { Fb1_Fc = Fb1_Fc, Fb2_Fc = Fb2_Fc, Lb2_Lc = Lb2_Lc }));
+                                                    values.Add(item.ksai);
+                                                }
+                                                project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(keys, values);
 
+                                            }
+                                            else
+                                            {
+                                                //Db1
+                                                Lb1_Lc = project.dataElements[i - 1].Airflow / project.dataElements[i + 1].Airflow;
+                                                Fb1_Fc = UIOperation.get_AreaOfConnector(Wconnectors[2]) / UIOperation.get_AreaOfConnector(Wconnectors[0]);
+                                                Fb2_Fc = UIOperation.get_AreaOfConnector(Wconnectors[1]) / UIOperation.get_AreaOfConnector(Wconnectors[0]);
+                                                d_6_B1s = mainForm.myDbContext.d_6_b1.ToList<D_6_b1>();
+                                                foreach (D_6_b1 item in d_6_B1s)
+                                                {
+                                                    keys.Add(item.get_distance(new D_6_b1() { Fb1_Fc = Fb1_Fc, Fb2_Fc = Fb2_Fc, Lb1_Lc = Lb1_Lc }));
+                                                    values.Add(item.ksai);
+                                                }
+                                                project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(keys, values);
+
+                                            }
                                         }
+                                        #endregion
+                                    }
+                                    if (UIOperation.get_Angle(Wv0, Wv2) == 0)
+                                    {
+                                        #region
+                                        //Wv1>>主管
+                                        if (UIOperation.get_AreaOfConnector(Wconnectors[0]) > UIOperation.get_AreaOfConnector(Wconnectors[2]))
+                                        {
+                                            if (project.dataElements[i - 1].ID == UIOperation.GetAnotherIDAtConnector(element.Id, Wconnectors[0]).IntegerValue)
+                                            {
+                                                //Db1
+                                                Lb1_Lc = project.dataElements[i - 1].Airflow / project.dataElements[i + 1].Airflow;
+                                                Fb1_Fc = UIOperation.get_AreaOfConnector(Wconnectors[0]) / UIOperation.get_AreaOfConnector(Wconnectors[1]);
+                                                Fb2_Fc = UIOperation.get_AreaOfConnector(Wconnectors[2]) / UIOperation.get_AreaOfConnector(Wconnectors[1]);
+                                                d_6_B1s = mainForm.myDbContext.d_6_b1.ToList<D_6_b1>();
+                                                foreach (D_6_b1 item in d_6_B1s)
+                                                {
+                                                    keys.Add(item.get_distance(new D_6_b1() { Fb1_Fc = Fb1_Fc, Fb2_Fc = Fb2_Fc, Lb1_Lc = Lb1_Lc }));
+                                                    values.Add(item.ksai);
+                                                }
+                                                project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(keys, values);
+                                            }
+                                            else
+                                            {
+                                                //Db2
+                                                Lb2_Lc = project.dataElements[i - 1].Airflow / project.dataElements[i + 1].Airflow;
+                                                Fb1_Fc = UIOperation.get_AreaOfConnector(Wconnectors[0]) / UIOperation.get_AreaOfConnector(Wconnectors[1]);
+                                                Fb2_Fc = UIOperation.get_AreaOfConnector(Wconnectors[2]) / UIOperation.get_AreaOfConnector(Wconnectors[1]);
+                                                d_6_B2s = mainForm.myDbContext.d_6_b2.ToList<D_6_b2>();
+                                                foreach (D_6_b2 item in d_6_B2s)
+                                                {
+                                                    keys.Add(item.get_distance(new D_6_b2() { Fb1_Fc = Fb1_Fc, Fb2_Fc = Fb2_Fc, Lb2_Lc = Lb2_Lc }));
+                                                    values.Add(item.ksai);
+                                                }
+                                                project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(keys, values);
+                                            }
+                                        }
+                                        else
+                                        {
+                                            if (project.dataElements[i - 1].ID == UIOperation.GetAnotherIDAtConnector(element.Id, Wconnectors[0]).IntegerValue)
+                                            {
+                                                //Db2
+                                                Lb2_Lc = project.dataElements[i - 1].Airflow / project.dataElements[i + 1].Airflow;
+                                                Fb1_Fc = UIOperation.get_AreaOfConnector(Wconnectors[2]) / UIOperation.get_AreaOfConnector(Wconnectors[1]);
+                                                Fb2_Fc = UIOperation.get_AreaOfConnector(Wconnectors[0]) / UIOperation.get_AreaOfConnector(Wconnectors[1]);
+                                                d_6_B2s = mainForm.myDbContext.d_6_b2.ToList<D_6_b2>();
+                                                foreach (D_6_b2 item in d_6_B2s)
+                                                {
+                                                    keys.Add(item.get_distance(new D_6_b2() { Fb1_Fc = Fb1_Fc, Fb2_Fc = Fb2_Fc, Lb2_Lc = Lb2_Lc }));
+                                                    values.Add(item.ksai);
+                                                }
+                                                project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(keys, values);
+                                            }
+                                            else
+                                            {
+                                                //Db1
+                                                Lb1_Lc = project.dataElements[i - 1].Airflow / project.dataElements[i + 1].Airflow;
+                                                Fb1_Fc = UIOperation.get_AreaOfConnector(Wconnectors[2]) / UIOperation.get_AreaOfConnector(Wconnectors[1]);
+                                                Fb2_Fc = UIOperation.get_AreaOfConnector(Wconnectors[0]) / UIOperation.get_AreaOfConnector(Wconnectors[1]);
+                                                d_6_B1s = mainForm.myDbContext.d_6_b1.ToList<D_6_b1>();
+                                                foreach (D_6_b1 item in d_6_B1s)
+                                                {
+                                                    keys.Add(item.get_distance(new D_6_b1() { Fb1_Fc = Fb1_Fc, Fb2_Fc = Fb2_Fc, Lb1_Lc = Lb1_Lc }));
+                                                    values.Add(item.ksai);
+                                                }
+                                                project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(keys, values);
+
+                                            }
+                                        }
+                                        #endregion
                                     }
                                     #endregion
-                                }
-                                if (UIOperation.get_Angle(Wv1,Wv2)==0)
-                                {
-                                    #region
-                                    //Wv0>>主管
-                                    if (UIOperation.get_AreaOfConnector(Wconnectors[1]) > UIOperation.get_AreaOfConnector(Wconnectors[2]))
-                                    {
-                                        if (project.dataElements[i - 1].ID == UIOperation.GetAnotherIDAtConnector(element.Id, Wconnectors[1]).IntegerValue)
-                                        {
-                                            //Db1
-                                            Lb1_Lc = project.dataElements[i - 1].Airflow / project.dataElements[i + 1].Airflow;
-                                            Fb1_Fc = UIOperation.get_AreaOfConnector(Wconnectors[1]) / UIOperation.get_AreaOfConnector(Wconnectors[0]);
-                                            Fb2_Fc = UIOperation.get_AreaOfConnector(Wconnectors[2]) / UIOperation.get_AreaOfConnector(Wconnectors[0]);
-                                            d_6_B1s = mainForm.myDbContext.d_6_b1.ToList<D_6_b1>();
-                                            foreach (D_6_b1 item in d_6_B1s)
-                                            {
-                                                keys.Add(item.get_distance(new D_6_b1() { Fb1_Fc = Fb1_Fc, Fb2_Fc = Fb2_Fc, Lb1_Lc = Lb1_Lc }));
-                                                values.Add(item.ksai);
-                                            }
-                                            project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(keys, values);
-                                        }
-                                        else
-                                        {
-                                            //Db2
-                                            Lb2_Lc = project.dataElements[i - 1].Airflow / project.dataElements[i + 1].Airflow;
-                                            Fb1_Fc = UIOperation.get_AreaOfConnector(Wconnectors[1]) / UIOperation.get_AreaOfConnector(Wconnectors[0]);
-                                            Fb2_Fc = UIOperation.get_AreaOfConnector(Wconnectors[2]) / UIOperation.get_AreaOfConnector(Wconnectors[0]);
-                                            d_6_B2s = mainForm.myDbContext.d_6_b2.ToList<D_6_b2>();
-                                            foreach (D_6_b2 item in d_6_B2s)
-                                            {
-                                                keys.Add(item.get_distance(new D_6_b2() { Fb1_Fc = Fb1_Fc, Fb2_Fc = Fb2_Fc, Lb2_Lc = Lb2_Lc }));
-                                                values.Add(item.ksai);
-                                            }
-                                            project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(keys, values);
-                                        }
-                                    }
-                                    else
-                                    {
-                                        if (project.dataElements[i - 1].ID == UIOperation.GetAnotherIDAtConnector(element.Id, Wconnectors[1]).IntegerValue)
-                                        {
-                                            //Db2
-                                            Lb2_Lc = project.dataElements[i - 1].Airflow / project.dataElements[i + 1].Airflow;
-                                            Fb1_Fc = UIOperation.get_AreaOfConnector(Wconnectors[2]) / UIOperation.get_AreaOfConnector(Wconnectors[0]);
-                                            Fb2_Fc = UIOperation.get_AreaOfConnector(Wconnectors[1]) / UIOperation.get_AreaOfConnector(Wconnectors[0]);
-                                            d_6_B2s = mainForm.myDbContext.d_6_b2.ToList<D_6_b2>();
-                                            foreach (D_6_b2 item in d_6_B2s)
-                                            {
-                                                keys.Add(item.get_distance(new D_6_b2() { Fb1_Fc = Fb1_Fc, Fb2_Fc = Fb2_Fc, Lb2_Lc = Lb2_Lc }));
-                                                values.Add(item.ksai);
-                                            }
-                                            project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(keys, values);
-
-                                        }
-                                        else
-                                        {
-                                            //Db1
-                                            Lb1_Lc = project.dataElements[i - 1].Airflow / project.dataElements[i + 1].Airflow;
-                                            Fb1_Fc = UIOperation.get_AreaOfConnector(Wconnectors[2]) / UIOperation.get_AreaOfConnector(Wconnectors[0]);
-                                            Fb2_Fc = UIOperation.get_AreaOfConnector(Wconnectors[1]) / UIOperation.get_AreaOfConnector(Wconnectors[0]);
-                                            d_6_B1s = mainForm.myDbContext.d_6_b1.ToList<D_6_b1>();
-                                            foreach (D_6_b1 item in d_6_B1s)
-                                            {
-                                                keys.Add(item.get_distance(new D_6_b1() { Fb1_Fc = Fb1_Fc, Fb2_Fc = Fb2_Fc, Lb1_Lc = Lb1_Lc }));
-                                                values.Add(item.ksai);
-                                            }
-                                            project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(keys, values);
-
-                                        }
-                                    }
-                                    #endregion
-                                }
-                                if (UIOperation.get_Angle(Wv0,Wv2)==0)
-                                {
-                                    #region
-                                    //Wv1>>主管
-                                    if (UIOperation.get_AreaOfConnector(Wconnectors[0]) > UIOperation.get_AreaOfConnector(Wconnectors[2]))
-                                    {
-                                        if (project.dataElements[i - 1].ID == UIOperation.GetAnotherIDAtConnector(element.Id, Wconnectors[0]).IntegerValue)
-                                        {
-                                            //Db1
-                                            Lb1_Lc = project.dataElements[i - 1].Airflow / project.dataElements[i + 1].Airflow;
-                                            Fb1_Fc = UIOperation.get_AreaOfConnector(Wconnectors[0]) / UIOperation.get_AreaOfConnector(Wconnectors[1]);
-                                            Fb2_Fc = UIOperation.get_AreaOfConnector(Wconnectors[2]) / UIOperation.get_AreaOfConnector(Wconnectors[1]);
-                                            d_6_B1s = mainForm.myDbContext.d_6_b1.ToList<D_6_b1>();
-                                            foreach (D_6_b1 item in d_6_B1s)
-                                            {
-                                                keys.Add(item.get_distance(new D_6_b1() { Fb1_Fc = Fb1_Fc, Fb2_Fc = Fb2_Fc, Lb1_Lc = Lb1_Lc }));
-                                                values.Add(item.ksai);
-                                            }
-                                            project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(keys, values);
-                                        }
-                                        else
-                                        {
-                                            //Db2
-                                            Lb2_Lc = project.dataElements[i - 1].Airflow / project.dataElements[i + 1].Airflow;
-                                            Fb1_Fc = UIOperation.get_AreaOfConnector(Wconnectors[0]) / UIOperation.get_AreaOfConnector(Wconnectors[1]);
-                                            Fb2_Fc = UIOperation.get_AreaOfConnector(Wconnectors[2]) / UIOperation.get_AreaOfConnector(Wconnectors[1]);
-                                            d_6_B2s = mainForm.myDbContext.d_6_b2.ToList<D_6_b2>();
-                                            foreach (D_6_b2 item in d_6_B2s)
-                                            {
-                                                keys.Add(item.get_distance(new D_6_b2() { Fb1_Fc = Fb1_Fc, Fb2_Fc = Fb2_Fc, Lb2_Lc = Lb2_Lc }));
-                                                values.Add(item.ksai);
-                                            }
-                                            project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(keys, values);
-                                        }
-                                    }
-                                    else
-                                    {
-                                        if (project.dataElements[i - 1].ID == UIOperation.GetAnotherIDAtConnector(element.Id, Wconnectors[0]).IntegerValue)
-                                        {
-                                            //Db2
-                                            Lb2_Lc = project.dataElements[i - 1].Airflow / project.dataElements[i + 1].Airflow;
-                                            Fb1_Fc = UIOperation.get_AreaOfConnector(Wconnectors[2]) / UIOperation.get_AreaOfConnector(Wconnectors[1]);
-                                            Fb2_Fc = UIOperation.get_AreaOfConnector(Wconnectors[0]) / UIOperation.get_AreaOfConnector(Wconnectors[1]);
-                                            d_6_B2s = mainForm.myDbContext.d_6_b2.ToList<D_6_b2>();
-                                            foreach (D_6_b2 item in d_6_B2s)
-                                            {
-                                                keys.Add(item.get_distance(new D_6_b2() { Fb1_Fc = Fb1_Fc, Fb2_Fc = Fb2_Fc, Lb2_Lc = Lb2_Lc }));
-                                                values.Add(item.ksai);
-                                            }
-                                            project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(keys, values);
-                                        }
-                                        else
-                                        {
-                                            //Db1
-                                            Lb1_Lc = project.dataElements[i - 1].Airflow / project.dataElements[i + 1].Airflow;
-                                            Fb1_Fc = UIOperation.get_AreaOfConnector(Wconnectors[2]) / UIOperation.get_AreaOfConnector(Wconnectors[1]);
-                                            Fb2_Fc = UIOperation.get_AreaOfConnector(Wconnectors[0]) / UIOperation.get_AreaOfConnector(Wconnectors[1]);
-                                            d_6_B1s = mainForm.myDbContext.d_6_b1.ToList<D_6_b1>();
-                                            foreach (D_6_b1 item in d_6_B1s)
-                                            {
-                                                keys.Add(item.get_distance(new D_6_b1() { Fb1_Fc = Fb1_Fc, Fb2_Fc = Fb2_Fc, Lb1_Lc = Lb1_Lc }));
-                                                values.Add(item.ksai);
-                                            }
-                                            project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(keys, values);
-
-                                        }
-                                    }
-                                    #endregion
-                                }
-                                #endregion
-                                break;
-                        }
-                        break;
-                    default:
-                        break;
-                }   
+                                    break;
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                }
             }
             projectForm.refresh_datagrid();
         }

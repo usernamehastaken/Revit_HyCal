@@ -277,7 +277,7 @@ namespace Revit_HyCal
 
         public static Project ElementIdsToProject(List<ElementId> ElementIds, Project project)
         {
-            //补全project的eleids
+            //补全project的elementids是不保存到工程的,仅仅为让数据完整
             if (project.elementIds.Count==0&& project.dataElements.Count>0)
             {
                 foreach (DataElement item in project.dataElements)
