@@ -504,7 +504,7 @@ namespace Revit_HyCal
                                     }
                                     double Eangle = UIOperation.get_Angle(Evectors[0], Evectors[1]);
                                     //==============================================================
-                                    MessageBox.Show(project.dataElements[i].Remarks + "  " + Eangle.ToString());
+                                    //MessageBox.Show(project.dataElements[i].Remarks + "  " + Eangle.ToString());
                                     //==============================================================
                                     double Edis = UIOperation.get_DistanceFromConnectors(Econnectors[0], Econnectors[1]);
                                     double qulvbanjing = Edis / 2 / Math.Sin(Eangle / 2 / 180 * Math.PI);
@@ -546,7 +546,7 @@ namespace Revit_HyCal
                                     break;
                                 case PartType.Tee://T型三通
                                     List<Connector> Tconnectors = new List<Connector>();
-                                    ElementId TelementId = new ElementId(0);//T型三通的ID
+                                    ElementId TelementId = new ElementId(0);//存储T型三通的ID
                                     double Fs_Fc = 0; double Fb_Fc = 0; double Lb_Lc = 0; double Ls_Lc = 0;
                                     double F0; double F1; double F2;
                                     foreach (Connector connector in mEPModel.ConnectorManager.Connectors)
@@ -564,6 +564,11 @@ namespace Revit_HyCal
                                     if (UIOperation.get_Angle(v0, v1) == 0)
                                     {
                                         TelementId = UIOperation.GetAnotherIDAtConnector(element.Id, Tconnectors[2]);
+                                        if (TelementId==null)
+                                        {
+                                            MessageBox.Show("ID为：" + project.dataElements[i].ID + "的元件有未闭合项");
+                                            return;
+                                        }
                                         //F2>T
                                         if (F0 > F1)
                                         {
@@ -581,6 +586,12 @@ namespace Revit_HyCal
                                         if (UIOperation.get_Angle(v1, v2) == 0)
                                         {
                                             TelementId = UIOperation.GetAnotherIDAtConnector(element.Id, Tconnectors[0]);
+                                            TelementId = UIOperation.GetAnotherIDAtConnector(element.Id, Tconnectors[2]);
+                                            if (TelementId == null)
+                                            {
+                                                MessageBox.Show("ID为：" + project.dataElements[i].ID + "的元件有未闭合项");
+                                                return;
+                                            }
                                             //F0>T
                                             if (F1 > F2)
                                             {
@@ -596,6 +607,12 @@ namespace Revit_HyCal
                                         else
                                         {
                                             TelementId = UIOperation.GetAnotherIDAtConnector(element.Id, Tconnectors[1]);
+                                            TelementId = UIOperation.GetAnotherIDAtConnector(element.Id, Tconnectors[2]);
+                                            if (TelementId == null)
+                                            {
+                                                MessageBox.Show("ID为：" + project.dataElements[i].ID + "的元件有未闭合项");
+                                                return;
+                                            }
                                             //F1>T
                                             if (F0 > F2)
                                             {
@@ -667,7 +684,7 @@ namespace Revit_HyCal
                                         F0_F1 = Fs[0] / Fs[1];
                                     }
                                     //=====================
-                                    MessageBox.Show(theta.ToString() + "   " + F0_F1.ToString());
+                                    //MessageBox.Show(theta.ToString() + "   " + F0_F1.ToString());
                                     //=====================
                                     List<C_1> c_1s = mainForm.myDbContext.c_1.ToList<C_1>();
                                     for (int ii = 0; ii < c_1s.Count; ii++)
