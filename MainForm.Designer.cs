@@ -242,12 +242,14 @@ namespace Revit_HyCal
             this.数据库ToolStripMenuItem.Name = "数据库ToolStripMenuItem";
             this.数据库ToolStripMenuItem.Size = new System.Drawing.Size(56, 22);
             this.数据库ToolStripMenuItem.Text = "数据库";
+            this.数据库ToolStripMenuItem.Click += new System.EventHandler(this.数据库ToolStripMenuItem_Click);
             // 
             // 关于ToolStripMenuItem
             // 
             this.关于ToolStripMenuItem.Name = "关于ToolStripMenuItem";
             this.关于ToolStripMenuItem.Size = new System.Drawing.Size(44, 22);
             this.关于ToolStripMenuItem.Text = "关于";
+            this.关于ToolStripMenuItem.Click += new System.EventHandler(this.关于ToolStripMenuItem_Click);
             // 
             // toolStrip1
             // 

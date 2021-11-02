@@ -586,7 +586,7 @@ namespace Revit_HyCal
                                         if (UIOperation.get_Angle(v1, v2) == 0)
                                         {
                                             TelementId = UIOperation.GetAnotherIDAtConnector(element.Id, Tconnectors[0]);
-                                            TelementId = UIOperation.GetAnotherIDAtConnector(element.Id, Tconnectors[2]);
+                                            //TelementId = UIOperation.GetAnotherIDAtConnector(element.Id, Tconnectors[2]);
                                             if (TelementId == null)
                                             {
                                                 MessageBox.Show("ID为：" + project.dataElements[i].ID + "的元件有未闭合项");
@@ -607,7 +607,7 @@ namespace Revit_HyCal
                                         else
                                         {
                                             TelementId = UIOperation.GetAnotherIDAtConnector(element.Id, Tconnectors[1]);
-                                            TelementId = UIOperation.GetAnotherIDAtConnector(element.Id, Tconnectors[2]);
+                                            //TelementId = UIOperation.GetAnotherIDAtConnector(element.Id, Tconnectors[2]);
                                             if (TelementId == null)
                                             {
                                                 MessageBox.Show("ID为：" + project.dataElements[i].ID + "的元件有未闭合项");

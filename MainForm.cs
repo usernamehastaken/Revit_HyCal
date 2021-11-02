@@ -155,5 +155,24 @@ namespace Revit_HyCal
             ProjectForm projectForm = (ProjectForm)this.ActiveMdiChild;
             projectForm.Refresh();
         }
+
+        private void 数据库ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            myDbContext = new MyDbContext();
+            if (myDbContext.a_1.ToList<A_1>().Count > 1)
+            {
+                MessageBox.Show("数据库连接正常！");
+            }
+            else
+            {
+                MessageBox.Show("联系管理员，开通权限！");
+            }
+        }
+
+        private void 关于ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            About about = new About();
+            about.Show();
+        }
     }
 }
