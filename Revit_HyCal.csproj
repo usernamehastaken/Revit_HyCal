@@ -170,6 +170,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="About.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="About.Designer.cs">
+      <DependentUpon>About.cs</DependentUpon>
+    </Compile>
     <Compile Include="JCPZ.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -212,6 +218,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="About.resx">
+      <DependentUpon>About.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="FrmProgressBar.resx">
       <DependentUpon>FrmProgressBar.cs</DependentUpon>
     </EmbeddedResource>
@@ -245,6 +254,8 @@
     <None Include="Icon\数据处理.png" />
     <None Include="Icon\曲线路径.png" />
     <None Include="Icon\打开文档.png" />
+    <None Include="Icon\Logo.png" />
+    <None Include="Icon\CSV.jpeg" />
     <Content Include="Icon\提取边界线.png" />
     <Content Include="Icon\数据导入.png" />
     <Content Include="Icon\数据导出.png" />

@@ -931,6 +931,33 @@ namespace Revit_HyCal
             projectForm.refresh_datagrid();
         }
 
+        public static void renew_cal_ksi(MainForm mainForm)
+        {
+            if (mainForm.MdiChildren.Count() == 0)//无打开工程
+            {
+                return;
+            }
+
+            ProjectForm projectForm = (ProjectForm)mainForm.ActiveMdiChild;
+            foreach (DataElement item in projectForm.myproject.dataElements)
+            {
+                item.kSai = 0;
+            }
+
+            cal_ksi(mainForm);
+        }
+
+        public static void projectFrom_to_csv(MainForm mainForm)
+        {
+            if (mainForm.MdiChildren.Count() == 0)
+            {
+                //TaskDialog.Show("保存", "没有需要保存的工程");
+                return;
+            }
+
+            ProjectForm projectForm = (ProjectForm)mainForm.ActiveMdiChild;
+            projectForm.ProjectFrom_to_CSV();
+        }
     }
 
     public class UBinder : SerializationBinder

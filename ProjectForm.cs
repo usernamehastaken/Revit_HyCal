@@ -10,6 +10,7 @@ using System.Windows.Forms;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.Attributes;
 using Autodesk.Revit.UI;
+using System.IO;
 
 namespace Revit_HyCal
 {
@@ -65,6 +66,39 @@ namespace Revit_HyCal
             UIOperation.uIDocument.Selection.SetElementIds(elementIds);
         }
 
+        public void ProjectFrom_to_CSV()
+        {
+            string csvfile_path;
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.Filter = "工程文件|.csv";
+            if (saveFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                csvfile_path = saveFileDialog.FileName;
+            }
+            else
+            {
+                return;
+            }
 
+            using (StreamWriter sw=new StreamWriter (csvfile_path))
+            {
+                string headers = "";
+                for (int i = 0; i < this.dataGridView1.Columns.Count; i++)
+                {
+                    headers = headers + this.dataGridView1.Columns[i].HeaderText+",";
+                }
+                sw.WriteLine(headers);
+
+                for (int i = 0; i < this.dataGridView1.Rows.Count; i++)
+                {
+                    string text = "";
+                    for (int j = 0; j < this.dataGridView1.Columns.Count; j++)
+                    {
+                        text = text + this.dataGridView1.Rows[i].Cells[j].Value+",";
+                    }
+                    sw.WriteLine(text);
+                }
+            }
+        }
     }
 }
