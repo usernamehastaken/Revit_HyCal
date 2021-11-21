@@ -33,9 +33,9 @@ namespace Revit_HyCal
         {
             //此处窗体代码有添加
             InitializeComponent();
-            myproject = project;
-            this.Text = myproject.name;
+            //myproject = project;
             this.myproject = project;
+            this.Text = myproject.name;
 
         }
 

@@ -463,31 +463,38 @@ namespace Revit_HyCal
                             }
                             break;
                         case "风道末端":
-                            if (project.dataElements[i - 1].DPressure > 0)
+                            if (i==0)
                             {
-                                project.dataElements[i].DPressure = project.dataElements[i - 1].DPressure;
+                                project.dataElements[i].DPressure = project.dataElements[i + 1].DPressure;
                             }
                             else
                             {
-                                project.dataElements[i].DPressure = project.dataElements[i + 1].DPressure;
+                                if (project.dataElements[i - 1].DPressure > 0)
+                                {
+                                    project.dataElements[i].DPressure = project.dataElements[i - 1].DPressure;
+                                }
+                                //else
+                                //{
+                                //    project.dataElements[i].DPressure = project.dataElements[i + 1].DPressure;
+                                //}
                             }
                             project.dataElements[i].kSai = 3.3;//回风口
                             break;
                         case "风管管件":
                             ///分弯头，T三通，Y三通，变径//根据给定类型选定数据表，需要定义一个常量表
-                            if (i == 0)
-                            {
-                                MessageBox.Show("系统的初始或者末端不能为风管管件");
-                                return;
-                            }
+                            //if (i == 0)
+                            //{
+                            //    MessageBox.Show("系统的初始或者末端不能为风管管件");
+                            //    return;
+                            //}
                             MEPModel mEPModel = ((FamilyInstance)element).MEPModel;
-                            if (project.dataElements[i - 1].DPressure > 0)
+                            if (i==0)
                             {
-                                project.dataElements[i].DPressure = project.dataElements[i - 1].DPressure;
+                                project.dataElements[i].DPressure = project.dataElements[i + 1].DPressure;
                             }
                             else
                             {
-                                project.dataElements[i].DPressure = project.dataElements[i + 1].DPressure;
+                                project.dataElements[i].DPressure = project.dataElements[i - 1].DPressure;
                             }
                             switch (((MechanicalFitting)mEPModel).PartType)
                             {
@@ -561,14 +568,14 @@ namespace Revit_HyCal
                                     F2 = UIOperation.get_AreaOfConnector(Tconnectors[2]);
                                     #region //完成T型管道id的识别
                                     //判断T管并计算Fs_Fc,Fb_Fc
-                                    if (UIOperation.get_Angle(v0, v1) == 0)
+                                    if (UIOperation.get_Angle(v0, v1) == 0)//T2是T型支管，主管在T0，T1之间
                                     {
                                         TelementId = UIOperation.GetAnotherIDAtConnector(element.Id, Tconnectors[2]);
-                                        if (TelementId==null)
-                                        {
-                                            MessageBox.Show("ID为：" + project.dataElements[i].ID + "的元件有未闭合项");
-                                            return;
-                                        }
+                                        //if (TelementId == null)
+                                        //{
+                                        //    MessageBox.Show("ID为：" + project.dataElements[i].ID + "的元件有未闭合项");
+                                        //    return;
+                                        //}
                                         //F2>T
                                         if (F0 > F1)
                                         {
@@ -583,15 +590,15 @@ namespace Revit_HyCal
                                     }
                                     if (UIOperation.get_Angle(v0, v1) == 90)
                                     {
-                                        if (UIOperation.get_Angle(v1, v2) == 0)
+                                        if (UIOperation.get_Angle(v1, v2) == 0)//T0是T型支管，主管在T1，T2之间
                                         {
                                             TelementId = UIOperation.GetAnotherIDAtConnector(element.Id, Tconnectors[0]);
-                                            //TelementId = UIOperation.GetAnotherIDAtConnector(element.Id, Tconnectors[2]);
-                                            if (TelementId == null)
-                                            {
-                                                MessageBox.Show("ID为：" + project.dataElements[i].ID + "的元件有未闭合项");
-                                                return;
-                                            }
+                                            ////TelementId = UIOperation.GetAnotherIDAtConnector(element.Id, Tconnectors[2]);
+                                            //if (TelementId == null)
+                                            //{
+                                            //    MessageBox.Show("ID为：" + project.dataElements[i].ID + "的元件有未闭合项");
+                                            //    return;
+                                            //}
                                             //F0>T
                                             if (F1 > F2)
                                             {
@@ -604,15 +611,15 @@ namespace Revit_HyCal
                                                 Fb_Fc = F0 / F2;
                                             }
                                         }
-                                        else
+                                        else//T1是T型支管，主管在T0，T2之间
                                         {
                                             TelementId = UIOperation.GetAnotherIDAtConnector(element.Id, Tconnectors[1]);
-                                            //TelementId = UIOperation.GetAnotherIDAtConnector(element.Id, Tconnectors[2]);
-                                            if (TelementId == null)
-                                            {
-                                                MessageBox.Show("ID为：" + project.dataElements[i].ID + "的元件有未闭合项");
-                                                return;
-                                            }
+                                            ////TelementId = UIOperation.GetAnotherIDAtConnector(element.Id, Tconnectors[2]);
+                                            //if (TelementId == null)
+                                            //{
+                                            //    MessageBox.Show("ID为：" + project.dataElements[i].ID + "的元件有未闭合项");
+                                            //    return;
+                                            //}
                                             //F1>T
                                             if (F0 > F2)
                                             {
@@ -628,6 +635,18 @@ namespace Revit_HyCal
                                     }
                                     #endregion
                                     #region 完成对支管直管的判断Lb_Lc,Ls_Lc,
+                                    if (TelementId==null)//T管道查询
+                                    {
+                                        //==========>>>D_2_s
+                                        Ls_Lc = project.dataElements[i - 1].Airflow / project.dataElements[i + 1].Airflow;
+                                        List<D_2_s> d_2_Ss = mainForm.myDbContext.d_2_s.ToList<D_2_s>();
+                                        foreach (D_2_s item in d_2_Ss)
+                                        {
+                                            keys.Add(item.get_distance(new D_2_s() { Fb_Fc = Fb_Fc, Fs_Fc = Fs_Fc, Ls_Lc = Ls_Lc }));
+                                            values.Add(item.ksai);
+                                        }
+                                        project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(keys, values);
+                                    }
                                     if (project.dataElements[i - 1].ID == TelementId.IntegerValue)//T管道查询
                                     {
                                         //===========>>>D_2_b
@@ -650,7 +669,7 @@ namespace Revit_HyCal
                                             keys.Add(item.get_distance(new D_2_s() { Fb_Fc = Fb_Fc, Fs_Fc = Fs_Fc, Ls_Lc = Ls_Lc }));
                                             values.Add(item.ksai);
                                         }
-                                        project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(keys, values) + 0.15;
+                                        project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(keys, values);
                                     }
                                     #endregion
                                     break;
@@ -958,6 +977,23 @@ namespace Revit_HyCal
             ProjectForm projectForm = (ProjectForm)mainForm.ActiveMdiChild;
             projectForm.ProjectFrom_to_CSV();
         }
+        public static void projectFrom_to_model(MainForm mainForm)
+        {
+            ProjectForm projectForm = (ProjectForm)mainForm.ActiveMdiChild;
+            foreach (DataElement item in projectForm.myproject.dataElements)
+            {
+                if (item.Remarks=="风管")
+                {
+                    Duct duct = (Duct)UIOperation.uIDocument.Document.GetElement(new ElementId(item.ID));
+                    using (Transaction trans =new Transaction (UIOperation.uIDocument.Document,"Project_to_Model"))
+                    {
+                        trans.Start();
+                        //duct.
+                    }
+                }
+            }
+        }
+
     }
 
     public class UBinder : SerializationBinder

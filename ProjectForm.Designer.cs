@@ -79,11 +79,10 @@ namespace Revit_HyCal
             this.dataGridView1.DataSource = this.dataElementBindingSource;
             this.dataGridView1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dataGridView1.Location = new System.Drawing.Point(0, 0);
-            this.dataGridView1.Margin = new System.Windows.Forms.Padding(4);
             this.dataGridView1.Name = "dataGridView1";
             this.dataGridView1.RowHeadersWidth = 62;
             this.dataGridView1.RowTemplate.Height = 23;
-            this.dataGridView1.Size = new System.Drawing.Size(1200, 675);
+            this.dataGridView1.Size = new System.Drawing.Size(800, 450);
             this.dataGridView1.TabIndex = 0;
             this.dataGridView1.CellEndEdit += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_CellEnter);
             this.dataGridView1.RowHeaderMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.datagridview1_RowHeaderMouseClick);
@@ -109,7 +108,7 @@ namespace Revit_HyCal
             // airflowDataGridViewTextBoxColumn
             // 
             this.airflowDataGridViewTextBoxColumn.DataPropertyName = "Airflow";
-            this.airflowDataGridViewTextBoxColumn.HeaderText = "风量(立方m³/h)";
+            this.airflowDataGridViewTextBoxColumn.HeaderText = "风量(m³/h)";
             this.airflowDataGridViewTextBoxColumn.MinimumWidth = 8;
             this.airflowDataGridViewTextBoxColumn.Name = "airflowDataGridViewTextBoxColumn";
             // 
@@ -199,11 +198,10 @@ namespace Revit_HyCal
             // 
             // ProjectForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 18F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1200, 675);
+            this.ClientSize = new System.Drawing.Size(800, 450);
             this.Controls.Add(this.dataGridView1);
-            this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "ProjectForm";
             this.Text = "新建管道系统";
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
