@@ -194,7 +194,6 @@ namespace Revit_HyCal
             this.TotalPressure = this.py + this.pj;
         }
     }
-
     public class Project
     {
         //所有与窗体有关操作的接口都从这出
@@ -996,79 +995,69 @@ namespace Revit_HyCal
             ProjectForm projectForm = (ProjectForm)mainForm.ActiveMdiChild;
             projectForm.ProjectFrom_to_CSV();
         }
-        //public static void projectFrom_to_model(MainForm mainForm)
-        //{
-        //    ProjectForm projectForm = (ProjectForm)mainForm.ActiveMdiChild;
-        //    foreach (DataElement item in projectForm.myproject.dataElements)
-        //    {
-        //        if (item.Remarks == "风管")
-        //        {
-        //            Duct duct = (Duct)UIOperation.uIDocument.Document.GetElement(new ElementId(item.ID));
-        //            mainForm.eventCommand.ExecuteAction = new Action<UIApplication>((app) =>
-        //            {
-        //                app = UIOperation.uIDocument.Application;
-        //                using (Transaction trans = new Transaction(UIOperation.uIDocument.Document, "Project_to_Model"))
-        //                {
-        //                    trans.Start();
-        //                    try
-        //                    {
-        //                        foreach (Parameter par in duct.Parameters)
-        //                        {
-        //                            if (((InternalDefinition)par.Definition).BuiltInParameter == BuiltInParameter.RBS_ADDITIONAL_FLOW)
-        //                            {
-        //                                par.SetValueString(item.Airflow.ToString());
-        //                            }
-        //                            if (par.Definition.Name == "直径")
-        //                            {
-        //                                par.SetValueString(item.Diameter.ToString());
-        //                            }
-        //                            if (par.Definition.Name == "宽度")
-        //                            {
-        //                                par.SetValueString(item.Width.ToString());
-        //                            }
-        //                            if (par.Definition.Name == "高度")
-        //                            {
-        //                                par.SetValueString(item.Height.ToString());
-        //                            }
-        //                        }
-        //                        trans.Commit();
-        //                    }
-        //                    catch (Exception)
-        //                    {
-        //                        trans.RollBack();
-        //                    }
-
-        //                }
-        //            });
-        //            mainForm.externalEvent.Raise();
-        //        }
-        //    }
-        //}
+        public static void projectFrom_to_model(MainForm mainForm)
+        {
+            ProjectForm projectForm = (ProjectForm)mainForm.ActiveMdiChild;
+            
+        }
 
     }
-
-    public class EventCommand : IExternalEventHandler
+    public class ExternalEventHandler_Project_to_Model : IExternalEventHandler
     {
-        public Action<UIApplication> ExecuteAction { get; set; }
+        public List<DataElement> dataElements { get; set; }
+        public string name { get; set; }
+        public ExternalEventHandler_Project_to_Model(string value)
+        {
+            this.name = value;
+        }
         public void Execute(UIApplication app)
         {
-            if (ExecuteAction!=null)
+            TaskDialog.Show("开始修改模型", "仅对风管参数进行赋值！");
+            foreach (DataElement item in this.dataElements)
             {
-                try
+                if (item.Remarks == "风管")
                 {
-                    ExecuteAction(app);
-                }
-                catch (Exception)
-                {
+                    Duct duct = (Duct)app.ActiveUIDocument.Document.GetElement(new ElementId(item.ID));
+                    using (Transaction trans = new Transaction(UIOperation.uIDocument.Document, "Project_to_Model"))
+                    {
+                        trans.Start();
+                        try
+                        {
+                            foreach (Parameter par in duct.Parameters)
+                            {
+                                if (((InternalDefinition)par.Definition).BuiltInParameter == BuiltInParameter.RBS_ADDITIONAL_FLOW)
+                                {
+                                    par.SetValueString(item.Airflow.ToString());
+                                }
+                                if (par.Definition.Name == "直径")
+                                {
+                                    par.SetValueString(item.Diameter.ToString());
+                                }
+                                if (par.Definition.Name == "宽度")
+                                {
+                                    par.SetValueString(item.Width.ToString());
+                                }
+                                if (par.Definition.Name == "高度")
+                                {
+                                    par.SetValueString(item.Height.ToString());
+                                }
+                            }
+                            trans.Commit();
+                        }
+                        catch (Exception)
+                        {
+                            TaskDialog.Show("Error", "ID:" + item.ID + " 赋值失败");
+                            trans.RollBack();
+                        }
 
-                    ;
+                    }
                 }
             }
         }
 
         public string GetName()
         {
-            throw new NotImplementedException();
+            return this.name;
         }
     }
     public class UBinder : SerializationBinder

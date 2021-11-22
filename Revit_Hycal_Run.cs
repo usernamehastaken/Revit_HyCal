@@ -18,24 +18,14 @@ namespace Revit_HyCal
     [Transaction(TransactionMode.Manual)]
     public class Revit_Hycal_Run : IExternalCommand 
     {
-        public EventCommand eventCommand;
-        public ExternalEvent externalEvent;
         //作为程序入口
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
+            Basic_Funs.SetProjectUnits(commandData.Application.ActiveUIDocument.Document, UnitType.UT_HVAC_Airflow, DisplayUnitType.DUT_CUBIC_METERS_PER_HOUR);
             UIOperation.uIDocument = commandData.Application.ActiveUIDocument; // 程序开始此项需要设置
             MainForm mainForm = new MainForm();
             mainForm.Show();
-            eventCommand = new EventCommand();
-            externalEvent = ExternalEvent.Create(eventCommand);
-            eventCommand.ExecuteAction = new Action<UIApplication>(app=>change(app)) ;
             return Result.Succeeded;
-        }
-        public static void change(UIApplication app)
-        {
-            Transaction trans = new Transaction(UIOperation.uIDocument.Document, "change");
-            trans.Start();
-            trans.Commit();
         }
     }
 }

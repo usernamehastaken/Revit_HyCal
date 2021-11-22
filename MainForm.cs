@@ -12,6 +12,8 @@ namespace Revit_HyCal
     public partial class MainForm : Form
     {
         public MyDbContext myDbContext { get; set; }
+        public ExternalEventHandler_Project_to_Model eventHandler;
+        public ExternalEvent externalEvent;
         public MainForm()
         {
             FrmProgressBar frmProgressBar = new FrmProgressBar();
@@ -33,6 +35,8 @@ namespace Revit_HyCal
                 frmProgressBar.Dispose();
                 this.Dispose();
             }
+            eventHandler = new ExternalEventHandler_Project_to_Model("ExternalEventHandler");
+            externalEvent = ExternalEvent.Create(eventHandler);
         }
 
         private void 新建工程ToolStripMenuItem_Click(object sender, EventArgs e)
@@ -113,7 +117,9 @@ namespace Revit_HyCal
 
         private void 赋值到模型ToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            //MainForm_Operation.projectFrom_to_model(this);
+            ProjectForm projectForm = (ProjectForm)this.ActiveMdiChild;
+            eventHandler.dataElements = projectForm.myproject.dataElements;
+            externalEvent.Raise();
         }
 
         private void toolStripButton1_Click(object sender, EventArgs e)
@@ -188,8 +194,9 @@ namespace Revit_HyCal
 
         private void toolStripButton8_Click(object sender, EventArgs e)
         {
-            //Revit_Hycal_Run.change();
-            //MainForm_Operation.projectFrom_to_model(this);
+            ProjectForm projectForm = (ProjectForm)this.ActiveMdiChild;
+            eventHandler.dataElements = projectForm.myproject.dataElements;
+            externalEvent.Raise();
         }
 
         private void 导出CSVtoolStripMenuItem1_Click(object sender, EventArgs e)
