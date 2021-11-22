@@ -35,6 +35,7 @@ namespace Revit_HyCal
         {
             this.components = new System.ComponentModel.Container();
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
+            this.dataElementBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.noDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.remarksDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.airflowDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -50,7 +51,6 @@ namespace Revit_HyCal
             this.pjDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.totalPressureDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.iDDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.dataElementBindingSource = new System.Windows.Forms.BindingSource(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataElementBindingSource)).BeginInit();
             this.SuspendLayout();
@@ -79,110 +79,113 @@ namespace Revit_HyCal
             this.dataGridView1.DataSource = this.dataElementBindingSource;
             this.dataGridView1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dataGridView1.Location = new System.Drawing.Point(0, 0);
-            this.dataGridView1.Margin = new System.Windows.Forms.Padding(4);
             this.dataGridView1.Name = "dataGridView1";
             this.dataGridView1.RowHeadersWidth = 62;
             this.dataGridView1.RowTemplate.Height = 23;
-            this.dataGridView1.Size = new System.Drawing.Size(1200, 675);
+            this.dataGridView1.Size = new System.Drawing.Size(800, 450);
             this.dataGridView1.TabIndex = 0;
             this.dataGridView1.CellEndEdit += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_CellEnter);
-            this.dataGridView1.RowHeaderMouseClick += new DataGridViewCellMouseEventHandler(this.datagridview1_RowHeaderMouseClick);
+            this.dataGridView1.RowHeaderMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.datagridview1_RowHeaderMouseClick);
+            // 
+            // dataElementBindingSource
+            // 
+            this.dataElementBindingSource.DataSource = typeof(Revit_HyCal.DataElement);
             // 
             // noDataGridViewTextBoxColumn
             // 
             this.noDataGridViewTextBoxColumn.DataPropertyName = "No";
-            this.noDataGridViewTextBoxColumn.HeaderText = "No";
+            this.noDataGridViewTextBoxColumn.HeaderText = "序号";
             this.noDataGridViewTextBoxColumn.MinimumWidth = 8;
             this.noDataGridViewTextBoxColumn.Name = "noDataGridViewTextBoxColumn";
             // 
             // remarksDataGridViewTextBoxColumn
             // 
             this.remarksDataGridViewTextBoxColumn.DataPropertyName = "Remarks";
-            this.remarksDataGridViewTextBoxColumn.HeaderText = "Remarks";
+            this.remarksDataGridViewTextBoxColumn.HeaderText = "类型";
             this.remarksDataGridViewTextBoxColumn.MinimumWidth = 8;
             this.remarksDataGridViewTextBoxColumn.Name = "remarksDataGridViewTextBoxColumn";
             // 
             // airflowDataGridViewTextBoxColumn
             // 
             this.airflowDataGridViewTextBoxColumn.DataPropertyName = "Airflow";
-            this.airflowDataGridViewTextBoxColumn.HeaderText = "Airflow";
+            this.airflowDataGridViewTextBoxColumn.HeaderText = "风量(m³/h)";
             this.airflowDataGridViewTextBoxColumn.MinimumWidth = 8;
             this.airflowDataGridViewTextBoxColumn.Name = "airflowDataGridViewTextBoxColumn";
             // 
             // widthDataGridViewTextBoxColumn
             // 
             this.widthDataGridViewTextBoxColumn.DataPropertyName = "Width";
-            this.widthDataGridViewTextBoxColumn.HeaderText = "Width";
+            this.widthDataGridViewTextBoxColumn.HeaderText = "风管宽(mm)";
             this.widthDataGridViewTextBoxColumn.MinimumWidth = 8;
             this.widthDataGridViewTextBoxColumn.Name = "widthDataGridViewTextBoxColumn";
             // 
             // heightDataGridViewTextBoxColumn
             // 
             this.heightDataGridViewTextBoxColumn.DataPropertyName = "Height";
-            this.heightDataGridViewTextBoxColumn.HeaderText = "Height";
+            this.heightDataGridViewTextBoxColumn.HeaderText = "风管高(mm)";
             this.heightDataGridViewTextBoxColumn.MinimumWidth = 8;
             this.heightDataGridViewTextBoxColumn.Name = "heightDataGridViewTextBoxColumn";
             // 
             // diameterDataGridViewTextBoxColumn
             // 
             this.diameterDataGridViewTextBoxColumn.DataPropertyName = "Diameter";
-            this.diameterDataGridViewTextBoxColumn.HeaderText = "Diameter";
+            this.diameterDataGridViewTextBoxColumn.HeaderText = "直径(mm)";
             this.diameterDataGridViewTextBoxColumn.MinimumWidth = 8;
             this.diameterDataGridViewTextBoxColumn.Name = "diameterDataGridViewTextBoxColumn";
             // 
             // lengthDataGridViewTextBoxColumn
             // 
             this.lengthDataGridViewTextBoxColumn.DataPropertyName = "Length";
-            this.lengthDataGridViewTextBoxColumn.HeaderText = "Length";
+            this.lengthDataGridViewTextBoxColumn.HeaderText = "风管长(mm)";
             this.lengthDataGridViewTextBoxColumn.MinimumWidth = 8;
             this.lengthDataGridViewTextBoxColumn.Name = "lengthDataGridViewTextBoxColumn";
             // 
             // vDataGridViewTextBoxColumn
             // 
             this.vDataGridViewTextBoxColumn.DataPropertyName = "V";
-            this.vDataGridViewTextBoxColumn.HeaderText = "V";
+            this.vDataGridViewTextBoxColumn.HeaderText = "风速(m/s)";
             this.vDataGridViewTextBoxColumn.MinimumWidth = 8;
             this.vDataGridViewTextBoxColumn.Name = "vDataGridViewTextBoxColumn";
             // 
             // rDataGridViewTextBoxColumn
             // 
             this.rDataGridViewTextBoxColumn.DataPropertyName = "R";
-            this.rDataGridViewTextBoxColumn.HeaderText = "R";
+            this.rDataGridViewTextBoxColumn.HeaderText = "R(Pa/m)";
             this.rDataGridViewTextBoxColumn.MinimumWidth = 8;
             this.rDataGridViewTextBoxColumn.Name = "rDataGridViewTextBoxColumn";
             // 
             // pyDataGridViewTextBoxColumn
             // 
             this.pyDataGridViewTextBoxColumn.DataPropertyName = "Py";
-            this.pyDataGridViewTextBoxColumn.HeaderText = "Py";
+            this.pyDataGridViewTextBoxColumn.HeaderText = "沿程阻力(Pa)";
             this.pyDataGridViewTextBoxColumn.MinimumWidth = 8;
             this.pyDataGridViewTextBoxColumn.Name = "pyDataGridViewTextBoxColumn";
             // 
             // kSaiDataGridViewTextBoxColumn
             // 
             this.kSaiDataGridViewTextBoxColumn.DataPropertyName = "kSai";
-            this.kSaiDataGridViewTextBoxColumn.HeaderText = "kSai";
+            this.kSaiDataGridViewTextBoxColumn.HeaderText = "局部阻力系数";
             this.kSaiDataGridViewTextBoxColumn.MinimumWidth = 8;
             this.kSaiDataGridViewTextBoxColumn.Name = "kSaiDataGridViewTextBoxColumn";
             // 
             // dPressureDataGridViewTextBoxColumn
             // 
             this.dPressureDataGridViewTextBoxColumn.DataPropertyName = "DPressure";
-            this.dPressureDataGridViewTextBoxColumn.HeaderText = "DPressure";
+            this.dPressureDataGridViewTextBoxColumn.HeaderText = "动压(Pa)";
             this.dPressureDataGridViewTextBoxColumn.MinimumWidth = 8;
             this.dPressureDataGridViewTextBoxColumn.Name = "dPressureDataGridViewTextBoxColumn";
             // 
             // pjDataGridViewTextBoxColumn
             // 
             this.pjDataGridViewTextBoxColumn.DataPropertyName = "Pj";
-            this.pjDataGridViewTextBoxColumn.HeaderText = "Pj";
+            this.pjDataGridViewTextBoxColumn.HeaderText = "局部阻力(Pa)";
             this.pjDataGridViewTextBoxColumn.MinimumWidth = 8;
             this.pjDataGridViewTextBoxColumn.Name = "pjDataGridViewTextBoxColumn";
             // 
             // totalPressureDataGridViewTextBoxColumn
             // 
             this.totalPressureDataGridViewTextBoxColumn.DataPropertyName = "TotalPressure";
-            this.totalPressureDataGridViewTextBoxColumn.HeaderText = "TotalPressure";
+            this.totalPressureDataGridViewTextBoxColumn.HeaderText = "总阻力(Pa)";
             this.totalPressureDataGridViewTextBoxColumn.MinimumWidth = 8;
             this.totalPressureDataGridViewTextBoxColumn.Name = "totalPressureDataGridViewTextBoxColumn";
             // 
@@ -193,17 +196,12 @@ namespace Revit_HyCal
             this.iDDataGridViewTextBoxColumn.MinimumWidth = 8;
             this.iDDataGridViewTextBoxColumn.Name = "iDDataGridViewTextBoxColumn";
             // 
-            // dataElementBindingSource
-            // 
-            this.dataElementBindingSource.DataSource = typeof(Revit_HyCal.DataElement);
-            // 
             // ProjectForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 18F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1200, 675);
+            this.ClientSize = new System.Drawing.Size(800, 450);
             this.Controls.Add(this.dataGridView1);
-            this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "ProjectForm";
             this.Text = "新建管道系统";
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
@@ -222,21 +220,21 @@ namespace Revit_HyCal
         #endregion
 
         private System.Windows.Forms.DataGridView dataGridView1;
-        private System.Windows.Forms.DataGridViewTextBoxColumn noDataGridViewTextBoxColumn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn remarksDataGridViewTextBoxColumn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn airflowDataGridViewTextBoxColumn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn widthDataGridViewTextBoxColumn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn heightDataGridViewTextBoxColumn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn diameterDataGridViewTextBoxColumn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn lengthDataGridViewTextBoxColumn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn vDataGridViewTextBoxColumn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn rDataGridViewTextBoxColumn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn pyDataGridViewTextBoxColumn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn kSaiDataGridViewTextBoxColumn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn dPressureDataGridViewTextBoxColumn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn pjDataGridViewTextBoxColumn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn totalPressureDataGridViewTextBoxColumn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn iDDataGridViewTextBoxColumn;
         private System.Windows.Forms.BindingSource dataElementBindingSource;
+        private DataGridViewTextBoxColumn noDataGridViewTextBoxColumn;
+        private DataGridViewTextBoxColumn remarksDataGridViewTextBoxColumn;
+        private DataGridViewTextBoxColumn airflowDataGridViewTextBoxColumn;
+        private DataGridViewTextBoxColumn widthDataGridViewTextBoxColumn;
+        private DataGridViewTextBoxColumn heightDataGridViewTextBoxColumn;
+        private DataGridViewTextBoxColumn diameterDataGridViewTextBoxColumn;
+        private DataGridViewTextBoxColumn lengthDataGridViewTextBoxColumn;
+        private DataGridViewTextBoxColumn vDataGridViewTextBoxColumn;
+        private DataGridViewTextBoxColumn rDataGridViewTextBoxColumn;
+        private DataGridViewTextBoxColumn pyDataGridViewTextBoxColumn;
+        private DataGridViewTextBoxColumn kSaiDataGridViewTextBoxColumn;
+        private DataGridViewTextBoxColumn dPressureDataGridViewTextBoxColumn;
+        private DataGridViewTextBoxColumn pjDataGridViewTextBoxColumn;
+        private DataGridViewTextBoxColumn totalPressureDataGridViewTextBoxColumn;
+        private DataGridViewTextBoxColumn iDDataGridViewTextBoxColumn;
     }
 }

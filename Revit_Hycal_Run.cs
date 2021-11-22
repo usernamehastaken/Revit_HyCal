@@ -21,15 +21,15 @@ namespace Revit_HyCal
         //作为程序入口
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
+            UIOperation.uIDocument = commandData.Application.ActiveUIDocument; // 程序开始此项需要设置
             //test
             Test.test(commandData, ref message, elements);
             return Result.Succeeded;
             //test
-            ///
-            //XYZ p1 = new XYZ(0, 0, -1);
-            //XYZ p2 = new XYZ(0.61566147532566, 0, 0.788010753606721);
-            //TaskDialog.Show("1", (p1.AngleTo(p2) / Math.PI * 180).ToString());
-            //return Result.Succeeded;
+
+            MainForm mainForm = new MainForm();
+            mainForm.Show();
+            return Result.Succeeded;
         }
 
 

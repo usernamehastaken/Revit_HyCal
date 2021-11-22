@@ -127,8 +127,8 @@
   <data name="折线路径" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Icon\折线路径.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="环境设置" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Icon\环境设置.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="数据下载" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Icon\数据下载.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="添加数据" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Icon\添加数据.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -139,8 +139,8 @@
   <data name="提取边界线" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Icon\提取边界线.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="数据处理" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Icon\数据处理.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="Logo" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Icon\Logo.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="数据导出" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Icon\数据导出.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -160,8 +160,11 @@
   <data name="数据导出1" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Icon\数据导出.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="数据下载" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Icon\数据下载.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="数据处理" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Icon\数据处理.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="打开文档" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Icon\打开文档.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="提取边界线1" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Icon\提取边界线.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -169,10 +172,10 @@
   <data name="打开文档1" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Icon\打开文档.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="打开文档" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Icon\打开文档.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="环境设置" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Icon\环境设置.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="Logo" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Icon\Logo.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="CSV" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Icon\CSV.jpeg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
 </root>

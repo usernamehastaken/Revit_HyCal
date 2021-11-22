@@ -304,7 +304,7 @@ namespace Revit_HyCal
                             data.Height = double.Parse(get_Par(ElementIds[i], "高度"));
                             data.Diameter = double.Parse(get_Par(ElementIds[i], "水力直径"));
                             data.Length = double.Parse(get_Par(ElementIds[i], "长度"));
-                            data.Airflow = double.Parse(get_Par(ElementIds[i], "流量"));
+                            data.Airflow = double.Parse(get_Par(ElementIds[i], "其他流量"));
                             data.R = project.cal_R(data.Diameter, data.V);
                             project.dataElements.Add(data);
                             break;
@@ -314,7 +314,7 @@ namespace Revit_HyCal
                             data.Height = double.Parse(get_Par(ElementIds[i], "高度"));
                             data.Diameter = double.Parse(get_Par(ElementIds[i], "水力直径"));
                             data.Length = double.Parse(get_Par(ElementIds[i], "长度"));
-                            data.Airflow = double.Parse(get_Par(ElementIds[i], "流量"));
+                            data.Airflow = double.Parse(get_Par(ElementIds[i], "其他流量"));
                             data.R = project.cal_R(data.Diameter, data.V);
                             project.dataElements.Add(data);
                             break;
