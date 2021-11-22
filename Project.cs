@@ -256,7 +256,6 @@ namespace Revit_HyCal
         }
 
     }
-
     public class MainForm_Operation
     {
         public static void check_before_close(MainForm mainForm)
@@ -466,6 +465,7 @@ namespace Revit_HyCal
                             if (i==0)
                             {
                                 project.dataElements[i].DPressure = project.dataElements[i + 1].DPressure;
+                                project.dataElements[i].Airflow= project.dataElements[i + 1].Airflow;
                             }
                             else
                             {
@@ -473,10 +473,10 @@ namespace Revit_HyCal
                                 {
                                     project.dataElements[i].DPressure = project.dataElements[i - 1].DPressure;
                                 }
-                                //else
-                                //{
-                                //    project.dataElements[i].DPressure = project.dataElements[i + 1].DPressure;
-                                //}
+                                else
+                                {
+                                    project.dataElements[i].DPressure = project.dataElements[i + 1].DPressure;
+                                }
                             }
                             project.dataElements[i].kSai = 3.3;//回风口
                             break;
@@ -500,6 +500,14 @@ namespace Revit_HyCal
                             {
                                 case PartType.Elbow://弯头三维计算完成
                                     #region
+                                    if (i==0)
+                                    {
+                                        project.dataElements[i].Airflow = project.dataElements[i + 1].Airflow;
+                                    }
+                                    else
+                                    {
+                                        project.dataElements[i].Airflow = project.dataElements[i - 1].Airflow;
+                                    }
                                     FamilyInstance familyInstance = (FamilyInstance)element;
                                     XYZ face_origin = familyInstance.FacingOrientation;
                                     List<XYZ> Evectors = new List<XYZ>();
@@ -647,34 +655,45 @@ namespace Revit_HyCal
                                         }
                                         project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(keys, values);
                                     }
-                                    if (project.dataElements[i - 1].ID == TelementId.IntegerValue)//T管道查询
+                                    else
                                     {
-                                        //===========>>>D_2_b
-                                        Lb_Lc = project.dataElements[i - 1].Airflow / project.dataElements[i + 1].Airflow;
-                                        List<D_2_b> d_2_Bs = mainForm.myDbContext.d_2_b.ToList<D_2_b>();
-                                        foreach (D_2_b item in d_2_Bs)
+                                        if (project.dataElements[i - 1].ID == TelementId.IntegerValue)//T管道查询
                                         {
-                                            keys.Add(item.get_distance(new D_2_b() { Fb_Fc = Fb_Fc, Fs_Fc = Fs_Fc, Lb_Lc = Lb_Lc }));
-                                            values.Add(item.ksai);
+                                            //===========>>>D_2_b
+                                            Lb_Lc = project.dataElements[i - 1].Airflow / project.dataElements[i + 1].Airflow;
+                                            List<D_2_b> d_2_Bs = mainForm.myDbContext.d_2_b.ToList<D_2_b>();
+                                            foreach (D_2_b item in d_2_Bs)
+                                            {
+                                                keys.Add(item.get_distance(new D_2_b() { Fb_Fc = Fb_Fc, Fs_Fc = Fs_Fc, Lb_Lc = Lb_Lc }));
+                                                values.Add(item.ksai);
+                                            }
+                                            project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(keys, values) + 0.15;
                                         }
-                                        project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(keys, values) + 0.15;
-                                    }
-                                    else//直管查询
-                                    {
-                                        //==========>>>D_2_s
-                                        Ls_Lc = project.dataElements[i - 1].Airflow / project.dataElements[i + 1].Airflow;
-                                        List<D_2_s> d_2_Ss = mainForm.myDbContext.d_2_s.ToList<D_2_s>();
-                                        foreach (D_2_s item in d_2_Ss)
+                                        else//直管查询
                                         {
-                                            keys.Add(item.get_distance(new D_2_s() { Fb_Fc = Fb_Fc, Fs_Fc = Fs_Fc, Ls_Lc = Ls_Lc }));
-                                            values.Add(item.ksai);
+                                            //==========>>>D_2_s
+                                            Ls_Lc = project.dataElements[i - 1].Airflow / project.dataElements[i + 1].Airflow;
+                                            List<D_2_s> d_2_Ss = mainForm.myDbContext.d_2_s.ToList<D_2_s>();
+                                            foreach (D_2_s item in d_2_Ss)
+                                            {
+                                                keys.Add(item.get_distance(new D_2_s() { Fb_Fc = Fb_Fc, Fs_Fc = Fs_Fc, Ls_Lc = Ls_Lc }));
+                                                values.Add(item.ksai);
+                                            }
+                                            project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(keys, values);
                                         }
-                                        project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(keys, values);
                                     }
                                     #endregion
                                     break;
                                 case PartType.Transition://过渡件三维计算完成=>C_1
                                     #region
+                                    if (i == 0)
+                                    {
+                                        project.dataElements[i].Airflow = project.dataElements[i + 1].Airflow;
+                                    }
+                                    else
+                                    {
+                                        project.dataElements[i].Airflow = project.dataElements[i - 1].Airflow;
+                                    }
                                     double theta = 0; double F0_F1 = 0;
                                     FamilySymbol familySymbol = ((FamilyInstance)element).Symbol;
                                     List<double> Fs = new List<double>();//存储计算面积
@@ -977,25 +996,81 @@ namespace Revit_HyCal
             ProjectForm projectForm = (ProjectForm)mainForm.ActiveMdiChild;
             projectForm.ProjectFrom_to_CSV();
         }
-        public static void projectFrom_to_model(MainForm mainForm)
+        //public static void projectFrom_to_model(MainForm mainForm)
+        //{
+        //    ProjectForm projectForm = (ProjectForm)mainForm.ActiveMdiChild;
+        //    foreach (DataElement item in projectForm.myproject.dataElements)
+        //    {
+        //        if (item.Remarks == "风管")
+        //        {
+        //            Duct duct = (Duct)UIOperation.uIDocument.Document.GetElement(new ElementId(item.ID));
+        //            mainForm.eventCommand.ExecuteAction = new Action<UIApplication>((app) =>
+        //            {
+        //                app = UIOperation.uIDocument.Application;
+        //                using (Transaction trans = new Transaction(UIOperation.uIDocument.Document, "Project_to_Model"))
+        //                {
+        //                    trans.Start();
+        //                    try
+        //                    {
+        //                        foreach (Parameter par in duct.Parameters)
+        //                        {
+        //                            if (((InternalDefinition)par.Definition).BuiltInParameter == BuiltInParameter.RBS_ADDITIONAL_FLOW)
+        //                            {
+        //                                par.SetValueString(item.Airflow.ToString());
+        //                            }
+        //                            if (par.Definition.Name == "直径")
+        //                            {
+        //                                par.SetValueString(item.Diameter.ToString());
+        //                            }
+        //                            if (par.Definition.Name == "宽度")
+        //                            {
+        //                                par.SetValueString(item.Width.ToString());
+        //                            }
+        //                            if (par.Definition.Name == "高度")
+        //                            {
+        //                                par.SetValueString(item.Height.ToString());
+        //                            }
+        //                        }
+        //                        trans.Commit();
+        //                    }
+        //                    catch (Exception)
+        //                    {
+        //                        trans.RollBack();
+        //                    }
+
+        //                }
+        //            });
+        //            mainForm.externalEvent.Raise();
+        //        }
+        //    }
+        //}
+
+    }
+
+    public class EventCommand : IExternalEventHandler
+    {
+        public Action<UIApplication> ExecuteAction { get; set; }
+        public void Execute(UIApplication app)
         {
-            ProjectForm projectForm = (ProjectForm)mainForm.ActiveMdiChild;
-            foreach (DataElement item in projectForm.myproject.dataElements)
+            if (ExecuteAction!=null)
             {
-                if (item.Remarks=="风管")
+                try
                 {
-                    Duct duct = (Duct)UIOperation.uIDocument.Document.GetElement(new ElementId(item.ID));
-                    using (Transaction trans =new Transaction (UIOperation.uIDocument.Document,"Project_to_Model"))
-                    {
-                        trans.Start();
-                        //duct.
-                    }
+                    ExecuteAction(app);
+                }
+                catch (Exception)
+                {
+
+                    ;
                 }
             }
         }
 
+        public string GetName()
+        {
+            throw new NotImplementedException();
+        }
     }
-
     public class UBinder : SerializationBinder
     {
         //二进制序列化需要binder

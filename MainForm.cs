@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
+using Autodesk.Revit.UI;
 using MySConn;
 using MySConn.Tables;
 
@@ -112,7 +113,7 @@ namespace Revit_HyCal
 
         private void 赋值到模型ToolStripMenuItem_Click(object sender, EventArgs e)
         {
-
+            //MainForm_Operation.projectFrom_to_model(this);
         }
 
         private void toolStripButton1_Click(object sender, EventArgs e)
@@ -187,7 +188,8 @@ namespace Revit_HyCal
 
         private void toolStripButton8_Click(object sender, EventArgs e)
         {
-            MainForm_Operation.projectFrom_to_model(this);
+            //Revit_Hycal_Run.change();
+            //MainForm_Operation.projectFrom_to_model(this);
         }
 
         private void 导出CSVtoolStripMenuItem1_Click(object sender, EventArgs e)

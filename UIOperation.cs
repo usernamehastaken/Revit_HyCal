@@ -304,7 +304,7 @@ namespace Revit_HyCal
                             data.Height = double.Parse(get_Par(ElementIds[i], "高度"));
                             data.Diameter = double.Parse(get_Par(ElementIds[i], "水力直径"));
                             data.Length = double.Parse(get_Par(ElementIds[i], "长度"));
-                            data.Airflow = double.Parse(get_Par(ElementIds[i], "其他流量"));
+                            data.Airflow = double.Parse(get_Par(ElementIds[i],BuiltInParameter.RBS_ADDITIONAL_FLOW));
                             data.R = project.cal_R(data.Diameter, data.V);
                             project.dataElements.Add(data);
                             break;
@@ -314,7 +314,7 @@ namespace Revit_HyCal
                             data.Height = double.Parse(get_Par(ElementIds[i], "高度"));
                             data.Diameter = double.Parse(get_Par(ElementIds[i], "水力直径"));
                             data.Length = double.Parse(get_Par(ElementIds[i], "长度"));
-                            data.Airflow = double.Parse(get_Par(ElementIds[i], "其他流量"));
+                            data.Airflow = double.Parse(get_Par(ElementIds[i], BuiltInParameter.RBS_ADDITIONAL_FLOW));
                             data.R = project.cal_R(data.Diameter, data.V);
                             project.dataElements.Add(data);
                             break;
@@ -359,10 +359,26 @@ namespace Revit_HyCal
                             break;
                         case "风道末端":
                             data.Remarks = "风管末端";
-                            //data.Width = double.Parse(get_Par(ElementIds[i], "宽度"));
-                            //data.Height = double.Parse(get_Par(ElementIds[i], "高度"));
-                            //data.Diameter = double.Parse(get_Par(ElementIds[i], "水力直径"));
-                            //data.Length = double.Parse(get_Par(ElementIds[i], "长度"));
+                            FamilyInstance familyInstance1 = (FamilyInstance)element;
+                            foreach (Connector item in familyInstance1.MEPModel.ConnectorManager.Connectors)
+                            {
+                                switch (item.Shape)
+                                {
+                                    case ConnectorProfileType.Invalid:
+                                        break;
+                                    case ConnectorProfileType.Round:
+                                        data.Diameter= UnitUtils.Convert(item.Radius, DisplayUnitType.DUT_DECIMAL_FEET, DisplayUnitType.DUT_MILLIMETERS)*2;
+                                        break;
+                                    case ConnectorProfileType.Rectangular:
+                                        data.Height= UnitUtils.Convert(item.Width, DisplayUnitType.DUT_DECIMAL_FEET, DisplayUnitType.DUT_MILLIMETERS);
+                                        data.Width= UnitUtils.Convert(item.Height, DisplayUnitType.DUT_DECIMAL_FEET, DisplayUnitType.DUT_MILLIMETERS);
+                                        break;
+                                    case ConnectorProfileType.Oval:
+                                        break;
+                                    default:
+                                        break;
+                                }
+                            }
                             data.Airflow = double.Parse(get_Par(ElementIds[i], "流量"));
                             //data.R = project.cal_R(data.Diameter, data.V);
                             project.dataElements.Add(data);
@@ -405,7 +421,7 @@ namespace Revit_HyCal
                 InternalDefinition internalDefinition = (InternalDefinition)parameter.Definition;
                 if (internalDefinition.BuiltInParameter == builtInParameter)
                 {
-                    return parameter.AsValueString();
+                    return parameter.AsValueString().Split(new char[] { ' ' })[0];
                 }
             }
             //throw new Exception("未能找到名称为："+name+"的参数！");
@@ -452,6 +468,16 @@ namespace Revit_HyCal
                 return connector.Radius * connector.Radius * Math.PI;
             }
             return 0;
+        }
+
+        public static void change(string name,string value)
+        {
+            
+            using (Transaction trans=new Transaction (UIOperation.uIDocument.Document,"change"))
+            {
+                trans.Start();
+                trans.Commit();
+            }
         }
 
     }
