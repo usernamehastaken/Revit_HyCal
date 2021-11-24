@@ -62,7 +62,7 @@ namespace Revit_HyCal
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(216, 48);
             this.label2.TabIndex = 2;
-            this.label2.Text = "版本号：1.0.2\r\nCopyright(c) TDDRI.CO,Ltd.\r\nAll Rights Reserved.";
+            this.label2.Text = "版本号：1.1.22\r\nCopyright(c) TDDRI.CO,Ltd.\r\nAll Rights Reserved.";
             // 
             // About
             // 
