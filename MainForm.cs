@@ -82,6 +82,7 @@ namespace Revit_HyCal
         private void 收尘ToolStripMenuItem_Click(object sender, EventArgs e)
         {
             JCPZ jCPZ = new JCPZ("收尘风管", this);
+            jCPZ.button1.Visible = false;
             jCPZ.ShowDialog();
         }
 

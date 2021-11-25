@@ -408,17 +408,38 @@ namespace Revit_HyCal
             {
                 return;
             }
-
             ProjectForm projectForm = (ProjectForm)mainForm.ActiveMdiChild;
-            foreach (DataElement data in projectForm.myproject.dataElements)
+            for (int i = 0; i < projectForm.myproject.dataElements.Count; i++)
             {
                 //每一个都校正
+                DataElement data = projectForm.myproject.dataElements[i];
                 try
                 {
-                    if (data.Remarks=="风管")
+                    if (data.Remarks == "风管")
                     {
                         data.R = projectForm.myproject.cal_R(data.Diameter / 1000, data.V);
                         data.DPressure = projectForm.myproject.cal_DPressure(data.V);
+                    }
+                    else
+                    {
+                        if (!data.Remarks.Contains("三通"))
+                        {
+                            if (i==0)
+                            {
+                                data.Airflow = projectForm.myproject.dataElements[i + 1].Airflow;
+                            }
+                            else
+                            {
+                                if (projectForm.myproject.dataElements[i-1].Airflow>0)
+                                {
+                                    data.Airflow = projectForm.myproject.dataElements[i - 1].Airflow;
+                                }
+                                else
+                                {
+                                    data.Airflow = projectForm.myproject.dataElements[i + 1].Airflow;
+                                }
+                            }
+                        }
                     }
                 }
                 catch (Exception e)
@@ -426,7 +447,6 @@ namespace Revit_HyCal
                     MessageBox.Show(e.Message);
                     return;
                 }
-                   
             }
             projectForm.refresh_datagrid();
         }
@@ -446,7 +466,6 @@ namespace Revit_HyCal
             {
                 return;
             }
-
             for (int i = 0; i < project.dataElements.Count(); i++)//按顺序读取
             {
                 if (project.dataElements[i].kSai==0)
@@ -464,7 +483,7 @@ namespace Revit_HyCal
                             if (i==0)
                             {
                                 project.dataElements[i].DPressure = project.dataElements[i + 1].DPressure;
-                                project.dataElements[i].Airflow= project.dataElements[i + 1].Airflow;
+                                //project.dataElements[i].Airflow= project.dataElements[i + 1].Airflow;
                             }
                             else
                             {
@@ -477,7 +496,7 @@ namespace Revit_HyCal
                                     project.dataElements[i].DPressure = project.dataElements[i + 1].DPressure;
                                 }
                             }
-                            project.dataElements[i].kSai = 3.3;//回风口
+                            project.dataElements[i].kSai = 2.25;//回风口
                             break;
                         case "风管管件":
                             ///分弯头，T三通，Y三通，变径//根据给定类型选定数据表，需要定义一个常量表
@@ -499,14 +518,14 @@ namespace Revit_HyCal
                             {
                                 case PartType.Elbow://弯头三维计算完成
                                     #region
-                                    if (i==0)
-                                    {
-                                        project.dataElements[i].Airflow = project.dataElements[i + 1].Airflow;
-                                    }
-                                    else
-                                    {
-                                        project.dataElements[i].Airflow = project.dataElements[i - 1].Airflow;
-                                    }
+                                    //if (i==0)
+                                    //{
+                                    //    project.dataElements[i].Airflow = project.dataElements[i + 1].Airflow;
+                                    //}
+                                    //else
+                                    //{
+                                    //    project.dataElements[i].Airflow = project.dataElements[i - 1].Airflow;
+                                    //}
                                     FamilyInstance familyInstance = (FamilyInstance)element;
                                     XYZ face_origin = familyInstance.FacingOrientation;
                                     List<XYZ> Evectors = new List<XYZ>();
@@ -527,6 +546,7 @@ namespace Revit_HyCal
                                     if (Math.Round(Eangle, 2) <= 90 || Math.Round(Eangle, 2) > 60)//====>>>>>B_7
                                     {
                                         B_7 b_7 = new B_7() { r_D = r_D };
+                                        keys.Clear();values.Clear();
                                         foreach (B_7 item in mainForm.myDbContext.b_7.ToList<B_7>())
                                         {
                                             keys.Add(item.get_distance(b_7));
@@ -538,6 +558,7 @@ namespace Revit_HyCal
                                     if (Math.Round(Eangle, 2) <= 60 || Math.Round(Eangle, 2) > 45)//====>>>>B_8
                                     {
                                         B_8 b_8 = new B_8() { D = project.dataElements[i].Diameter };
+                                        keys.Clear();values.Clear();
                                         foreach (B_8 item in mainForm.myDbContext.b_8.ToList<B_8>())
                                         {
                                             keys.Add(item.get_distance(b_8));
@@ -549,6 +570,7 @@ namespace Revit_HyCal
                                     if (Math.Round(Eangle, 2) <= 45)//====>>>>B_9
                                     {
                                         B_9 b_9 = new B_9() { D = project.dataElements[i].Diameter };
+                                        keys.Clear();values.Clear();
                                         foreach (B_9 item in mainForm.myDbContext.b_9.ToList<B_9>())
                                         {
                                             keys.Add(item.get_distance(b_9));
@@ -647,6 +669,7 @@ namespace Revit_HyCal
                                         //==========>>>D_2_s
                                         Ls_Lc = project.dataElements[i - 1].Airflow / project.dataElements[i + 1].Airflow;
                                         List<D_2_s> d_2_Ss = mainForm.myDbContext.d_2_s.ToList<D_2_s>();
+                                        keys.Clear();values.Clear();
                                         foreach (D_2_s item in d_2_Ss)
                                         {
                                             keys.Add(item.get_distance(new D_2_s() { Fb_Fc = Fb_Fc, Fs_Fc = Fs_Fc, Ls_Lc = Ls_Lc }));
@@ -661,6 +684,7 @@ namespace Revit_HyCal
                                             //===========>>>D_2_b
                                             Lb_Lc = project.dataElements[i - 1].Airflow / project.dataElements[i + 1].Airflow;
                                             List<D_2_b> d_2_Bs = mainForm.myDbContext.d_2_b.ToList<D_2_b>();
+                                            keys.Clear();values.Clear();
                                             foreach (D_2_b item in d_2_Bs)
                                             {
                                                 keys.Add(item.get_distance(new D_2_b() { Fb_Fc = Fb_Fc, Fs_Fc = Fs_Fc, Lb_Lc = Lb_Lc }));
@@ -673,6 +697,7 @@ namespace Revit_HyCal
                                             //==========>>>D_2_s
                                             Ls_Lc = project.dataElements[i - 1].Airflow / project.dataElements[i + 1].Airflow;
                                             List<D_2_s> d_2_Ss = mainForm.myDbContext.d_2_s.ToList<D_2_s>();
+                                            keys.Clear();values.Clear();
                                             foreach (D_2_s item in d_2_Ss)
                                             {
                                                 keys.Add(item.get_distance(new D_2_s() { Fb_Fc = Fb_Fc, Fs_Fc = Fs_Fc, Ls_Lc = Ls_Lc }));
@@ -685,14 +710,14 @@ namespace Revit_HyCal
                                     break;
                                 case PartType.Transition://过渡件三维计算完成=>C_1
                                     #region
-                                    if (i == 0)
-                                    {
-                                        project.dataElements[i].Airflow = project.dataElements[i + 1].Airflow;
-                                    }
-                                    else
-                                    {
-                                        project.dataElements[i].Airflow = project.dataElements[i - 1].Airflow;
-                                    }
+                                    //if (i == 0)
+                                    //{
+                                    //    project.dataElements[i].Airflow = project.dataElements[i + 1].Airflow;
+                                    //}
+                                    //else
+                                    //{
+                                    //    project.dataElements[i].Airflow = project.dataElements[i - 1].Airflow;
+                                    //}
                                     double theta = 0; double F0_F1 = 0;
                                     FamilySymbol familySymbol = ((FamilyInstance)element).Symbol;
                                     List<double> Fs = new List<double>();//存储计算面积
@@ -724,6 +749,7 @@ namespace Revit_HyCal
                                     //MessageBox.Show(theta.ToString() + "   " + F0_F1.ToString());
                                     //=====================
                                     List<C_1> c_1s = mainForm.myDbContext.c_1.ToList<C_1>();
+                                    keys.Clear();values.Clear();
                                     for (int ii = 0; ii < c_1s.Count; ii++)
                                     {
                                         keys.Add(c_1s[ii].get_distance(new C_1() { theta = theta, F0_F1 = F0_F1 }));
@@ -760,12 +786,13 @@ namespace Revit_HyCal
                                                 Fb1_Fc = UIOperation.get_AreaOfConnector(Wconnectors[0]) / UIOperation.get_AreaOfConnector(Wconnectors[2]);
                                                 Fb2_Fc = UIOperation.get_AreaOfConnector(Wconnectors[1]) / UIOperation.get_AreaOfConnector(Wconnectors[2]);
                                                 d_6_B1s = mainForm.myDbContext.d_6_b1.ToList<D_6_b1>();
+                                                keys.Clear();values.Clear();
                                                 foreach (D_6_b1 item in d_6_B1s)
                                                 {
                                                     keys.Add(item.get_distance(new D_6_b1() { Fb1_Fc = Fb1_Fc, Fb2_Fc = Fb2_Fc, Lb1_Lc = Lb1_Lc }));
                                                     values.Add(item.ksai);
                                                 }
-                                                project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(keys, values);
+                                                project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(keys, values)+0.11;
                                             }
                                             else
                                             {
@@ -774,12 +801,13 @@ namespace Revit_HyCal
                                                 Fb1_Fc = UIOperation.get_AreaOfConnector(Wconnectors[0]) / UIOperation.get_AreaOfConnector(Wconnectors[2]);
                                                 Fb2_Fc = UIOperation.get_AreaOfConnector(Wconnectors[1]) / UIOperation.get_AreaOfConnector(Wconnectors[2]);
                                                 d_6_B2s = mainForm.myDbContext.d_6_b2.ToList<D_6_b2>();
+                                                keys.Clear();values.Clear();
                                                 foreach (D_6_b2 item in d_6_B2s)
                                                 {
                                                     keys.Add(item.get_distance(new D_6_b2() { Fb1_Fc = Fb1_Fc, Fb2_Fc = Fb2_Fc, Lb2_Lc = Lb2_Lc }));
                                                     values.Add(item.ksai);
                                                 }
-                                                project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(keys, values);
+                                                project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(keys, values)+0.11;
                                             }
                                         }
                                         else
@@ -791,12 +819,13 @@ namespace Revit_HyCal
                                                 Fb1_Fc = UIOperation.get_AreaOfConnector(Wconnectors[1]) / UIOperation.get_AreaOfConnector(Wconnectors[2]);
                                                 Fb2_Fc = UIOperation.get_AreaOfConnector(Wconnectors[0]) / UIOperation.get_AreaOfConnector(Wconnectors[2]);
                                                 d_6_B2s = mainForm.myDbContext.d_6_b2.ToList<D_6_b2>();
+                                                keys.Clear();values.Clear();
                                                 foreach (D_6_b2 item in d_6_B2s)
                                                 {
                                                     keys.Add(item.get_distance(new D_6_b2() { Fb1_Fc = Fb1_Fc, Fb2_Fc = Fb2_Fc, Lb2_Lc = Lb2_Lc }));
                                                     values.Add(item.ksai);
                                                 }
-                                                project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(keys, values);
+                                                project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(keys, values)+0.11;
 
                                             }
                                             else
@@ -806,12 +835,13 @@ namespace Revit_HyCal
                                                 Fb1_Fc = UIOperation.get_AreaOfConnector(Wconnectors[1]) / UIOperation.get_AreaOfConnector(Wconnectors[2]);
                                                 Fb2_Fc = UIOperation.get_AreaOfConnector(Wconnectors[0]) / UIOperation.get_AreaOfConnector(Wconnectors[2]);
                                                 d_6_B1s = mainForm.myDbContext.d_6_b1.ToList<D_6_b1>();
+                                                keys.Clear();values.Clear();
                                                 foreach (D_6_b1 item in d_6_B1s)
                                                 {
                                                     keys.Add(item.get_distance(new D_6_b1() { Fb1_Fc = Fb1_Fc, Fb2_Fc = Fb2_Fc, Lb1_Lc = Lb1_Lc }));
                                                     values.Add(item.ksai);
                                                 }
-                                                project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(keys, values);
+                                                project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(keys, values)+0.11;
 
                                             }
                                         }
@@ -830,12 +860,13 @@ namespace Revit_HyCal
                                                 Fb1_Fc = UIOperation.get_AreaOfConnector(Wconnectors[1]) / UIOperation.get_AreaOfConnector(Wconnectors[0]);
                                                 Fb2_Fc = UIOperation.get_AreaOfConnector(Wconnectors[2]) / UIOperation.get_AreaOfConnector(Wconnectors[0]);
                                                 d_6_B1s = mainForm.myDbContext.d_6_b1.ToList<D_6_b1>();
+                                                keys.Clear();values.Clear();
                                                 foreach (D_6_b1 item in d_6_B1s)
                                                 {
                                                     keys.Add(item.get_distance(new D_6_b1() { Fb1_Fc = Fb1_Fc, Fb2_Fc = Fb2_Fc, Lb1_Lc = Lb1_Lc }));
                                                     values.Add(item.ksai);
                                                 }
-                                                project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(keys, values);
+                                                project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(keys, values)+0.11;
                                             }
                                             else
                                             {
@@ -844,12 +875,13 @@ namespace Revit_HyCal
                                                 Fb1_Fc = UIOperation.get_AreaOfConnector(Wconnectors[1]) / UIOperation.get_AreaOfConnector(Wconnectors[0]);
                                                 Fb2_Fc = UIOperation.get_AreaOfConnector(Wconnectors[2]) / UIOperation.get_AreaOfConnector(Wconnectors[0]);
                                                 d_6_B2s = mainForm.myDbContext.d_6_b2.ToList<D_6_b2>();
+                                                keys.Clear();values.Clear();
                                                 foreach (D_6_b2 item in d_6_B2s)
                                                 {
                                                     keys.Add(item.get_distance(new D_6_b2() { Fb1_Fc = Fb1_Fc, Fb2_Fc = Fb2_Fc, Lb2_Lc = Lb2_Lc }));
                                                     values.Add(item.ksai);
                                                 }
-                                                project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(keys, values);
+                                                project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(keys, values)+0.11;
                                             }
                                         }
                                         else
@@ -861,12 +893,13 @@ namespace Revit_HyCal
                                                 Fb1_Fc = UIOperation.get_AreaOfConnector(Wconnectors[2]) / UIOperation.get_AreaOfConnector(Wconnectors[0]);
                                                 Fb2_Fc = UIOperation.get_AreaOfConnector(Wconnectors[1]) / UIOperation.get_AreaOfConnector(Wconnectors[0]);
                                                 d_6_B2s = mainForm.myDbContext.d_6_b2.ToList<D_6_b2>();
+                                                keys.Clear();values.Clear();
                                                 foreach (D_6_b2 item in d_6_B2s)
                                                 {
                                                     keys.Add(item.get_distance(new D_6_b2() { Fb1_Fc = Fb1_Fc, Fb2_Fc = Fb2_Fc, Lb2_Lc = Lb2_Lc }));
                                                     values.Add(item.ksai);
                                                 }
-                                                project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(keys, values);
+                                                project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(keys, values)+0.11;
 
                                             }
                                             else
@@ -876,12 +909,13 @@ namespace Revit_HyCal
                                                 Fb1_Fc = UIOperation.get_AreaOfConnector(Wconnectors[2]) / UIOperation.get_AreaOfConnector(Wconnectors[0]);
                                                 Fb2_Fc = UIOperation.get_AreaOfConnector(Wconnectors[1]) / UIOperation.get_AreaOfConnector(Wconnectors[0]);
                                                 d_6_B1s = mainForm.myDbContext.d_6_b1.ToList<D_6_b1>();
+                                                keys.Clear();values.Clear();
                                                 foreach (D_6_b1 item in d_6_B1s)
                                                 {
                                                     keys.Add(item.get_distance(new D_6_b1() { Fb1_Fc = Fb1_Fc, Fb2_Fc = Fb2_Fc, Lb1_Lc = Lb1_Lc }));
                                                     values.Add(item.ksai);
                                                 }
-                                                project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(keys, values);
+                                                project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(keys, values)+0.11;
 
                                             }
                                         }
@@ -900,12 +934,13 @@ namespace Revit_HyCal
                                                 Fb1_Fc = UIOperation.get_AreaOfConnector(Wconnectors[0]) / UIOperation.get_AreaOfConnector(Wconnectors[1]);
                                                 Fb2_Fc = UIOperation.get_AreaOfConnector(Wconnectors[2]) / UIOperation.get_AreaOfConnector(Wconnectors[1]);
                                                 d_6_B1s = mainForm.myDbContext.d_6_b1.ToList<D_6_b1>();
+                                                keys.Clear();values.Clear();
                                                 foreach (D_6_b1 item in d_6_B1s)
                                                 {
                                                     keys.Add(item.get_distance(new D_6_b1() { Fb1_Fc = Fb1_Fc, Fb2_Fc = Fb2_Fc, Lb1_Lc = Lb1_Lc }));
                                                     values.Add(item.ksai);
                                                 }
-                                                project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(keys, values);
+                                                project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(keys, values)+0.11;
                                             }
                                             else
                                             {
@@ -914,12 +949,13 @@ namespace Revit_HyCal
                                                 Fb1_Fc = UIOperation.get_AreaOfConnector(Wconnectors[0]) / UIOperation.get_AreaOfConnector(Wconnectors[1]);
                                                 Fb2_Fc = UIOperation.get_AreaOfConnector(Wconnectors[2]) / UIOperation.get_AreaOfConnector(Wconnectors[1]);
                                                 d_6_B2s = mainForm.myDbContext.d_6_b2.ToList<D_6_b2>();
+                                                keys.Clear();values.Clear();
                                                 foreach (D_6_b2 item in d_6_B2s)
                                                 {
                                                     keys.Add(item.get_distance(new D_6_b2() { Fb1_Fc = Fb1_Fc, Fb2_Fc = Fb2_Fc, Lb2_Lc = Lb2_Lc }));
                                                     values.Add(item.ksai);
                                                 }
-                                                project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(keys, values);
+                                                project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(keys, values)+0.11;
                                             }
                                         }
                                         else
@@ -931,12 +967,13 @@ namespace Revit_HyCal
                                                 Fb1_Fc = UIOperation.get_AreaOfConnector(Wconnectors[2]) / UIOperation.get_AreaOfConnector(Wconnectors[1]);
                                                 Fb2_Fc = UIOperation.get_AreaOfConnector(Wconnectors[0]) / UIOperation.get_AreaOfConnector(Wconnectors[1]);
                                                 d_6_B2s = mainForm.myDbContext.d_6_b2.ToList<D_6_b2>();
+                                                keys.Clear();values.Clear();
                                                 foreach (D_6_b2 item in d_6_B2s)
                                                 {
                                                     keys.Add(item.get_distance(new D_6_b2() { Fb1_Fc = Fb1_Fc, Fb2_Fc = Fb2_Fc, Lb2_Lc = Lb2_Lc }));
                                                     values.Add(item.ksai);
                                                 }
-                                                project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(keys, values);
+                                                project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(keys, values)+0.11;
                                             }
                                             else
                                             {
@@ -945,12 +982,13 @@ namespace Revit_HyCal
                                                 Fb1_Fc = UIOperation.get_AreaOfConnector(Wconnectors[2]) / UIOperation.get_AreaOfConnector(Wconnectors[1]);
                                                 Fb2_Fc = UIOperation.get_AreaOfConnector(Wconnectors[0]) / UIOperation.get_AreaOfConnector(Wconnectors[1]);
                                                 d_6_B1s = mainForm.myDbContext.d_6_b1.ToList<D_6_b1>();
+                                                keys.Clear();values.Clear();
                                                 foreach (D_6_b1 item in d_6_B1s)
                                                 {
                                                     keys.Add(item.get_distance(new D_6_b1() { Fb1_Fc = Fb1_Fc, Fb2_Fc = Fb2_Fc, Lb1_Lc = Lb1_Lc }));
                                                     values.Add(item.ksai);
                                                 }
-                                                project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(keys, values);
+                                                project.dataElements[i].kSai = mainForm.myDbContext.get_ksai_easyway(keys, values)+0.11;
 
                                             }
                                         }

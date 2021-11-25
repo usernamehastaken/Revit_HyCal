@@ -113,7 +113,15 @@ namespace Revit_HyCal
             List<Reference> prereferences = new List<Reference>();
             foreach (ElementId id in elementIds)
             {
-                prereferences.Add(new Reference(document.GetElement(id)));
+                try
+                {
+                    prereferences.Add(new Reference(document.GetElement(id)));
+                }
+                catch (Exception)
+                {
+
+                    ;
+                }
             }
             elementIds.Clear();
             try

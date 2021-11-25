@@ -1,4 +1,3 @@
-C:\Users\chenxinxin.TCDRILAN\source\repos\Revit_HyCal\obj\Debug\Revit_HyCal.csprojAssemblyReference.cache
 C:\Users\chenxinxin.TCDRILAN\source\repos\Revit_HyCal\obj\Debug\Revit_HyCal.FrmProgressBar.resources
 C:\Users\chenxinxin.TCDRILAN\source\repos\Revit_HyCal\obj\Debug\Revit_HyCal.JCPZ.resources
 C:\Users\chenxinxin.TCDRILAN\source\repos\Revit_HyCal\obj\Debug\Revit_HyCal.MainForm.resources
@@ -262,3 +261,4 @@ C:\Users\c'x'x\source\repos\Revit_HyCal\obj\Debug\Revit_HyCal.pdb
 C:\Users\chenxinxin.TCDRILAN\source\repos\Revit_HyCal\obj\Debug\Revit_HyCal.About.resources
 C:\Users\c'x'x\source\repos\Revit_HyCal\obj\Debug\Revit_HyCal.About.resources
 C:\Users\C\source\repos\Revit_HyCal\obj\Debug\Revit_HyCal.About.resources
+C:\Users\chenxinxin.TCDRILAN\source\repos\Revit_HyCal\obj\Debug\Revit_HyCal.csprojAssemblyReference.cache

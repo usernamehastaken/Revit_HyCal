@@ -187,7 +187,7 @@ namespace Revit_HyCal
 
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.Label label5;
-        private System.Windows.Forms.Button button1;
+        public System.Windows.Forms.Button button1;
         private System.Windows.Forms.Button CmdOK;
         private System.Windows.Forms.TextBox MD;
         private System.Windows.Forms.TextBox YDND;
